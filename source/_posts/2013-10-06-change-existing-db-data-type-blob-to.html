@@ -1,0 +1,37 @@
+---
+layout: post
+title: "[RoR] Change existing db data type \"blob\" to \"mediumblob\""
+date: 2013-10-06T08:20:00-07:00
+comments: false
+published: false
+categories:
+ - Ruby on Rails
+---
+<div  class=post>
+  Suppose you want to change "thumbnail" column (blob type) to mediumblob.  <br> <br>
+  $ rails g migrate ChangeTableName <br>
+  $ vi db/migrate/XXXXXXX_change_Table_Name.rb <br> <br>
+  class ChangeTableName < ActiveRecord::Migration <br>
+    def up <br>
+      change_column :table_name, :thumbnail, :binary, :limit => 10.megabyte <br>
+    end <br> <br>
+    def down <br>
+      change_column :table_name, :thumbnail, :binary <br>
+    end <br>
+  end <br> <br>
+  $ rake db:migrate <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+</div>

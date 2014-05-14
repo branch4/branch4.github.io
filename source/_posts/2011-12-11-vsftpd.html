@@ -1,0 +1,31 @@
+---
+layout: post
+title: "vsftpd"
+date: 2011-12-11T00:07:00-08:00
+comments: false
+published: false
+---
+<div  class=post>
+  Done setting up vsftpd for PXE.  <br>
+  I'm using it to serve preseed file.  <br> <br>
+  <ul >
+    <li >
+      Had to be accessible by anonymous user
+    </li>
+    <li >
+      Needed to set root dir
+    </li>
+    <li >
+      root dir had to be unwritable by anonymous user
+    </li>
+  </ul>
+  <br>
+  so, <br> <br>
+  anonymous_enable=YES <br>
+  no_anon_password=YES <br>
+  anon_root=whateverdir <br> <br>
+  and <br> <br>
+  chmod 555 whateverdir <br> <br>
+  thats all I did.  <br> <br>
+  By the way, I'm using Natty Narwhal.
+</div>

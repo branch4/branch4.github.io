@@ -1,0 +1,59 @@
+---
+layout: post
+title: "[Android] Android Studioでdebugする方法その１"
+date: 2014-03-09T11:18:00-07:00
+comments: false
+categories:
+ - Android
+---
+<div  class=post>
+  とりあえずEcllipseのプロジェクトをimportしてつまずいたこと。 <br> <br>
+  <h4 >
+    1. Gradleのversionが高杉なんだよ！と怒られた。
+  </h4>
+  ので、versionをさげた。 <br> <br>
+  brew でversion下げるのはこんな感じ。 <br>
+  <!-- more -->
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ brew unlink gradle
+      $ brew versions gradle
+      $ cd /usr/local/Library/Formula/
+      $ git checkout
+      &lt;commit&gt;
+        /usr/local/Library/Formula/gradle.rb
+        $ brew info gradle
+        $ brew install gradle
+      &lt;/commit&gt;
+    </span> </pre>
+  <br>
+  # &lt;commit&gt;は、brew versions gradleで表示されるのをコピペ <br> <br>
+  <h4 >
+    ビルドしたらエラー
+  </h4>
+  Run with stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.  <br>
+  こんなエラーがでた。 <br> <br>
+  まず、どうやってdebugモードで実行すんの？からぐぐった。 <br>
+  どうやら、プロジェクトのrootにterminalでいって、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ gradle compileDebugAidl --stacktrace --debug
+    </span> </pre>
+  <br>
+  こんなん打てばおっけー。 <br>
+  これでやっと原因がわかる。 <br> <br>
+  <h4 >
+    libararyと、applicationの、minSdk/targetSdkをそろえる
+  </h4>
+  揃えないと怒られるので揃える。 <br> <br>
+  <h4 >
+    ビルドしたらまたエラー
+  </h4>
+  Could not find element /manifest/application.<br>
+  このエラー。意味不明なんだけど、検索したら、manifest mergerのbugらしい。 <br> <br>
+  <a  href=http://stackoverflow.com/questions/16987512/building-android-studio-project-with-holoeverywhere-fails>ここ</a>
+  に書いてあった。   全部の、AndroidManifest.xmlに、application要素が入ってないと出るらしいので、入ってなかったslidingmenuに
+  <application></application>
+  って入れこんで無事ビルド完了。 <br> <br>
+  明日は開発に入れるのだろうか・・・ <br>
+</div>

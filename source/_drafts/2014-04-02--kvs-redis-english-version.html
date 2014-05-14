@@ -1,0 +1,11 @@
+---
+layout: post
+title: "[KVS] Redis(English version)"
+date: 2014-04-02T00:40:00-07:00
+comments: false
+categories:
+ - Redis
+---
+
+<div class='post'>
+Memos about Redis.<br /><br /><h4>What's Redis ?</h4>Redis is a kind of KVS(Key-Value Store).<br />Web-site : http://redis.io/<br />Current stable : 2.8.8<br />License : BSD<br /><br /><h4>特徴</h4><ul><li>In-memoryなのでスーパー速い</li><li>5つのデータ型をValueとして格納可能 <ul><li>Strings : 基本データ。バイナリでも可。512MBまで格納可能</li><li>Lists : リスト構造のデータ。2^32 - 1個のデータを格納可能</li><li>Sets : Stringsの集合。データが重複しないことが保証される。2^32 - 1個のデータを格納可能</li><li>Hashes : keyに対応するvalueとして、複数のkey-valueのペアを格納可能</li><li>Sorted sets : Setsと似てる集合。各データがScoreという値に紐づけられている</li></ul></li><li>Atomic処理可能</li><li>replicationを作成できる(master-slave構成)</li><ul><li>一度レプリが切れると、最初から全部レプリし直す(2.8で改善された)</li><li>slaveからmasterにリクエストがいくと、masterはプロセスをforkしてデータをファイルに出力して、slaveに転送する</li><li>sentinel(2.8以降に同梱)を利用して、自動フェイルオーバ機能が使える(かも)</li></ul><li>永続化も可能 ２種類の方法がある。 <ol><li>RDB Persistence <dt></dt><dd>It's a snapshot function</dd><dd>Suitable for backup purpose</dd><dd>Relatively small file size</dd><dd>Fast recovery</dd><dd>Data loss almost can't be avoided in case of trouble</dd><dd>Backup could require twice the size of memory used by Redis at worst</dd> </li><li>AOF Persistence <dt></dt><dd>Logファイルに全更新を記録する方法</dd><dd>データロストが少ない</dd><dd>append-onlyのファイルなので、ファイルが壊れることも少ない</dd><dd>データ復旧は、Logファイル記載のコマンドを逐次実行するため時間がかかる</dd><dd>ファイルサイズが肥大しやすいが、過去のコマンドを上書きする機能を利用することでコンパクトにできる</dd><dd>書き込みが多い場合、AOFが足を引っ張ることもある</dd> </li></ol></li><li>Is able to take online backup <dt></dt><dd>RDB/AOFのどちらか</dd> </li></ul><br /><h4>運用Tips</h4><ul><li>maxclientsのhardlimitはkernel設定次第</li><li>apサーバがautoscale設定の場合、timeoutは適正値を模索する必要あり</li><li>single processなので、CPU使い切りたい場合は複数プロセスあげる。メモリ領域のオーバーヘッドはでかくなりそう</li></ul><br />な、感じ。まとまってないけど。 どんな技術も使ってみないとほんとのとこはわからんねー。</div>

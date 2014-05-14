@@ -1,0 +1,17 @@
+---
+layout: post
+title: "add ssh-key in heroku"
+date: 2012-04-02T19:10:00-07:00
+comments: false
+published: false
+---
+<div  class=post>
+  $ heroku keys:add <br> <br>
+  you would have to watchout since it uploads ~/.ssh/id_rsa.pub in default(wo an argument).  <br>
+  you could specify a key file as an argument.  <br>
+  also, be sure to send the file ending with .pub . never send a private key file to others.  <br> <br>
+  hit <br> <br>
+  $ heroku keys <br> <br>
+  in order to show the registered keys.
+  <br> <br> <br>
+</div>

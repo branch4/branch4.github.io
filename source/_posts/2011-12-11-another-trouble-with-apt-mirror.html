@@ -1,0 +1,36 @@
+---
+layout: post
+title: "another trouble with apt-mirror"
+date: 2011-12-11T00:17:00-08:00
+comments: false
+published: false
+---
+<div  class=post>
+  it seems like apt-mirror is not downloading everything I need for Oneiric.  <br>
+  Why is that ??  <br>
+  Well, I dont know the answer yet, but I'm suspicious about "archive.ubuntu.com".  <br> <br>
+  Yes, the connection limit, or the traffic shaping, if they have one.  <br>
+  That they might have cut my connection, since I'm experiencing a connection loss in rsync from the command line.  <br> <br>
+  I'm just checking on this with apt-mirror with ftp.riken.go.jp.  <br>
+  Hopefully, I'll get the answer by tomorrow morning.  <br>
+  Let's get a nap...
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      Unknown
+    </div>
+    <div  class=content>
+      oops. I think this is my bad.  <br>
+      In /etc/apt/mirror.list <br> <br>
+      this line here, <br>
+      deb-amd64 http://ftp.riken.go.jp/Linux/ubuntu oneiric main restricted universe multiverse <br> <br>
+      had to be like this, with debian-installer, I think.  <br>
+      deb-amd64 http://ftp.riken.go.jp/Linux/ubuntu oneiric main main/debian-installer restricted restricted/debian-installer universe multiverse <br> <br>
+      I'm giving a shot right now.
+    </div>
+  </div>
+</div>

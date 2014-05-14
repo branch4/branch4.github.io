@@ -1,0 +1,28 @@
+---
+layout: post
+title: "[1 liner] easily replacing a domain in multiple files"
+date: 2014-04-07T00:07:00-07:00
+comments: false
+categories:
+ - 1Liner
+---
+<div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will...  <br> <br>
+  <ol>
+    <li>
+      find files that contains "xxxxx.yyyyy.jp:1080" <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
+</div>

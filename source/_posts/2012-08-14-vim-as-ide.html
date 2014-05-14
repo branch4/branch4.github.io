@@ -1,0 +1,80 @@
+---
+layout: post
+title: "vim as an IDE"
+date: 2012-08-14T09:36:00-07:00
+comments: false
+published: false
+---
+<div  class=post>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);   })(); 
+  </script>
+  <br>
+  I started building VIM environment.  <br> <br>
+  And I'm already forgetting it, so I'd have to leave a note for myself in the future...  <br> <br>
+  OK, I installed these plugins.  <br>
+  vundle <br>
+  project <br>
+  unite <br>
+  git-vim <br>
+  quickrun <br>
+  vim-ref <br>
+  taglist <br>
+  1. install Vundle <br> <br>
+  $ git clone http://github.com/gmarik/vundle.git ~/.vim/bundle/vundle.git <br>
+  edit .vimrc.  <br> <br>
+  add the following lines.  <br> <br>
+  <br>
+    "" Vundle config <br>
+    set nocompatible <br>
+    filetype off <br>
+    set rtp+=~/.vim/bundle/vundle/ <br>
+    call vundle#rc() <br>
+    Bundle 'gmarik/vundle' <br> <br>
+      Bundle 'Shougo/unite.vim' <br>
+      Bundle 'thinca/vim-ref' <br>
+      Bundle 'thinca/vim-quickrun' <br>
+      Bundle 'Shougo/git-vim' <br>
+      Bundle 'project.tar.gz' <br>
+    filetype plugin indent on <br> <br>
+    2. boot vim and exec :BundleInstall <br> <br>
+    wait for the mini buffer window to say "Done".  <br> <br>
+    3. configure vim-ref(download php manual/install w3m or lynx) <br> <br>
+    Download 
+    <a  href=http://jp2.php.net/download-docs.php>PHP manual</a>.  <br>
+    You'll need the "Many files" version.  <br> <br>
+    Just extracted in some place.  <br> <br>
+    $ sudo apt-get install w3m <br> <br>
+    4. edit .vimrc <br> <br>
+    add the following lines.  <br> <br>
+    <br>
+    "" vim-ref config <br>
+    let g:ref_phpmanual_path = $HOME . '/work/PHP_manual/php-chunked-xhtml/' <br>
+    let $PATH = $PATH . ':/usr/bin/' <br>
+    let g:ref_phpmanual_cmd  = 'w3m -dump %s' <br> <br>
+    hit <S-k> on the function you want to check.  <br>
+    Vim will automatically split the window and show the reference.  <br> <br>
+    5. using project <br> <br>
+    open vi.  <br>
+    exec :Project <pj_name> <br>
+    exec \c <br>
+    answer the questions <br>
+    save with :w <br>
+    when you want to comeback, open vi and exec :Project <same_pj_name> <br> <br>
+    6. using quickrun <br> <br>
+    write your code <br>
+    exec \r <br> <br>
+    I did start using some other function as omni completion, <br>
+    but I will write about them next time.  <br>
+    I'm so sleepy...  <br> <br>
+</div>

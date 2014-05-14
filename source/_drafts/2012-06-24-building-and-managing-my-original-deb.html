@@ -1,0 +1,9 @@
+---
+layout: post
+title: "building and managing my original deb"
+date: 2012-06-24T21:56:00-07:00
+comments: false
+---
+
+<div class='post'>
+<br />debian/rules<br /><br />There are REQUIRED and OPTIONAL targets.<br /><br />* clean target:Required<br />&nbsp; &nbsp;to clean all compiled, generated, and useless files in the build-tree.<br /><br />* build target:Required<br />&nbsp; &nbsp;to build the source into compiled programs and formatted documents in the build-tree.<br /><br />* install target:Optional<br />&nbsp; &nbsp;to install files into a file tree for each binary package under the debian directory.<br />&nbsp; &nbsp;If defined, binary* targets effectively depend on this target.<br /><br />* binary target:Required<br />&nbsp; &nbsp;to create all binary packages<br />&nbsp; &nbsp;(effectively a combination of binary-arch and binary-indep targets).<br /><br />* binary-arch target:Required<br />&nbsp; &nbsp;to create arch-dependent (Architecture: any) binary packages in the parent directory.<br /><br />* binary-indep target:Required<br />&nbsp; &nbsp;to create arch-independent (Architecture: all) binary packages in the parent directory.<br /><div><br /></div></div>

@@ -1,0 +1,46 @@
+---
+layout: post
+title: "[RoR] excluding Active Record or some other modules"
+date: 2012-04-04T00:21:00-07:00
+comments: false
+published: false
+categories:
+ - Ruby on Rails
+---
+<div  class=post>
+  <br>
+  I wanted to exclude Active Record in my test app of rails.  <br> <br>
+  # I would probably use DB connections in almost every apps I develop, <br>
+  # but I didn't want to setup databases for my test app.  <br> <br>
+  In order to do this, Mr.Google told me to change below files.  <br> <br>
+  <br>
+  - config/environments/development.rb <br>
+  - config/environments/production.rb <br> <br>
+  <br>
+  to edit config.frameworks and delete active_record, like below example.  <br> <br>
+  - before <br>
+    config.frameworks -= [ :active_record, :active_resource, :action_mailer ] <br>
+  - after <br> <br>
+    config.frameworks -= [ :active_resource, :action_mailer ] <br> <br>
+  <br>
+  which didn't exist in my development.rb/production.rb files.  <br> <br>
+  Next googling took me to the answer.  <br> <br>
+  probably, in the former version, above solution was correct.  <br> <br>
+  But in the recent version(I don't know from which version)  the solution is below.  <br> <br>
+  (refer to http://therailworld.com/posts/27-Disable-ActiveRecord-in-Rails-3) <br> <br>
+  File to edit : config/application.rb.  <br> <br>
+  - before <br>
+    require "rails/all" <br> <br>
+  - after <br>
+    # require "rails/all"  <- comment out <br> <br>
+    # add the lines below and comment out what you don't need <br>
+    # Pick the frameworks you want: <br>
+    # require "active_record/railtie" <br>
+    require "action_controller/railtie" <br>
+    require "action_mailer/railtie" <br>
+    require "active_resource/railtie" <br>
+    require "rails/test_unit/railtie" <br> <br>
+  keep in mind that you must exclude configs related to the modules commented out.  <br>
+  So, when I comment active_records out, I also commented out some configs in <br>
+  config/environment/development.rb and config/application.rb.  <br> <br>
+</div>

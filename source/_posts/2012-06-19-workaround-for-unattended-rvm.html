@@ -1,0 +1,64 @@
+---
+layout: post
+title: "Workaround for unattended rvm installation of ruby"
+date: 2012-06-19T01:18:00-07:00
+comments: false
+published: false
+---
+<div  class=post>
+  I found a workaround.  <br> <br>
+  The installation script is checking for .rvm/rubies directory for an another
+  <span  style=background-color: white;>
+    ruby installation.
+  </span>
+  <br> <br>
+  If there is another ruby directory there, it wont display that noisy requirements.  <br> <br>
+  So I mkdired a directory before the installation.  <br> <br>
+  mkdir ${HOME}/.rvm/rubies/ruby-1.9.3-p125 <br>
+  rvm reinstall 1.9.3-p125 <br> <br>
+  It has to be, rvm *re*install 1.9.3-p125 , if you mkdired a same version.  <br> <br>
+  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+
+  </script>
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      > mpapis <br> <br>
+      Thanks for the tips !  <br>
+      I don't remember if I tried those, so I will and share the results.  <br>
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      mpapis
+    </div>
+    <div  class=content>
+      there are two easier ways to automate installing rubies, first: <br> <br>
+      $rvm_path/bin/rvm install 1.9.3 <br> <br>
+      second: <br> <br>
+      source $rvm_path/scripts/rvm <br>
+      command rvm install 1.9.3 <br> <br>
+      they will not set default ruby so you need to set it manually: <br> <br>
+      rvm alias create default 1.9.3 </div>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+---
+layout: post
+title: "[RoR] initialize database value with rails on migration"
+date: 2013-10-06T08:00:00-07:00
+comments: false
+published: false
+categories:
+ - Ruby on Rails
+---
+<div  class=post>
+  Edit db/seed.rb to initialize db on migration <br> <br>
+  $ cat db/seeds.rb <br> <br>
+  # -*- encoding : utf-8 -*- <br>
+  Project.create(project_name: 'Specialized') <br> <br>
+  <br>
+  # This file should contain all the record creation needed to seed the database with its default values.  <br>
+  # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).  <br>
+  # <br>
+  # Examples: <br>
+  # <br>
+  #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }]) <br>
+  #   Mayor.create(name: 'Emanuel', city: cities.first) <br> <br>
+  State.create(state: 'initial') <br>
+  State.create(state: 'overall design') <br>
+  State.create(state: 'detailed design') <br>
+  State.create(state: 'implementing') <br>
+  State.create(state: 'unit test') <br>
+  State.create(state: 'integration test') <br>
+  State.create(state: 'stress test') <br>
+  State.create(state: 'red alert') <br> <br>
+  Project.create(project_name: 'Canondale') <br>
+  Project.create(project_name: 'GT') <br>
+  Project.create(project_name: 'Trek') <br> <br>
+  $ rake db:seed <br> <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+</div>

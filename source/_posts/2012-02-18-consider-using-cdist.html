@@ -1,0 +1,49 @@
+---
+layout: post
+title: "consider using cdist"
+date: 2012-02-18T09:38:00-08:00
+comments: false
+published: false
+categories:
+ - Provisioning
+---
+<div  class=post>
+  Today, I'll write about cdist.  <br> <br>
+  It's a configuration management system, like puppet or chef or some others.  <br> <br>
+  I think the official website for cdist is 
+  <a  href=http://www.nico.schottelius.org/software/cdist/>here</a>
+  , and you could get most of the information there. So just read it(:-) <br> <br>
+  First my cdist version is 2.0.7.  <br> <br>
+  To check the version, type <br> <br>
+  hogehoge@localhost:~/cdist$ cdist -V <br> <br>
+  cdist 2.0.7 <br> <br>
+  Now to start with, I need a documentation, and the HTML document is handy.  <br>
+  It's under ${CDIST}/doc/man/man{1,7} (${CDIST} assumes where you installed cdist) <br>
+  Open "cdist-quickstart.html" with chrome or something.  <br>
+  And the rest goes to the next blog...  <br>
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      This comment has been removed by the author.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      telmich
+    </div>
+    <div  class=content>
+      Hello.  <br> <br>
+      You are always root when doing configuration management on machine. Ssh is considered to be secure and password-less (key based) authentication as well.  <br> <br>
+      And if you really want to go a different way, you can use custom remote_exec and remote_copy commands.  <br> <br>
+      Cheers, <br> <br>
+      Nico
+    </div>
+  </div>
+</div>

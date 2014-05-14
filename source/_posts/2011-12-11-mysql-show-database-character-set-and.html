@@ -1,0 +1,47 @@
+---
+layout: post
+title: "[MySQL] show Database character-set and change it to utf8"
+date: 2011-12-11T00:23:00-08:00
+comments: false
+published: false
+categories:
+ - MySQL
+---
+<div  class=post>
+  <p  dir=ltr>
+    > show variables like "char%";
+  </p>
+  <p  dir=ltr>
+    edit my.cnf.
+  </p>
+  <p  dir=ltr>
+    [mysqld] <br>
+    #character-set-server = latin1 <br>
+    #collation-server = latin1_general_ci <br>
+    default-character-set=utf8 <br>
+    skip-character-set-client-handshake
+  </p>
+  <p  dir=ltr>
+    character-set-server defines default character-set.  <br>
+    collation-server defines servers default check order for character-set.  <br>
+    To tell the truth, I havent had enough understanding for collation-server.  <br>
+    I'll write about it again, when I looked it up.  <br>
+    I'll have to edit others like, [mysqldump] and [mysql].  <br>
+    Just add
+  </p>
+  <p  dir=ltr>
+    default-character-set=utf8
+  </p>
+  <p  dir=ltr>
+    and finally, I got to set character-set for my CUI.  <br>
+    After getting into the mysql console, just type
+  </p>
+  <p  dir=ltr>
+    SET NAMES <what ever char-set with your console> <br>
+    char-set = cp932(in windows)/utf8(in Linux)
+  </p>
+  <p  dir=ltr>
+    that should be it.
+  </p>
+  <br>
+</div>

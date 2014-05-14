@@ -1,0 +1,36 @@
+---
+layout: post
+title: "postmirror.sh"
+date: 2011-12-11T00:16:00-08:00
+comments: false
+published: false
+---
+<div  class=post>
+  apt-mirror didnt really get everything ready for me.  <br>
+  which took me to some googling.  <br>
+  and found that I need to execute something like the following.  <br> <br>
+  ====== here ====== <br>
+  #!/bin/sh -e <br> <br>
+  RSYNCSOURCE=rsync://jp.archive.ubuntu.com/ubuntu <br>
+  BASEDIR=/usr/local/repository_mirror/mirror/archive.ubuntu.com/ubuntu/ <br> <br>
+  # oneiric dists <br>
+  rsync --recursive --times --links --hard-links \ <br>
+        --exclude "Packages*" --exclude "Sources*" --exclude "Release*" --no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric/ ${BASEDIR}/dists/oneiric/ <br> <br>
+  rsync --recursive --times --links --hard-links --delete --delete-after --no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric/ ${BASEDIR}/dists/oneiric/ <br> <br>
+  # oneiric-update dists <br>
+  rsync --recursive --times --links --hard-links \ <br>
+        --exclude "Packages*" --exclude "Sources*" --exclude "Release*" --no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-updates/ ${BASEDIR}/dists/oneiric-updates/ <br> <br>
+  rsync --recursive --times --links --hard-links --delete --delete-after --no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-updates/ ${BASEDIR}/dists/oneiric-updates/ <br> <br>
+  # oneiric-security dists <br>
+  rsync --recursive --times --links --hard-links \ <br>
+        --exclude "Packages*" --exclude "Sources*" --exclude "Release*" --no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-security/ ${BASEDIR}/dists/oneiric-security/ <br> <br>
+  rsync --recursive --times --links --hard-links --delete --delete-after --no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-security/ ${BASEDIR}/dists/oneiric-security/ <br> <br>
+  ====== to here ====== <br>
+  this will get me everything ready.  <br> <br>
+</div>

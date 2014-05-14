@@ -1,0 +1,63 @@
+---
+layout: post
+title: "[Android] onCreateメソッドの引数の意味"
+date: 2014-02-02T07:43:00-08:00
+comments: false
+categories:
+ - Android
+---
+<div  class=post>
+  Android開発やってみてるわけですが、わからないことだらけで困ってます。 <br> <br>
+  今日は、<br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+    onCreate(Bundle savedInstanceState)
+    </span></pre>
+  の、引数のところって何？ という疑問でございます。<br><br>
+  まぁググれば沢山出てくるんですが。
+    <!-- more -->
+  <br><br>
+  一番は、
+  <a  href=http://developer.android.com/training/basics/activity-lifecycle/recreating.html style=font-family: inherit; target=_blank>ここ</a> 。当たり前か。 <br> 
+  日本語だと
+  <a  href=http://fernweh.jp/b/android-state-save-load/ target=_blank>ここ</a> がわかりやすかったです。 <br> <br>
+  僕も忘れないように反芻すると・・・ <br>
+  <ul>
+  Androidでは、こんなときに、Activityが破棄されてます。
+  <li>
+    画面を縦方向から横方向に持ち替えた時
+  </li>
+  <li>
+    バックグラウンドに入ってしばらく経った時<br>
+  </li>
+  <li>
+    システム容量が足りなくなった時
+  </li>
+  <li>
+    ユーザがアプリを終了した時
+  </li>
+  </ul>
+  などなど。 <br> <br>
+  ユーザが自分で閉じた時は別らしいけど、少なくとも、下記２パターンにおいては、 <br>
+  勝手にActivity破棄されると残念な気持ちになります。 <br><br>
+  <ul>
+  <li>
+    画面を縦方向から横方向に持ち替えた時
+  </li>
+  <li>
+    システム容量が足りなくなった時
+  </li>
+  </ul>
+  だって、こっちは悪くないもの。 <br>
+  そんなことはGoogleさんも百も承知のようで、破棄前に、 <br><br>
+    onSaveInstanceState() <br><br>
+  を呼ぶらしい。で、その時の状態が、key/valueペアになって、Bundleクラスに保存されて・・・ <br> <br>
+  onCreateメソッドの引数でわたってくる、ということのようでした。 <br> <br>
+  確かに、縦から横に持ち替えた時、layoutも変わるし、同じ情報じゃ画面再構築できないかもしれないし、再読み込み必要です。 <br> <br>
+  ちなみに、onCreateで渡ってくるので、ここでは処理しないといけないのと、 <br> <br>
+  onRestoreInstanceState()が、Activity cycleでいうと、onStart()の後に呼ばれる(<a  href=http://developer.android.com/reference/android/app/Activity.html target=_blank>ここ</a>
+  参照)ので、処理いれとかないと、onStop()->onRestart()のフローでの復帰時にうまくいかなそうな予感。 <br> <br>
+  ちなみに、Bundleのメソッドたちは、
+  <a  href=http://developer.android.com/reference/android/os/Bundle.html target=_blank>ここ</a>参照。 <br> <br>
+  とりあえず、そんなメモでした。 <br> <br>
+</div>

@@ -1,0 +1,105 @@
+---
+layout: post
+title: "[Titanium Mobile] Twitter API ver1.1"
+date: 2013-10-16T08:07:00-07:00
+comments: false
+published: false
+categories:
+ - Titanium Mobile
+---
+<div  class=post>
+  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <br>
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+  <br>
+  I was implementing twitter API ver1.1 in Titanium Mobile.  <br> <br>
+  I really couldn't find a good way to implement ver1.1, <br>
+  but I came across tm_twitter_api and oauth.js/sha1.js, <br>
+  which seem to have been working quite well for ver1.0.  <br> <br>
+  I decided to look into Twitter docs to see how I should implement Oauth on Twitter.  <br> <br>
+  reference: <br>
+  <a  href=https://dev.twitter.com/docs/auth/implementing-sign-twitter>https://dev.twitter.com/docs/auth/implementing-sign-twitter</a> <br>
+  <a  href=https://dev.twitter.com/docs/auth/3-legged-authorization>https://dev.twitter.com/docs/auth/3-legged-authorization</a> <br>
+  <a  href=https://dev.twitter.com/docs/auth/authorizing-request>https://dev.twitter.com/docs/auth/authorizing-request</a> <br> <br>
+  there seem to be some steps until I get to tweet or even get a list of my tweet.  <br>
+  And Oauth takes part in authorizing a specific application to do those actions.  <br> <br>
+  Mere goal for these step are to get an access token to be used at twitter API.  <br> <br>
+  <i >
+    <b >
+      [step1] obtain a request token
+    </b>
+  </i>
+  <br> <br>
+  I need to send a signed message to below URL.  <br>
+  (you have to use POST) <br> <br>
+  https://api.twitter.com/oauth/request_token <br> <br>
+  method POST with the following data.  <br> <br>
+  oauth_consumer_key <br>
+  oauth_nonce <br>
+  oauth_signature <br>
+  oauth_signature_method <br>
+  oauth_timestamp <br>
+  oauth_version <br> <br>
+  How I should generate these values are quoted in below URL.  <br>
+  <a  href=https://dev.twitter.com/docs/auth/authorizing-request>https://dev.twitter.com/docs/auth/authorizing-request</a> <br> <br>
+  I'll probably just use methods from oauth.js.  <br> <br>
+  In response to this request, I should be getting these 3 items.  <br>
+  oauth_token : request token?  <br>
+  oauth_token_secret : ?  <br>
+  oauth_callback_confirmed : must check it's value is "true". No idea what it is.  <br>
+  Response code must be 200.  <br> <br>
+  For verification, I must check that oauth_callback_confirmed == true, <br>
+  and save other 2 variables for the next step to be processed.  <br> <br>
+  <i >
+    <b >
+      [step2] redirect user(and authorize the application)
+    </b>
+  </i>
+  <br>
+  Direct them to GET <br>
+  <a  href=https://api.twitter.com/oauth/authorize>https://api.twitter.com/oauth/authorize</a>.  <br>
+  In the request, I should pass oauth_token from the response of step1.  <br> <br>
+  According to the authorization status, the result will differ in the following manner.  <br> <br>
+  status1: if user is signed in on twitter.com, and approved <br>
+  They will be immediately authorized and return to the callback URL with a valid Oauth request token.  <br> <br>
+  status2: if user is signed in on twitter.com, but not approved <br>
+  A request to approve calling application will be shown.  <br>
+  After the user approves it, they'll be returning to the callback URL with a valid Oauth request token.  <br> <br>
+  status3: if user is not signed in on twitter.com <br>
+  They will be prompted to fill in the credential information.  <br>
+  After the user sign in, they'll be returning to the callback URL with a valid Oauth request token.  <br> <br>
+  In response to this request, the callback_url will receive a request containing the oauth_token and oauth_verifier parameters.  <br>
+  And the app should verify that this oauth_token is identical to the one saved in step1.  <br>
+  Also it must save these 2 values for the next step.  <br> <br>
+  <b >
+    <i >
+      [step3] get the access token(finally)
+    </i>
+  </b>
+  <br> <br> <br>
+  Call POST  <br>
+  <a  href=https://api.twitter.com/oauth/access_token>https://api.twitter.com/oauth/access_token</a> .  <br>
+  The request must contain oauth_verifier value obtained in step2.  <br>
+  Request token must also be passed as oauth_token.  <br> <br>
+  <br>
+  In response to this, I should receive a response containing oauth_token(which is access token), and oauth_token_secret parameters.  <br> <br>
+  These values should be save for later use in the authorized requests to the Twitter API.  <br> <br>
+  <br> <br>
+  So, this should be it.  <br>
+  But I'm not quite sure if I understood everything...  <br>
+  I'll check the code in oauth_adopter, and update if I notice any mistakes.  <br>
+  (I'm already quite not sure about callback URLs ...) <br> <br>
+</div>

@@ -1,0 +1,64 @@
+---
+layout: post
+title: "[Android] Entry point of Android program"
+date: 2014-02-10T19:55:00-08:00
+comments: false
+categories:
+ - Android
+---
+<div  class=post>
+  There's no main function in Android programming.  <br>
+  Many people notice that. So where's the entry point ?  <br>
+  It's pointed in AndroidManifest.xml file.  <br>
+  There are many things written in this file so I'll go into the details in other articles.  <br><br>
+  For now, example below will be enough.  <br> <br>
+  <!-- more -->
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;manifest
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.XXXX.testApp"
+        android:versionCode="1" android:versionName="1.0" &gt;
+      &lt;uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="18" /&gt;
+      &lt;application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" &gt;
+      &lt;activity
+        android:name="com.xxxx.yyyy.MainActivity"
+        android:label="@string/app_name" &gt;
+      &lt;intent-filter&gt;
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+      &lt;/intent-filter&gt;
+      &lt;/activity&gt;
+      &lt;/application&gt;
+      &lt;/manifest&gt;
+    </span> </pre>
+  In above manifest, the activity with, the intent-filter below will be listed in the system launcher, and would be the entry point for that icon.  <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;intent-filter&gt;
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+      &lt;/intent-filter&gt;
+    </span> </pre>
+  In detail, <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+    </span> </pre>
+  -->this line sets the entry point <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+    </span> </pre>
+  -->this line sets the app to the launcher <br> <br>
+  This could be set to multiple activities.  <br>
+  I think facebook once used this with their messenger.  <br> <br>
+  <br>
+</div>

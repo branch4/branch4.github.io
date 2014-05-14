@@ -1,0 +1,17 @@
+---
+layout: post
+title: "[XML]  Unicode バイト順マークがないため、Unicode に切り替えられません。"
+date: 2013-10-27T20:22:00-07:00
+comments: false
+published: false
+---
+<div  class=post>
+  XMLEDITOR.NETで、xmlファイルを開いたら、こんなエラーが。 <br> <br>
+  「Unicode バイト順マークがないため、Unicode に切り替えられません。」 <br> <br>
+  ファイル開いてみたら、なぜかutf-16になってたので、utf-8に修正しました。 <br> <br>
+  修正前 <br>
+  <?xml version="1.0" encoding="utf-16"?> <br> <br>
+  修正後 <br>
+  <?xml version="1.0" encoding="utf-8"?> <br>
+  あとはちゃんと開けました。ちゃんちゃん。
+</div>

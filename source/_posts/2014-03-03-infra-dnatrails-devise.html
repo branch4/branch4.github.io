@@ -1,0 +1,37 @@
+---
+layout: post
+title: "[infra] DNAT環境下でのrails + devise "
+date: 2014-03-03T09:19:00-08:00
+comments: false
+categories:
+ - Infra
+ - Ruby on Rails
+---
+<div  class=post>
+  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
+  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
+  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
+  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
+  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
+  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
+  いえ、全然難しくないんだけどね。。。 <br>
+  <!-- more -->
+  <br>
+  nginx.confあたりに、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      proxy_redirect http://xxx.yyy.jp/ http://xxx.yyy.jp:10080/;
+    </span></pre>
+  って書く。するとHTTP responseで、 <br><br>
+  Location: http://xxx.yyy.jp/ <br> <br>
+  を受信したときに、 <br> <br>
+  Location: http://xxx.yyy.jp:10080/ <br> <br>
+  に書き換えてくれますよ、って話。 <br>
+  今度わかりやすいように図解もつけようかな。 <br>
+  今日は眠いからこれで終了。 <br>
+  これに載ってたわけじゃないけど、たまに読んでるので宣伝。 <br>
+  ↓↓↓↓
+  <br>
+  <a  target=_blank href=http://c.af.moshimo.com/af/c/click?a_id=429878&p_id=170&pc_id=185&pl_id=4062&url=http://www.amazon.co.jp/dp/4774146633><img src="http://ecx.images-amazon.com/images/I/51%2BUj1CI5tL._SL160_.jpg" alt="" style="border: none;"><br>Ruby on Rails 3 アプリケーションプログラミング</a>
+  <img src="http://i.af.moshimo.com/af/i/impression?a_id=429878&amp;p_id=170&amp;pc_id=185&amp;pl_id=4062" alt="" width="1" height="1" style="border: 0px;">
+</div>

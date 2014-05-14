@@ -1,0 +1,89 @@
+---
+layout: post
+title: "upstart config for apache"
+date: 2012-03-24T10:50:00-07:00
+comments: false
+published: false
+---
+<div  class=post>
+  I realized I've never written a script(or say config file) for upstart.  <br> <br>
+  And apache2 is gonna be the first sacrifice here...which didn't succeed...  <br> <br>
+  I couldn't get apache to be working without NO_DETACH.  <br> <br>
+  I guess the PID trace thing with upstart don't support what apache does.  <br> <br>
+  And I haven't been able to get rid of a weird error/warning thats out on <br> <br>
+  # stop apache2 <br> <br>
+  But it looks like start/stop is working... I give up for today...  <br> <br>
+  ------------------------cut from here------------------------ <br> <br> <br>
+  description "Apache(HTTPD) Server" <br>
+  author      "hogehoge" <br> <br>
+  start on (local-filesystems <br>
+            and net-device-up <br>
+            and runlevel [2345]) <br>
+  stop on runlevel [!2345] <br> <br>
+  respawn <br> <br>
+  env APPNAME=apache2 <br>
+  env LOCKDIR=/var/run/apache2 <br>
+  env HTTPD_ENV=/etc/default/apache2 <br>
+  env EXECCMD_START="/usr/local/httpd/bin/apachectl start" <br>
+  env EXECCMD_STOP="/usr/local/httpd/bin/apachectl stop" <br>
+  env CONF=/usr/local/httpd/conf/httpd.conf <br>
+  env EXPECTPATH="/usr/bin/expect" <br>
+  env EXPECTTIMEOUT=100 <br>
+  env TAILPATH="/usr/bin/tail" <br>
+  env TAILOPT="--lines=1 -f" <br>
+  env PKILLPATH="/usr/bin/pkill" <br>
+  env PKILLSIG=" -9 " <br>
+  env PKILLOPT=" -f " <br>
+  env CHKWORD="caught SIGTERM, shutting down" <br>
+  env PROCWORD="/bin/httpd " <br>
+  env PGREP=/usr/bin/pgrep <br>
+  env EXECUSER="root" <br>
+  env PROCFLG="/usr/bin/pgrep -f -u root bin/httpd > /dev/null && echo FOUND || echo NOTFOUND" <br> <br>
+  pre-start script <br> <br>
+    #Sanity checks <br>
+    [ -r ${HOME}/httpd.conf ] || install -o httpd -g httpd -m 755 -d ${LOCKDIR} <br>
+    #[ -r ${HTTPD_ENV} ] && . ${HTTPD_ENV} <br>
+    if [ "x${PROCFLG}" = "xFOUND"  ]; then <br>
+      echo "${APPNAME} Found !!" <br>
+      exit 1 <br>
+    fi <br>
+    #emits apache2_starting <br>
+  end script <br> <br>
+  script <br>
+    #logger -t "$0" "DEBUG: `set`" <br>
+    #expect fork <br>
+    #exec ${EXECCMD_START} -D NO_DETACH -f ${CONF} <br>
+    exec /usr/local/httpd/bin/httpd -D NO_DETACH -f /usr/local/httpd/conf/httpd.conf <br>
+    #exec ${HOME}/bin/httpd -D NO_DETACH -f ${CONF} <br>
+    #exec /usr/sbin/apache2 -X -e debug -E /var/log/apache2/foo.log <br>
+  end script <br> <br>
+  post-stop script <br> <br>
+    if [ "x${PROCFLG}" = "xNOTFOUND"  ]; then <br>
+      echo "Stopped ${APPNAME} successfully or it hadn't been started in the first place." <br>
+      exit 0 <br>
+    fi <br> <br>
+    ${EXECCMD_STOP} <br>
+    ${EXPECTPATH} <<EOF <br>
+    set timeout ${EXPECTTIMEOUT} <br>
+    log_file log-stop.txt <br>
+    spawn ${TAILPATH} ${TAILOPT} ${TARGETLOG} <br>
+    expect "${CHKWORD}" <br>
+      { <br>
+        puts "OK. Normally shut down." <br>
+      } <br>
+      timeout <br>
+      { <br>
+        puts "NG. Can't shutdown. Execute Kill Process" <br>
+        system "${PKILLPATH} ${PKILLSIG} ${PKILLOPT} ${PROCWORD} " <br>
+        exit 1 <br>
+      } <br>
+    EOF <br>
+    RC=$?  <br>
+    if [ ${RC} != 0 ]; then <br>
+      exit ${RC} <br>
+    fi <br>
+    } <br>
+  end script <br> <br>
+  <br>
+    -------------------------------------------------------------
+</div>

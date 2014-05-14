@@ -1,0 +1,65 @@
+---
+layout: post
+title: "local repository for ubuntu"
+date: 2011-12-11T00:11:00-08:00
+comments: false
+published: false
+---
+<div  class=post>
+  quick googling told me theres 3 ways to do it.  <br> <br>
+  <ul >
+    <li >
+      apt-mirror
+    </li>
+    <li >
+      debmirror
+    </li>
+    <li >
+      reprepro
+    </li>
+  </ul>
+  <br>
+  reprepro seems to be better on management of the self-made debs(not the ones from Canonical, but the ones made by myself).  <br>
+  debmirror or apt-mirror fulfills my requirement.  <br>
+  But Natty apt-mirror wont work.(Looks like a bug) <br> <br>
+  So the only choice left is debmirror.  <br>
+  heres the script.  <br>
+  I'd have to admit that apt-mirror is more nice(in the way it has neat config file), <br>
+  but its worthless when all it does is spit an errror.  <br> <br>
+  #!/bin/bash <br> <br>
+  # sourcehost <br>
+  HOST=archive.ubuntu.com; <br> <br>
+  # destination directory <br>
+  DEST=/usr/local/repository_mirror <br> <br>
+  # Debian version(s) to mirror <br>
+  DIST=natty,oneiric <br> <br>
+  # architecture <br>
+  ARCH=amd64 <br> <br>
+  debmirror ${DEST} \ <br>
+   --nosource \ <br>
+   --host=${HOST} \ <br>
+   --root=/ubuntu \ <br>
+   --dist=${DIST} \ <br>
+   --section=main,restricted,main/debian-installer,restricted/debian-installer,universe,universe/debian-installer,multiverse,multiverse/debian-installer \ <br>
+   --arch=${ARCH} \ <br>
+   --passive --cleanup \ <br>
+   --state-cache-days=7 \ <br>
+   --ignore-release-gpg \ <br>
+   --method=rsync \ <br>
+   --rsync-batch=100 \ <br>
+   --progress --verbose
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      apt-mirror worked fine.  <br>
+      It was my bad.
+    </div>
+  </div>
+</div>

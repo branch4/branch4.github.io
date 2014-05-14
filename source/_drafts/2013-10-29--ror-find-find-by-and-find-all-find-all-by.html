@@ -1,0 +1,9 @@
+---
+layout: post
+title: "[RoR] find/find_by and find_all/find_all_by"
+date: 2013-10-29T03:44:00-07:00
+comments: false
+---
+
+<div class='post'>
+When using find/find_by, returning result will be ...<br /><br /><br />foo.find(1) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# object of ID == 1<br /><div>foo.find([1,2,3]) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Array of object ID == 1,2,3<br />foo.find(&lt;ID of no matching record&gt;) &nbsp; &nbsp; &nbsp; #&nbsp;ActiveRecord::RecordNotFound<br />foo.find_by(&lt;ID of none existing record&gt;) # nil</div><div><br /></div><div><br /></div></div>

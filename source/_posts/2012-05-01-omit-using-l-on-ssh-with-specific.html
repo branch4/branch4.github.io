@@ -1,0 +1,21 @@
+---
+layout: post
+title: "omit using -l on ssh (with specific domain)"
+date: 2012-05-01T02:22:00-07:00
+comments: false
+published: false
+---
+<div  class=post>
+  <br>
+  I wanted to omit specifing a user when I ssh to particular host.  <br> <br>
+  $ man ssh_config <br> <br>
+  told me to edit ~/.ssh/config like below.  <br> <br>
+  $ vi ~/.ssh/config <br> <br>
+  Host 192.168.122.* <br>
+     User hogehoge <br>
+  Host <br> <br>
+  <br>
+  $ ssh 192.168.122.101 <br>
+  hogehoge@192.168.122.101's password: <br> <br>
+  That's it.  <br> <br>
+</div>

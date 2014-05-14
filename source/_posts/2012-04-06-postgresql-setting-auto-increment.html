@@ -1,0 +1,19 @@
+---
+layout: post
+title: "[postgresql] setting auto increment"
+date: 2012-04-06T00:34:00-07:00
+comments: false
+published: false
+---
+<div  class=post>
+  <br>
+  auto_increment in postgresql.  <br> <br>
+  Use serial or SEQUENCE.  <br>
+  But serial is easier.  <br> <br>
+  <br>
+  tests=# CREATE TABLE hello_scaffs ( <br>
+      id serial NOT NULL PRIMARY KEY, <br>
+      name character varying(255), <br>
+      data boolean <br>
+  ); <br> <br>
+</div>

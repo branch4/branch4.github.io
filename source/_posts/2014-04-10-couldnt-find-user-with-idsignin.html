@@ -1,0 +1,31 @@
+---
+layout: post
+title: "[rails] Couldn't Find User With Id=sign_in"
+date: 2014-04-10T18:35:00-07:00
+comments: false
+categories:
+ - Ruby on Rails
+---
+<div  class=post>
+  <h3 >
+    Background
+  </h3>
+  While using devise on rails3, I got the following error message.  <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      Couldn't Find User With Id=sign_in Devise on Rails 3
+    </span> </pre>
+  It was working yesterday, but not today.  <br> <br>
+  <h3 >
+    Solution
+  </h3>
+  I checked config/routes.rb, and had <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      resources :users
+      devise_for :users
+    </span> </pre>
+  which seemed to be interupting each other.  <br>
+  So I commented out resources :users, and it started to work fine.  <br>
+  I don't know why it kept working till yesterday...  <br>
+</div>
