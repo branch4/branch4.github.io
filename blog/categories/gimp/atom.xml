@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Gimp | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/gimp/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/gimp/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Gimp] gimp@Mavericksで全可視レイヤを別ファイルにexportする方法]]></title>
-    <link href="http://branch4.github.io/blog/2014/01/25/gimp-gimpmavericksexport/"/>
+    <link href="http://blog.branch4.pw/blog/2014/01/25/gimp-gimpmavericksexport/"/>
     <updated>2014-01-25T15:12:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/01/25/gimp-gimpmavericksexport</id>
+    <id>http://blog.branch4.pw/blog/2014/01/25/gimp-gimpmavericksexport</id>
     <content type="html"><![CDATA[<div  class=post>
   OS : Mavericks(MacOS X10.9.1) <br>
   Gimp version : 2.8.10 <br> <br>

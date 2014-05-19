@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://branch4.github.io/sitemap.xml 
+Sitemap: http://blog.branch4.pw/sitemap.xml 

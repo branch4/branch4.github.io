@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: 1Liner | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/1liner/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/1liner/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[1 Liner] Easily Replacing a Domain in Multiple Files]]></title>
-    <link href="http://branch4.github.io/blog/2014/04/07/1-liner-line-editing/"/>
+    <link href="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/"/>
     <updated>2014-04-07T16:07:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/04/07/1-liner-line-editing</id>
+    <id>http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing</id>
     <content type="html"><![CDATA[<div  class=post>
   Just 1 liner I sometimes use.<br><br>
   <pre  class=prettyprint>

@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Games | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/games/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/games/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Games] Jungle Heat感想文]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/12/games-jungle-heat/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/12/games-jungle-heat/"/>
     <updated>2014-03-12T09:57:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/12/games-jungle-heat</id>
+    <id>http://blog.branch4.pw/blog/2014/03/12/games-jungle-heat</id>
     <content type="html"><![CDATA[<div  class=post>
   いつインストールしたのかわからないけど、携帯に入ってたのでプレイしてみた。 <br> <br>
   けど・・・完全にCoC(Clash of Clans)クローン。 <br> <br>
@@ -40,9 +40,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Game] Subway Surf 感想文]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/10/game-subway-surf/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/game-subway-surf/"/>
     <updated>2014-03-10T15:48:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/10/game-subway-surf</id>
+    <id>http://blog.branch4.pw/blog/2014/03/10/game-subway-surf</id>
     <content type="html"><![CDATA[<div  class=post>
   テンプルラン的な、ランアクションゲーム。 <br>
   少年が警察に追いかけらて逃げる的な。 <br>

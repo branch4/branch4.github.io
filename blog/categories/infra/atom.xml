@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Infra | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/infra/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/infra/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Infra] Geo Directive in Nginx]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/06/infra-geo-directive-in-nginx/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx/"/>
     <updated>2014-03-06T23:46:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/06/infra-geo-directive-in-nginx</id>
+    <id>http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx</id>
     <content type="html"><![CDATA[<div  class=post>
   送信元IPによって色々挙動変えたりしたいなー、 <br>
   と思って検索してたら、geo directiveがいい！！！ <br>
@@ -33,9 +33,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Infra] DNAT環境下でのrails + Devise]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/04/infra-dnatrails-devise/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/"/>
     <updated>2014-03-04T02:19:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/04/infra-dnatrails-devise</id>
+    <id>http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise</id>
     <content type="html"><![CDATA[<div  class=post>
   railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
   んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>

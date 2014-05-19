@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Mutt | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/mutt/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/mutt/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Mutt] Finding Corresponding Keycode by Typing Keys]]></title>
-    <link href="http://branch4.github.io/blog/2014/01/29/mutt-finding-corresponding-keycode-by/"/>
+    <link href="http://blog.branch4.pw/blog/2014/01/29/mutt-finding-corresponding-keycode-by/"/>
     <updated>2014-01-29T19:26:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/01/29/mutt-finding-corresponding-keycode-by</id>
+    <id>http://blog.branch4.pw/blog/2014/01/29/mutt-finding-corresponding-keycode-by</id>
     <content type="html"><![CDATA[<div  class=post>
   I always fail to set the correct keycode when setting key bind for mutt.  <br> <br>
   So some tips I'll leave here.  <br> <br>

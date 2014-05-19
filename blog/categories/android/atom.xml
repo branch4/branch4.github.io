@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Android | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/android/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Android] onClick Event With ImageView]]></title>
-    <link href="http://branch4.github.io/blog/2014/04/06/android-onclick-event-with-imageview/"/>
+    <link href="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/"/>
     <updated>2014-04-06T22:42:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/04/06/android-onclick-event-with-imageview</id>
+    <id>http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview</id>
     <content type="html"><![CDATA[<div  class=post>
   <h3 >
     Purpose
@@ -89,9 +89,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Android] Android Studioでdebugする方法その１]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/10/android-android-studiodebug/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug/"/>
     <updated>2014-03-10T03:18:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/10/android-android-studiodebug</id>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug</id>
     <content type="html"><![CDATA[<div  class=post>
   とりあえずEcllipseのプロジェクトをimportしてつまずいたこと。 <br> <br>
   <h4 >
@@ -149,9 +149,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Android] Android Studio]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/10/android-android-studio_9/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9/"/>
     <updated>2014-03-10T00:51:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/10/android-android-studio_9</id>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9</id>
     <content type="html"><![CDATA[<div  class=post>
   まぁ・・・Ecllipse使うよりは使い勝手はよさそうなんだけど・・・<br>
   なにかにつけて、  あれのバージョンがあわないー だの、<br>
@@ -164,9 +164,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Android] Entry Point of Android Program]]></title>
-    <link href="http://branch4.github.io/blog/2014/02/11/android-entry-point-of-android-program/"/>
+    <link href="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/"/>
     <updated>2014-02-11T12:55:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/02/11/android-entry-point-of-android-program</id>
+    <id>http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program</id>
     <content type="html"><![CDATA[<div  class=post>
   There's no main function in Android programming.  <br>
   Many people notice that. So where's the entry point ?  <br>
@@ -229,9 +229,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Android] onCreateメソッドの引数の意味]]></title>
-    <link href="http://branch4.github.io/blog/2014/02/03/android-oncreate/"/>
+    <link href="http://blog.branch4.pw/blog/2014/02/03/android-oncreate/"/>
     <updated>2014-02-03T00:43:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/02/03/android-oncreate</id>
+    <id>http://blog.branch4.pw/blog/2014/02/03/android-oncreate</id>
     <content type="html"><![CDATA[<div  class=post>
   Android開発やってみてるわけですが、わからないことだらけで困ってます。 <br> <br>
   今日は、<br><br>

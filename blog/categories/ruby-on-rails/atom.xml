@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Ruby on Rails | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/ruby-on-rails/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/ruby-on-rails/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Rails] Couldn't Find User With Id=sign_in]]></title>
-    <link href="http://branch4.github.io/blog/2014/04/11/couldnt-find-user-with-idsignin/"/>
+    <link href="http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin/"/>
     <updated>2014-04-11T10:35:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/04/11/couldnt-find-user-with-idsignin</id>
+    <id>http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin</id>
     <content type="html"><![CDATA[<div  class=post>
   <h3 >
     Background
@@ -47,9 +47,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Rails] Railsサーバを80番ポートで立ち上げちゃう]]></title>
-    <link href="http://branch4.github.io/blog/2014/04/03/rails-rails80/"/>
+    <link href="http://blog.branch4.pw/blog/2014/04/03/rails-rails80/"/>
     <updated>2014-04-03T10:31:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/04/03/rails-rails80</id>
+    <id>http://blog.branch4.pw/blog/2014/04/03/rails-rails80</id>
     <content type="html"><![CDATA[<div  class=post>
   RVM使ってる人限定。 <br><br>
   <pre  class=prettyprint>
@@ -75,9 +75,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Infra] DNAT環境下でのrails + Devise]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/04/infra-dnatrails-devise/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/"/>
     <updated>2014-03-04T02:19:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/04/infra-dnatrails-devise</id>
+    <id>http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise</id>
     <content type="html"><![CDATA[<div  class=post>
   railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
   んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
@@ -107,9 +107,9 @@
   
   <entry>
     <title type="html"><![CDATA[[RoR] Asset Pipeline Precompile]]></title>
-    <link href="http://branch4.github.io/blog/2013/10/23/ror-asset-pipeline-precompile/"/>
+    <link href="http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile/"/>
     <updated>2013-10-23T19:48:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2013/10/23/ror-asset-pipeline-precompile</id>
+    <id>http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile</id>
     <content type="html"><![CDATA[<div  class=post>
   After the production deployment, don't forget to compile assets with following command.<br>
   <pre  class=prettyprint>

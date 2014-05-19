@@ -1,125 +1,119 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://branch4.github.io/blog/2013/10/23/ror-asset-pipeline-precompile/</loc>
+        <loc>http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile/</loc>
         <lastmod>2014-05-20T00:47:06+09:00</lastmod>
     </url>
     <url>
-        <loc>
-            http://branch4.github.io/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/
-        </loc>
+        <loc>http://blog.branch4.pw/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/</loc>
         <lastmod>2014-05-20T00:47:08+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2013/10/28/xml-unicode-unicode/</loc>
+        <loc>http://blog.branch4.pw/blog/2013/10/28/xml-unicode-unicode/</loc>
         <lastmod>2014-05-20T00:47:11+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2013/11/27/android-hacking-apk-file-1/</loc>
+        <loc>http://blog.branch4.pw/blog/2013/11/27/android-hacking-apk-file-1/</loc>
         <lastmod>2014-05-20T00:47:14+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/01/25/gimp-gimpmavericksexport/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/01/25/gimp-gimpmavericksexport/</loc>
         <lastmod>2014-05-20T00:47:16+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/01/29/mutt-finding-corresponding-keycode-by/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/01/29/mutt-finding-corresponding-keycode-by/</loc>
         <lastmod>2014-05-20T00:47:21+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/02/03/android-oncreate/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/02/03/android-oncreate/</loc>
         <lastmod>2014-05-20T00:47:24+09:00</lastmod>
     </url>
     <url>
-        <loc>
-            http://branch4.github.io/blog/2014/02/11/android-entry-point-of-android-program/
-        </loc>
+        <loc>http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/</loc>
         <lastmod>2014-05-20T00:47:31+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/02/js-in-place-editor/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor/</loc>
         <lastmod>2014-05-20T00:47:35+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/04/infra-dnatrails-devise/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/</loc>
         <lastmod>2014-05-20T00:47:45+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/04/if-you-cant-keep-working/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/04/if-you-cant-keep-working/</loc>
         <lastmod>2014-05-20T00:47:42+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/04/git/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/04/git/</loc>
         <lastmod>2014-05-20T00:47:40+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/06/infra-geo-directive-in-nginx/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx/</loc>
         <lastmod>2014-05-20T00:47:48+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/10/android-android-studio_9/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9/</loc>
         <lastmod>2014-05-20T00:47:50+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/10/android-android-studiodebug/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug/</loc>
         <lastmod>2014-05-20T00:48:01+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/10/game-subway-surf/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/10/game-subway-surf/</loc>
         <lastmod>2014-05-20T00:48:06+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/12/games-jungle-heat/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/12/games-jungle-heat/</loc>
         <lastmod>2014-05-20T00:48:09+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/03/14/git-tagging-in-git/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git/</loc>
         <lastmod>2014-05-20T00:48:15+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/04/01/kvs-redis/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/01/kvs-redis/</loc>
         <lastmod>2014-05-20T00:48:23+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/04/03/rails-rails80/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/03/rails-rails80/</loc>
         <lastmod>2014-05-20T00:48:27+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/04/06/android-onclick-event-with-imageview/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/</loc>
         <lastmod>2014-05-20T00:48:33+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/04/07/1-liner-line-editing/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/</loc>
         <lastmod>2014-05-20T00:48:36+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/04/10/web-development-sending-post-request/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/</loc>
         <lastmod>2014-05-20T00:48:40+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/04/11/couldnt-find-user-with-idsignin/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin/</loc>
         <lastmod>2014-05-20T00:48:42+09:00</lastmod>
     </url>
     <url>
-        <loc>
-            http://branch4.github.io/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/
-        </loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/</loc>
         <lastmod>2014-05-20T00:48:46+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/2014/04/18/misc-excelpng/</loc>
+        <loc>http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/</loc>
         <lastmod>2014-05-20T00:48:58+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/</loc>
+        <loc>http://blog.branch4.pw/</loc>
         <lastmod>2014-05-20T00:48:58+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/robots.txt</loc>
+        <loc>http://blog.branch4.pw/robots.txt</loc>
         <lastmod>2014-05-16T01:48:20+09:00</lastmod>
     </url>
     <url>
-        <loc>http://branch4.github.io/blog/archives/</loc>
+        <loc>http://blog.branch4.pw/blog/archives/</loc>
         <lastmod>2014-05-20T00:48:58+09:00</lastmod>
     </url>
 </urlset>

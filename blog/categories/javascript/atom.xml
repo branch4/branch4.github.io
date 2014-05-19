@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Javascript | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/javascript/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/javascript/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[JS] in Place Editor]]></title>
-    <link href="http://branch4.github.io/blog/2014/03/02/js-in-place-editor/"/>
+    <link href="http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor/"/>
     <updated>2014-03-02T22:08:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/03/02/js-in-place-editor</id>
+    <id>http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor</id>
     <content type="html"><![CDATA[<div  class=post>
   Webの画面に表示されてるテキストとかを、クリックしてその場で編集できるやつ。 <br> <br>
   を、In place editor、というらしい。 <br> <br>

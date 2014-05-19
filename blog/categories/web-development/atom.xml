@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Web Development | branch4 Blog]]></title>
-  <link href="http://branch4.github.io/blog/categories/web-development/atom.xml" rel="self"/>
-  <link href="http://branch4.github.io/"/>
-  <updated>2014-05-20T02:04:45+09:00</updated>
-  <id>http://branch4.github.io/</id>
+  <link href="http://blog.branch4.pw/blog/categories/web-development/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-05-20T02:11:51+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[[Web Development] Sending Post Request With Google Chrome]]></title>
-    <link href="http://branch4.github.io/blog/2014/04/10/web-development-sending-post-request/"/>
+    <link href="http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/"/>
     <updated>2014-04-10T15:01:00+09:00</updated>
-    <id>http://branch4.github.io/blog/2014/04/10/web-development-sending-post-request</id>
+    <id>http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request</id>
     <content type="html"><![CDATA[<div  class=post>
   <h3 >
     Purpose of the entry
