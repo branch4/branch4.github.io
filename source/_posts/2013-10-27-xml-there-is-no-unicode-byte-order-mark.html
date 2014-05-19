@@ -2,21 +2,22 @@
 layout: post
 title: "[XML] There is no Unicode byte order mark. Cannot switch to Unicode."
 date: 2013-10-27T20:20:00-07:00
-comments: false
-published: false
+comments: true
+published: true
 ---
 <div  class=post>
   Tried to open a xml file with XMLEDITOR.NET.  <br> <br>
-  And the following error occured.  <br> <br>
-  "There is no Unicode byte order mark. Cannot switch to Unicode." <br> <br>
-  I checked the xml file, and fixed the line which said, <br> <br>
-  <?xml version="1.0" encoding="utf-16"?> <br> <br>
-    to <br>
-      <?xml version="1.0" encoding="utf-8"?> <br>
-    wrong <br>
-    utf-16 <br>
-    correct <br>
-    utf-8 <br>
-    <br>
-    And now I could open it.  <br> <br>
+  And the following error occured.  <br>
+  <pre  class=prettyprint>
+  There is no Unicode byte order mark. Cannot switch to Unicode.</pre>
+  I checked the xml file, and fixed the line which said, <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-16"?&gt;</pre>
+  to <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-8"?&gt;</pre>
+  wrong  : utf-16 <br>
+  correct: utf-8 <br>
+  <br>
+  And now I could open it.<br>
 </div>
