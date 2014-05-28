@@ -8,10 +8,42 @@ categories:
  - misc
 ---
 
-# Title
+# ElastiCache vs Redis@EC2
 ---
   
-  
+タイトルはちょっと言い過ぎです。
+Redis導入するとしたら、自前で管理したほうがいいのか、
+はたまた ElastiCache のほうがいいのか、について調べてみた結果です。
+調査は2014年4月時点なので、若干古いです。
+(その後追加された機能も既にあります)
+
+### What's ElastiCache
+----------
+
+ElastiCacheは、Redisのマネージドサービスです。
+
+
+elasticache.pdf：
+　簡単にまとめてます。
+　ここからみていただくのがよいかと思います。
+
+redis_elasticache_config.pdf：
+　redis/elasticacheに共通している設定項目で、違いがあるかの比較。
+　一部redisにはない設定項目も含まれています。
+redisonly_config.pdf
+　redisにしか存在しない設定項目。ざっくり、下記に分かれています。
+　あんまりいじられるとAWSがつらくなりそうな項目が多かったです。
+　- 基本項目
+　- replication関連
+　- RDBダンプ関連
+　- AOF関連
+
+現状のインフラエンジニアの人数、規模感を考えると、なるべく運用
+必須のシステムはないほうがよいと思います。
+まだコスト比較できていないので、決定打ではないかもしれませんが、
+ElastiCacheは、DynamoDB比だとまだ運用コストが高い(手がかかる)
+かな、と思うので、可能であればDynamoがお勧めかと思います。
+
 
 ### Lists
 ----------
@@ -92,33 +124,4 @@ __EMPHASIZE__
 >>> c said ca  
 
 
-
-ElastiCacheについて調べた結果です。
-調査方法としては、ElastiCache vs Redis on EC2での比較調査を
-して、そこからDynamoDBとの比較をしています。
-(DynamoDBについては前回以降それほど深い調査はしていないので、
-明確な資料はない状態です)
-
-いくつかファイルを添付しています。
-
-elasticache.pdf：
-　簡単にまとめてます。
-　ここからみていただくのがよいかと思います。
-
-redis_elasticache_config.pdf：
-　redis/elasticacheに共通している設定項目で、違いがあるかの比較。
-　一部redisにはない設定項目も含まれています。
-redisonly_config.pdf
-　redisにしか存在しない設定項目。ざっくり、下記に分かれています。
-　あんまりいじられるとAWSがつらくなりそうな項目が多かったです。
-　- 基本項目
-　- replication関連
-　- RDBダンプ関連
-　- AOF関連
-
-現状のインフラエンジニアの人数、規模感を考えると、なるべく運用
-必須のシステムはないほうがよいと思います。
-まだコスト比較できていないので、決定打ではないかもしれませんが、
-ElastiCacheは、DynamoDB比だとまだ運用コストが高い(手がかかる)
-かな、と思うので、可能であればDynamoがお勧めかと思います。
 
