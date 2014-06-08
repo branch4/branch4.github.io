@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Gimp | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/gimp/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-06-08T21:30:24+09:00</updated>
+  <updated>2014-06-08T21:33:38+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,31 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[[Gimp] Exporting Layers to Files in gimp@Mavericks]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/01/26/gimp-exporting-layers-to-files-in/"/>
+    <updated>2014-01-26T21:56:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/01/26/gimp-exporting-layers-to-files-in</id>
+    <content type="html"><![CDATA[<div  class=post>
+  OS : Mavericks(MacOS X10.9.1) <br>
+  Gimp version : 2.8.10 <br> <br>
+  Just use this plug-in.  <br> <br>
+  http://registry.gimp.org/node/28268 <br> <br>
+  <!-- more -->
+  1. Download the zip file <br>
+  2. extract with unzip command <br>
+  3. mv the python file to following directory <br>
+    ~/Library/Application Support/GIMP/2.8/plug-ins/ <br>
+  4. add execution permission to above python file <br>
+  5. reboot gimp <br>
+  6. choose [File] -> [Export Layers to...] <br>
+  7. select the options you like <br> <br>
+  that's all for today.
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[Gimp] gimp@Mavericksで全可視レイヤを別ファイルにexportする方法]]></title>

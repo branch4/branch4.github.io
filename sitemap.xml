@@ -1,154 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/pxe-install-with-ubuntu/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/vsftpd/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/local-repository-for-ubuntu/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/apt-mirror/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/splitting-encrypted-pdf-splitting/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/postmirrorsh-postmirrorsh/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/another-trouble-with-apt-mirror/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/enabling-minimizemaximize-button-on/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/mysql-showing-sql-from-existing/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/mysql-show-database-character-set-and/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/11/chef-setup/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2011/12/25/installing-adobe-air-to-oneiric/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/02/19/consider-using-cdist/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/03/07/using-list-for-actionform/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/03/11/slackware-on-kvm/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/03/12/managing-kvm-image-with-virt-manager/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/03/25/upstart-config-for-apache/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/04/01/memo-on-libvirt-api/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/04/03/add-ssh-key-in-heroku/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/04/03/using-postgres-in-rails/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/04/04/rails-excluding-active-record-or-some/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/04/06/postgresql-setting-auto-increment/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/05/01/omit-using-l-on-ssh-with-specific/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/05/09/git-clone-and-change-url-of-remote/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/06/05/troubles-upgrading-ubuntu/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/06/08/etckeeper-howto/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/06/19/rvm-degraded/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/06/19/workaround-for-unattended-rvm/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2012/08/15/vim-as-ide/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2013/10/07/ror-initialize-database-value-with/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2013/10/07/change-existing-db-data-type-blob-to/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2013/10/07/iam-fox_7/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2013/10/13/titanium-mobile-difference-between/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2013/10/22/ror-geminstallerextensionbuilderror/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2013/10/22/mysql/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
         <loc>http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile/</loc>
         <lastmod>2014-06-08T17:00:40+09:00</lastmod>
     </url>
@@ -166,10 +18,6 @@
     </url>
     <url>
         <loc>http://blog.branch4.pw/blog/2014/01/25/gimp-gimpmavericksexport/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2014/01/26/gimp-exporting-layers-to-files-in/</loc>
         <lastmod>2014-06-08T17:00:40+09:00</lastmod>
     </url>
     <url>
@@ -254,10 +102,6 @@
     </url>
     <url>
         <loc>http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/</loc>
-        <lastmod>2014-06-08T17:00:40+09:00</lastmod>
-    </url>
-    <url>
-        <loc>http://blog.branch4.pw/blog/2014/04/18/redis-on-aws/</loc>
         <lastmod>2014-06-08T17:00:40+09:00</lastmod>
     </url>
     <url>

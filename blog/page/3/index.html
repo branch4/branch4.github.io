@@ -9,7 +9,7 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content=" Android開発やってみてるわけですが、わからないことだらけで困ってます。 今日は、 onCreate(Bundle savedInstanceState) の、引数のところって何？ という疑問でございます。 まぁググれば沢山出てくるんですが。 ">
+  <meta name="description" content="There&#8217;s no main function in Android programming. Many people notice that. So where&#8217;s the entry point ? It&#8217;s pointed in &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,54 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/11/android-entry-point-of-android-program/">[Android] Entry Point of Android Program</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T12:55:00+09:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/02/11/android-entry-point-of-android-program/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  There&#8217;s no main function in Android programming.  <br>
+  Many people notice that. So where&#8217;s the entry point ?  <br>
+  It&#8217;s pointed in AndroidManifest.xml file.  <br>
+  There are many things written in this file so I&#8217;ll go into the details in other articles.  <br><br>
+  For now, example below will be enough.  <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/11/android-entry-point-of-android-program/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -168,6 +216,53 @@
   
     <footer>
       <a rel="full-article" href="/blog/2014/01/29/mutt-finding-corresponding-keycode-by/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/26/gimp-exporting-layers-to-files-in/">[Gimp] Exporting Layers to Files in gimp@Mavericks</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-26T21:56:00+09:00" pubdate data-updated="true">Jan 26<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/01/26/gimp-exporting-layers-to-files-in/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/01/26/gimp-exporting-layers-to-files-in/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  OS : Mavericks(MacOS X10.9.1) <br>
+  Gimp version : 2.8.10 <br> <br>
+  Just use this plug-in.  <br> <br>
+  http://registry.gimp.org/node/28268 <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/01/26/gimp-exporting-layers-to-files-in/">Read on &rarr;</a>
     </footer>
   
 
@@ -415,7 +510,96 @@
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/22/mysql/">[MySQL] 文字化け修正</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-22T16:16:00+09:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2013</time>
+        
+           | <a href="/blog/2013/10/22/mysql/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2013/10/22/mysql/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  mysqlのバージョンは、5.5.32-0ubuntu0.12.04.1。 <br> <br>
+  インストールしたてのmysqlに、何も考えず <br> <br>
+  $ rake db:seed <br> <br>
+  やったら、がっつり「？？」に文字化けしちゃった。 <br>
+  毎度設定忘れるので、メモ。 <br> <br>
+  mysql> select  * from states; <br>
+  +&#8212;-+&#8212;&#8212;-+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ <br>
+  | id | state | created_at          | updated_at          | <br>
+  +&#8212;-+&#8212;&#8212;-+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ <br>
+  |  1 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  2 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  3 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  4 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  5 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  6 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  7 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  +&#8212;-+&#8212;&#8212;-+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ <br>
+  7 rows in set (0.01 sec) <br> <br>
+  <br>
+  my.cnfを編集して追記する。 <br>
+  $ sudo vi /etc/mysql/my.cnf <br> <br>
+  [mysqld]の欄に下記追記。 <br>
+  character-set-server = utf8 <br>
+  skip-character-set-client-handshake <br>
+  collation-server = utf8_general_ci <br>
+  init-connect = SET NAMES utf8 <br> <br>
+  そしてmysql再起動。 <br>
+  $ sudo /etc/init.d/mysql restart <br> <br>
+  database作り直し。 <br>
+  $ mysql <br>
+  mysql> create database hogehoge <br> <br>
+  $ rake db:migrate <br>
+  $ rake db:seed <br> <br>
+  mysql> select * from states; <br>
+  +&#8212;-+&#8212;&#8212;&#8212;&#8211;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ <br>
+  | id | state     | created_at          | updated_at          | <br>
+  +&#8212;-+&#8212;&#8212;&#8212;&#8211;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ <br>
+  |  1 | 状１      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  2 | 状２      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  3 | 状３      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  4 | 状４      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  5 | 状５      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  6 | 状６      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  7 | 状７      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  +&#8212;-+&#8212;&#8212;&#8212;&#8211;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;+ <br>
+  7 rows in set (0.00 sec) <br> <br>
+  ほほほー。直った。
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/4/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -434,6 +618,10 @@
       </li>
     
       <li class="post">
+        <a href="/blog/2014/04/18/redis-on-aws/">ElastiCache vs Redis@EC2</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
       </li>
     
@@ -443,10 +631,6 @@
     
       <li class="post">
         <a href="/blog/2014/04/11/couldnt-find-user-with-idsignin/">[Rails] Couldn&#8217;t Find User With Id=sign_in</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/04/10/web-development-sending-post-request/">[Web Development] Sending Post Request With Google Chrome</a>
       </li>
     
   </ul>
@@ -494,7 +678,6 @@
 
 
 <section>
-We&#8217;ll place our Google Adsense here !!
 </section>
 
   

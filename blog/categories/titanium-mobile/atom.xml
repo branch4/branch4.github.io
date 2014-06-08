@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Titanium Mobile | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/titanium-mobile/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-08T21:33:38+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Titanium Mobile] Twitter API ver1.1]]></title>
+    <link href="http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11/"/>
+    <updated>2013-10-17T00:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <br>
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+  <br>
+  I was implementing twitter API ver1.1 in Titanium Mobile.  <br> <br>
+  I really couldn't find a good way to implement ver1.1, <br>
+  but I came across tm_twitter_api and oauth.js/sha1.js, <br>
+  which seem to have been working quite well for ver1.0.  <br> <br>
+  I decided to look into Twitter docs to see how I should implement Oauth on Twitter.  <br> <br>
+  reference: <br>
+  <a  href=https://dev.twitter.com/docs/auth/implementing-sign-twitter>https://dev.twitter.com/docs/auth/implementing-sign-twitter</a> <br>
+  <a  href=https://dev.twitter.com/docs/auth/3-legged-authorization>https://dev.twitter.com/docs/auth/3-legged-authorization</a> <br>
+  <a  href=https://dev.twitter.com/docs/auth/authorizing-request>https://dev.twitter.com/docs/auth/authorizing-request</a> <br> <br>
+  there seem to be some steps until I get to tweet or even get a list of my tweet.  <br>
+  And Oauth takes part in authorizing a specific application to do those actions.  <br> <br>
+  Mere goal for these step are to get an access token to be used at twitter API.  <br> <br>
+  <i >
+    <b >
+      [step1] obtain a request token
+    </b>
+  </i>
+  <br> <br>
+  I need to send a signed message to below URL.  <br>
+  (you have to use POST) <br> <br>
+  https://api.twitter.com/oauth/request_token <br> <br>
+  method POST with the following data.  <br> <br>
+  oauth_consumer_key <br>
+  oauth_nonce <br>
+  oauth_signature <br>
+  oauth_signature_method <br>
+  oauth_timestamp <br>
+  oauth_version <br> <br>
+  How I should generate these values are quoted in below URL.  <br>
+  <a  href=https://dev.twitter.com/docs/auth/authorizing-request>https://dev.twitter.com/docs/auth/authorizing-request</a> <br> <br>
+  I'll probably just use methods from oauth.js.  <br> <br>
+  In response to this request, I should be getting these 3 items.  <br>
+  oauth_token : request token?  <br>
+  oauth_token_secret : ?  <br>
+  oauth_callback_confirmed : must check it's value is "true". No idea what it is.  <br>
+  Response code must be 200.  <br> <br>
+  For verification, I must check that oauth_callback_confirmed == true, <br>
+  and save other 2 variables for the next step to be processed.  <br> <br>
+  <i >
+    <b >
+      [step2] redirect user(and authorize the application)
+    </b>
+  </i>
+  <br>
+  Direct them to GET <br>
+  <a  href=https://api.twitter.com/oauth/authorize>https://api.twitter.com/oauth/authorize</a>.  <br>
+  In the request, I should pass oauth_token from the response of step1.  <br> <br>
+  According to the authorization status, the result will differ in the following manner.  <br> <br>
+  status1: if user is signed in on twitter.com, and approved <br>
+  They will be immediately authorized and return to the callback URL with a valid Oauth request token.  <br> <br>
+  status2: if user is signed in on twitter.com, but not approved <br>
+  A request to approve calling application will be shown.  <br>
+  After the user approves it, they'll be returning to the callback URL with a valid Oauth request token.  <br> <br>
+  status3: if user is not signed in on twitter.com <br>
+  They will be prompted to fill in the credential information.  <br>
+  After the user sign in, they'll be returning to the callback URL with a valid Oauth request token.  <br> <br>
+  In response to this request, the callback_url will receive a request containing the oauth_token and oauth_verifier parameters.  <br>
+  And the app should verify that this oauth_token is identical to the one saved in step1.  <br>
+  Also it must save these 2 values for the next step.  <br> <br>
+  <b >
+    <i >
+      [step3] get the access token(finally)
+    </i>
+  </b>
+  <br> <br> <br>
+  Call POST  <br>
+  <a  href=https://api.twitter.com/oauth/access_token>https://api.twitter.com/oauth/access_token</a> .  <br>
+  The request must contain oauth_verifier value obtained in step2.  <br>
+  Request token must also be passed as oauth_token.  <br> <br>
+  <br>
+  In response to this, I should receive a response containing oauth_token(which is access token), and oauth_token_secret parameters.  <br> <br>
+  These values should be save for later use in the authorized requests to the Twitter API.  <br> <br>
+  <br> <br>
+  So, this should be it.  <br>
+  But I'm not quite sure if I understood everything...  <br>
+  I'll check the code in oauth_adopter, and update if I notice any mistakes.  <br>
+  (I'm already quite not sure about callback URLs ...) <br> <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Titanium Mobile] Difference Between Ti.include and Require]]></title>
+    <link href="http://blog.branch4.pw/blog/2013/10/13/titanium-mobile-difference-between/"/>
+    <updated>2013-10-13T03:27:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2013/10/13/titanium-mobile-difference-between</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Started writing codes for Android/iPhone with Titanium Mobile.  <br> <br>
+  I came up with a question on the subject.  <br> <br>
+  "Whats the difference between include and require ?" <br> <br>
+  I did some googling below.  <br> <br>
+  - in general <br>
+  <a  href=http://developer.appcelerator.com/question/132154/when-to-use-require-vs-include->http://developer.appcelerator.com/question/132154/when-to-use-require-vs-include-</a> <br>
+  <a  href=http://developer.appcelerator.com/question/131432/titaniuminclude-very-slow-on-android>http://developer.appcelerator.com/question/131432/titaniuminclude-very-slow-on-android</a> <br> <br>
+  - about Ti.include <br>
+  <a  href=http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium-method-include>http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium-method-include</a> <br> <br>
+  <br>
+  - about require <br>
+  <a  href=http://wiki.commonjs.org/wiki/CommonJS>http://wiki.commonjs.org/wiki/CommonJS</a> <br>
+  <a  href=https://wiki.appcelerator.org/display/guides/CommonJS+Modules+in+Titanium>https://wiki.appcelerator.org/display/guides/CommonJS+Modules+in+Titanium</a> <br>
+  <a  href=https://wiki.appcelerator.org/display/guides/Mobile+Best+Practices>https://wiki.appcelerator.org/display/guides/Mobile+Best+Practices</a> <br>
+  <a  href=http://docs.appcelerator.com/titanium/3.0/#!/guide/CommonJS_Modules_in_Titanium>http://docs.appcelerator.com/titanium/3.0/#!/guide/CommonJS_Modules_in_Titanium</a> <br> <br>
+  <br>
+  Ti.include, just reads the file from filesystem and copies whats inside.  <br>
+  pros: <br>
+  It can get access to global namespace.  <br> <br>
+  cons: <br>
+  If called twice, it'll be read twice, causing major perfomance degrade.  <br> <br>
+  require, reads the file from filesystem but imports module in that file. (module must be exported in the file) <br> <br>
+  pros: <br>
+  Won't pollute global namespace.  <br>
+  Module will be cached once loaded <br> <br>
+    cons: <br>
+    can't access global namespace.  <br>
+    Titanium Mobile seems to be pushing require since version 1.8.  <br>
+    So I guess I'll implement with require.  <br>
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+  <br>
+  日本語。 <br> <br>
+  Titanium Mobile使い始めてみたんだけど、Ti.includeとrequireの違いってなんだろう？ <br>
+  というわけで調べた結果。 <br> <br>
+  ぐぐってみた。 <br>
+  - なんかそれっぽいやつ <br>
+  <a  href=http://developer.appcelerator.com/question/132154/when-to-use-require-vs-include->http://developer.appcelerator.com/question/132154/when-to-use-require-vs-include-</a> <br>
+  <a  href=http://developer.appcelerator.com/question/131432/titaniuminclude-very-slow-on-android>http://developer.appcelerator.com/question/131432/titaniuminclude-very-slow-on-android</a> <br> <br>
+  - Ti.includeについて <br>
+  <a  href=http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium-method-include>http://docs.appcelerator.com/titanium/3.0/#!/api/Titanium-method-include</a> <br> <br>
+  <br>
+  - requireについて <br>
+  <a  href=http://wiki.commonjs.org/wiki/CommonJS>http://wiki.commonjs.org/wiki/CommonJS</a><br>
+  <a  href=https://wiki.appcelerator.org/display/guides/CommonJS+Modules+in+Titanium>https://wiki.appcelerator.org/display/guides/CommonJS+Modules+in+Titanium</a> <br>
+  <a  href=https://wiki.appcelerator.org/display/guides/Mobile+Best+Practices>https://wiki.appcelerator.org/display/guides/Mobile+Best+Practices</a> <br> <br>
+  <a  href=http://docs.appcelerator.com/titanium/3.0/#!/guide/CommonJS_Modules_in_Titanium>http://docs.appcelerator.com/titanium/3.0/#!/guide/CommonJS_Modules_in_Titanium</a> <br>
+  両者、長短ありまして。 <br> <br>
+  Ti.includeは、基本インクルードしたファイルを読み込んで、中身を丸っとコピーする感じ。 <br> <br>
+  長所： <br>
+  Global namespaceにアクセスできる <br> <br>
+  短所： <br>
+  2回読むと、2回ファイルシステムにアクセスするので遅くなる <br> <br>
+  requireは、ファイル読み込むんだけど、中身のコピーではなくて、exportで定義してあるmoduleをimportする感じ。 <br> <br>
+  長所： <br>
+  Global namespaceを汚くしない <br>
+  moduleは一度読み込んだらcacheするので何度読んでもパフォーマンス上は悪くない <br> <br>
+  短所： <br>
+  Global namespaceにアクセスできない。 <br> <br>
+  で、Titanium Mobile自体は、ver1.8以降require推しなので、 <br>
+  それで実装したほうがいいんだね、という話でした。 <br> <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <br>
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

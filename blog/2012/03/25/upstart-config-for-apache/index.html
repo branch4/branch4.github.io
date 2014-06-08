@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Upstart Config for Apache - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="I realized I&#8217;ve never written a script(or say config file) for upstart. And apache2 is gonna be the first sacrifice here&#8230;which didn&# &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2012/03/25/upstart-config-for-apache">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Upstart Config for Apache</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-25T02:50:00+09:00" pubdate data-updated="true">Mar 25<span>th</span>, 2012</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div  class=post>
+  I realized I&#8217;ve never written a script(or say config file) for upstart.  <br> <br>
+  And apache2 is gonna be the first sacrifice here&#8230;which didn&#8217;t succeed&#8230;  <br> <br>
+  I couldn&#8217;t get apache to be working without NO_DETACH.  <br> <br>
+  I guess the PID trace thing with upstart don&#8217;t support what apache does.  <br> <br>
+  And I haven&#8217;t been able to get rid of a weird error/warning thats out on <br> <br>
+  # stop apache2 <br> <br>
+  But it looks like start/stop is working&#8230; I give up for today&#8230;  <br> <br>
+  &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;cut from here&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212; <br> <br> <br>
+  description &#8220;Apache(HTTPD) Server&#8221; <br>
+  author      &#8221;hogehoge&#8221; <br> <br>
+  start on (local-filesystems <br>
+            and net-device-up <br>
+            and runlevel [2345]) <br>
+  stop on runlevel [!2345] <br> <br>
+  respawn <br> <br>
+  env APPNAME=apache2 <br>
+  env LOCKDIR=/var/run/apache2 <br>
+  env HTTPD_ENV=/etc/default/apache2 <br>
+  env EXECCMD_START=&#8221;/usr/local/httpd/bin/apachectl start&#8221; <br>
+  env EXECCMD_STOP=&#8221;/usr/local/httpd/bin/apachectl stop&#8221; <br>
+  env CONF=/usr/local/httpd/conf/httpd.conf <br>
+  env EXPECTPATH=&#8221;/usr/bin/expect&#8221; <br>
+  env EXPECTTIMEOUT=100 <br>
+  env TAILPATH=&#8221;/usr/bin/tail&#8221; <br>
+  env TAILOPT=&#8221;&#8211;lines=1 -f&#8221; <br>
+  env PKILLPATH=&#8221;/usr/bin/pkill&#8221; <br>
+  env PKILLSIG=&#8221; -9 &#8221; <br>
+  env PKILLOPT=&#8221; -f &#8221; <br>
+  env CHKWORD=&#8221;caught SIGTERM, shutting down&#8221; <br>
+  env PROCWORD=&#8221;/bin/httpd &#8221; <br>
+  env PGREP=/usr/bin/pgrep <br>
+  env EXECUSER=&#8221;root&#8221; <br>
+  env PROCFLG=&#8221;/usr/bin/pgrep -f -u root bin/httpd > /dev/null && echo FOUND || echo NOTFOUND&#8221; <br> <br>
+  pre-start script <br> <br>
+    #Sanity checks <br>
+    [ -r ${HOME}/httpd.conf ] || install -o httpd -g httpd -m 755 -d ${LOCKDIR} <br>
+    #[ -r ${HTTPD_ENV} ] && . ${HTTPD_ENV} <br>
+    if [ &#8220;x${PROCFLG}&#8221; = &#8220;xFOUND&#8221;  ]; then <br>
+      echo &#8220;${APPNAME} Found !!&#8221; <br>
+      exit 1 <br>
+    fi <br>
+    #emits apache2_starting <br>
+  end script <br> <br>
+  script <br>
+    #logger -t &#8220;$0&#8221; &#8220;DEBUG: `set`&#8221; <br>
+    #expect fork <br>
+    #exec ${EXECCMD_START} -D NO_DETACH -f ${CONF} <br>
+    exec /usr/local/httpd/bin/httpd -D NO_DETACH -f /usr/local/httpd/conf/httpd.conf <br>
+    #exec ${HOME}/bin/httpd -D NO_DETACH -f ${CONF} <br>
+    #exec /usr/sbin/apache2 -X -e debug -E /var/log/apache2/foo.log <br>
+  end script <br> <br>
+  post-stop script <br> <br>
+    if [ &#8220;x${PROCFLG}&#8221; = &#8220;xNOTFOUND&#8221;  ]; then <br>
+      echo &#8220;Stopped ${APPNAME} successfully or it hadn&#8217;t been started in the first place.&#8221; <br>
+      exit 0 <br>
+    fi <br> <br>
+    ${EXECCMD_STOP} <br>
+    ${EXPECTPATH} <<EOF <br>
+    set timeout ${EXPECTTIMEOUT} <br>
+    log_file log-stop.txt <br>
+    spawn ${TAILPATH} ${TAILOPT} ${TARGETLOG} <br>
+    expect &#8220;${CHKWORD}&#8221; <br>
+      { <br>
+        puts &#8220;OK. Normally shut down.&#8221; <br>
+      } <br>
+      timeout <br>
+      { <br>
+        puts &#8220;NG. Can&#8217;t shutdown. Execute Kill Process&#8221; <br>
+        system &#8220;${PKILLPATH} ${PKILLSIG} ${PKILLOPT} ${PROCWORD} &#8221; <br>
+        exit 1 <br>
+      } <br>
+    EOF <br>
+    RC=$?  <br>
+    if [ ${RC} != 0 ]; then <br>
+      exit ${RC} <br>
+    fi <br>
+    } <br>
+  end script <br> <br>
+  <br>
+    &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-25T02:50:00+09:00" pubdate data-updated="true">Mar 25<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2012/03/25/upstart-config-for-apache/" data-via="" data-counturl="http://blog.branch4.pw/blog/2012/03/25/upstart-config-for-apache/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/" title="Previous Post: ruby on rails - rvm(Ruby Version Manager) -">&laquo; ruby on rails - rvm(Ruby Version Manager) -</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/04/01/memo-on-libvirt-api/" title="Next Post: Memo on libvirt API">Memo on libvirt API &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/06/07/blog-on-github.io-with-octopress/">Blog on Github Pages With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/redis-on-aws/">ElastiCache vs Redis@EC2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/">[Misc] Sluggish Google Chrome With Ubuntu</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/11/couldnt-find-user-with-idsignin/">[Rails] Couldn't Find User With Id=sign_in</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/root04">@root04</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'root04',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2012/03/25/upstart-config-for-apache/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2012/03/25/upstart-config-for-apache/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: IAM | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/iam/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-08T21:33:38+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Iam-fox]]></title>
+    <link href="http://blog.branch4.pw/blog/2013/10/07/iam-fox_7/"/>
+    <updated>2013-10-07T20:19:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2013/10/07/iam-fox_7</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Just had a hard time installing iam-fox on Windows7.  <br> <br>
+  It's introduced below.  <br> <br>
+  <a  href=https://github.com/cookpad/iam-fox>https://github.com/cookpad/iam-fox</a>
+  <br> <br>
+  1. clone it <br>
+  2. install Cygwin <br>
+  3. install createinstall( <a  href=http://www.createinstall.com/>http://www.createinstall.com/</a>) version 4.14.5 <br>
+  4. install xulrunner(<a  href=http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/1.9.2.19/runtimes/>http://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/1.9.2.19/runtimes/</a>) version 1.9.2.19 <br>
+  5. place xulrunner in /usr/local/xulrunner <br>
+  6. make sure the .ci file is associated to createinstall <br>
+  7. boot cygwin(following operations are in cygwin) <br>
+  8. execute pack-win.sh <br>
+  9. if there's some kind of error, look into pack-win.sh and execute the command one by one <br>
+  10. if successful, you'll get install file, so execute, and install it <br>
+  11. execute iam-fox.exe !  <br> <br>
+  That should be it.  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

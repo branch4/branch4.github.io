@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Linux | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-08T21:33:38+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Troubles Upgrading Ubuntu]]></title>
+    <link href="http://blog.branch4.pw/blog/2012/06/05/troubles-upgrading-ubuntu/"/>
+    <updated>2012-06-05T11:22:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2012/06/05/troubles-upgrading-ubuntu</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Many times I upgrade Ubuntu, my window widgets(titles and side bars) go away.  <br> <br>
+  Just a memo on how to recover it.  <br> <br>
+  I use compiz and it looks like the compiz configs go away in upgrade procedure.  <br> <br>
+  So the first thing I do is, boot compiz configuration manager, <br> <br>
+  and check on "Window Decoration".  <br> <br>
+  That should do.
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Slackware on KVM]]></title>
+    <link href="http://blog.branch4.pw/blog/2012/03/11/slackware-on-kvm/"/>
+    <updated>2012-03-11T02:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2012/03/11/slackware-on-kvm</id>
+    <content type="html"><![CDATA[<div  class=post>
+  It's probably nothing new.
+  <br>
+  <br>
+  Below are the sites that I checked.
+  <br>
+  <a  href=http://www.grocock.me.uk/blog/booting-slackware-from-a-virtio-hard-disk-in-a-kvm-virtual-machine/>http://www.grocock.me.uk/blog/booting-slackware-from-a-virtio-hard-disk-in-a-kvm-virtual-machine/</a>
+  <br>
+  <a  href=http://www.linuxquestions.org/questions/slackware-14/slackware64-current-kvm-guest-boot-issue-871981/>http://www.linuxquestions.org/questions/slackware-14/slackware64-current-kvm-guest-boot-issue-871981/</a>
+  <br>
+  <br>
+  1. check your CPU for HW support <br> <br>
+  $ grep -E 'vmx|svm' /proc/cpuinfo <br> <br>
+  2. install kvm and bridge-utils <br>
+  # apt-get install kvm bridge-utils <br> <br>
+  3. Add user (that executes kvm) to group kvm <br>
+  # adduser <user> kvm <br> <br>
+  4. prepare images <br>
+  $ kvm-img create -f qcow <somename>.img 10G <br> <br>
+  5. prepare guest OS images or CDs <br> <br>
+  I used ISO file.  <br>
+  # mount -t iso9660 -o loop <isofile> <mount point> <br> <br>
+  6. execute kvm <br>
+  $ kvm -drive file=/usr/local/kvm_images/slak01.img,if=virtio,boot=on -cdrom /usr/local/os_images/slackware64-13.37-install-dvd.iso -boot d -m 512 -monitor stdio <br> <br>
+  Then, you'll be seeing Slackware installer boot.  <br>
+  Now, never forget to use virtio.  <br>
+  You need this to install Slackware.  <br> <br>
+  7. install Slackware <br>
+  You do this, Just as you install Slack on physical server, <br>
+  except that you'll fail to install LILO.  <br>
+  * never choose btrfs as a filesystem for /boot, lilo don't like it <br> <br>
+  8. exit setup(we're gonna install LILO from here) <br> <br>
+  9. mount devices/sys/proc -> chroot <br>
+  # mount -obind /dev /mnt/dev <br> <br>
+  # mount -obind /sys /mnt/sys <br>
+  # mount -t proc proc /proc /mnt/proc chroot /mnt <br> <br>
+  10. make initrd <br> <br>
+  Edit mkinitrd.conf <br>
+  # cd /etc/ <br>
+  # cp mkinitrd.conf.sample mkinitrd.conf <br>
+  # vi mkinitrd.conf <br> <br>
+  Edit following lines: <br>
+  MODULE_LIST="ext4:virtio_blk:virtio_pci" <br>
+  ROOTFS="ext4" <br>
+  ROOTDEV="/dev/vda3" <br> <br>
+  Get a command line for making initrd.  <br>
+  # /usr/share/mkinitrd/mkinitrd_command_generator.sh -r <br>
+  # <execute above command's output ! > <br> <br>
+  11. edit lilo.conf <br>
+  # vi /etc/lilo.conf <br> <br>
+  Add following line after boot = /dev/vda <br>
+  disk = /dev/vda bios=0x80 max-partitions=7 <br> <br>
+  Add following line after image = /boot/vmlinuz <br>
+  initrd = /boot/initrd.gz <br> <br>
+  Comment out root = /dev/vda3.  <br> <br>
+  12. install LILO <br>
+  # lilo <br> <br>
+  13. reboot <br>
+  # reboot <br> <br>
+  14. pray it to boot up <br> <br>
+  That's all for today.  <br>
+  That did it for me, I think.  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div class="g-plusone" data-annotation="inline" data-width="300"></div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+    
+(function() {
+  var po = document.createElement('script');
+  po.type = 'text/javascript';
+  po.async = true;
+  po.src = 'https://apis.google.com/js/plusone.js';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(po, s);
+})(); 
+
+  </script>
+</div>
+
+
+<h2 >
+  Comments
+</h2>
+
+
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      I am glad to hear that.
+      <br>
+      I hope you enjoy it.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      xengineer, thanks for you reply.
+      <br>
+      i boot vm from cd and after mkinitrd with params all works fine.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      Aleksei K <br>
+      I am sorry to be late.  <br>
+      I was out of town for a while.  <br> <br>
+      It seems to me that you could have missed something in step 10.  <br>
+      When you generate the initial ram disk image.  <br> <br>
+      Maybe the following lines.  <br> <br>
+      Get a command line for making initrd.  <br>
+      # /usr/share/mkinitrd/mkinitrd_command_generator.sh -r <br>
+      # <execute above command's output ! >
+      <br>
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      <br>
+      <br>
+      Where you have to execute the output of previously executed command.  <br>
+      Can you see if this works ?
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      then i do something wrong my vm output is: <br>
+      VFS: Cannot open root device "fc01" or unknown-block(252,1) <br>
+      Please append a correct "root=" boot options; here are the available partitions: <br>
+      0b00 1048575 sr0 driver: sr <br>
+      ----------- <br> <br>
+      maybe i miss something.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      Hi Aleksei K.  <br> <br>
+      This is my slice.  <br> <br>
+      /dev/vda3 => / <br>
+      /dev/vda2 => /boot <br>
+      and a swap partition.  <br> <br>
+      On lilo.conf, I put <br> <br>
+      lba32 <br>
+      boot = /dev/vda <br>
+      disk = /dev/vda bios=0x80 max-partitions=7 <br>
+      image = /boot/vmlinuz <br>
+      initrd = /boot/initrd.gz <br> <br>
+      (there are other configs, but the above configs only matters if we are talking about slices)
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      what partition do you have on /dev/vda?  <br>
+      if i have 3 /boot and /, [swap] partitions, what is my lilo.conf?
+    </div>
+  </div>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

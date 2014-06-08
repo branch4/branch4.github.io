@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Virtualization | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/virtualization/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-08T21:33:38+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Memo on Libvirt API]]></title>
+    <link href="http://blog.branch4.pw/blog/2012/04/01/memo-on-libvirt-api/"/>
+    <updated>2012-04-01T23:36:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2012/04/01/memo-on-libvirt-api</id>
+    <content type="html"><![CDATA[<div  class=post>
+  This is just a memo.  <br> <br>
+  I will take a look at this article when I use libvirt API.  <br> <br>
+  <a  href=http://www.atmarkit.co.jp/flinux/rensai/linuxkvm03/03b.html>http://www.atmarkit.co.jp/flinux/rensai/linuxkvm03/03b.html</a>
+  <br> <br>
+  I am sorry that it is all in Japanese.
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Managing KVM Image With Virt-manager]]></title>
+    <link href="http://blog.branch4.pw/blog/2012/03/12/managing-kvm-image-with-virt-manager/"/>
+    <updated>2012-03-12T21:53:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2012/03/12/managing-kvm-image-with-virt-manager</id>
+    <content type="html"><![CDATA[<div  class=post>
+  # Some information added on 2012/4/1(at the end of an article) <br> <br>
+  On my last post, I wrote about installation of Slackware on KVM.  <br> <br>
+  I used kvm command.  <br> <br>
+  Today, I'll write about managing KVM images.  <br> <br>
+  It looks like virsh(Command line) or virt-manager(GUI) is popular.  <br> <br>
+  First, about virt-manager.  <br> <br>
+  1. install virt-manager <br>
+  # apt-get install virt-manager <br> <br>
+  2. boot virt-manager <br>
+  I had a minor trouble where virt-manager complained about not being <br>
+  able to connect to the local QEMU.  <br> <br>
+  It told me to <br>
+  - check if I had installed libvirtd <br>
+  - check if the user was in the libvirtd group <br>
+  - check if the libvirtd was started <br> <br>
+  I checked, and the user wasn't in the libvirtd group, which I added with <br>
+  # adduser <user> libvirtd <br> <br>
+  rebooted the whole system <br>
+  # reboot <br> <br>
+  and fixed the matter.  <br> <br>
+  3. set the correct storage directory to virt-manager <br>
+  On default, virt-manager is set to look for <br> <br>
+  /var/lib/libvirt/images <br> <br>
+  for the virtualized images.  <br> <br>
+  On my last post, I used
+  <strike >
+    virt-install
+  </strike>
+   kvm command, and placed the image to <br> <br>
+  /usr/local/kvs_images <br> <br>
+  so I had to change that first.  <br> <br>
+  To do that, edit, <br> <br>
+  /etc/libvirt/storage/default.xml <br> <br>
+  change the following to <br> <br>
+  before <br>
+  <path>/var/lib/libvirt/images</path> <br> <br>
+  after <br> <br>
+  <path>/usr/local/kvs_images</path> <br>
+  <br>
+  and reboot libvirtd. <br>
+  # service libvirt-bin restart<br>
+  <div >
+    and you'll be able to see the images you created with virt-install.  <br> <br>
+    4. setup xml file for slackware guest <br>
+    create a test file with kvm command in it.  <br>
+    In my case this is it.  <br> <br>
+    ---------------------test.txt--------------------- <br>
+    kvm -drive file=/usr/local/kvm_images/slak01.img,if=virtio,boot=on -boot d -m 512 -monitor stdio <br> <br>
+    -------------------------------------------------- <br> <br>
+    Hit command below.  <br>
+    # virsh domxml-from-native qemu-argv test.txt > test.xml
+  </div>
+  <div >
+    <br>
+    Edit some lines.  <br>
+    Especially, <emulator> line as follows.  <br> <br> <br>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator> <br>
+    <br>
+    Execute, <br>
+    # virsh <br>
+    # define slak01 # in the virsh prompt <br> <br>
+    And you'll now be able to use your slak from virt-manager!  <br> <br>
+  </div>
+  That's all for today.  <br>
+  <div >
+    Byebye.  <br> <br> <br>
+    # added on 2012/4/2 <br> <br>
+    When managing KVM image on virt-manager(on ubuntu), <br> <br>
+    there is a configuration file on /etc/libvirt/qemu/*.xml.  <br> <br>
+    It's called a Domain XML.  <br> <br>
+    And the format is in the web site below.  <br> <br>
+    <a  href=http://libvirt.org/formatdomain.html>http://libvirt.org/formatdomain.html</a>
+    <br>
+    <br>
+  </div>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Slackware on KVM]]></title>
+    <link href="http://blog.branch4.pw/blog/2012/03/11/slackware-on-kvm/"/>
+    <updated>2012-03-11T02:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2012/03/11/slackware-on-kvm</id>
+    <content type="html"><![CDATA[<div  class=post>
+  It's probably nothing new.
+  <br>
+  <br>
+  Below are the sites that I checked.
+  <br>
+  <a  href=http://www.grocock.me.uk/blog/booting-slackware-from-a-virtio-hard-disk-in-a-kvm-virtual-machine/>http://www.grocock.me.uk/blog/booting-slackware-from-a-virtio-hard-disk-in-a-kvm-virtual-machine/</a>
+  <br>
+  <a  href=http://www.linuxquestions.org/questions/slackware-14/slackware64-current-kvm-guest-boot-issue-871981/>http://www.linuxquestions.org/questions/slackware-14/slackware64-current-kvm-guest-boot-issue-871981/</a>
+  <br>
+  <br>
+  1. check your CPU for HW support <br> <br>
+  $ grep -E 'vmx|svm' /proc/cpuinfo <br> <br>
+  2. install kvm and bridge-utils <br>
+  # apt-get install kvm bridge-utils <br> <br>
+  3. Add user (that executes kvm) to group kvm <br>
+  # adduser <user> kvm <br> <br>
+  4. prepare images <br>
+  $ kvm-img create -f qcow <somename>.img 10G <br> <br>
+  5. prepare guest OS images or CDs <br> <br>
+  I used ISO file.  <br>
+  # mount -t iso9660 -o loop <isofile> <mount point> <br> <br>
+  6. execute kvm <br>
+  $ kvm -drive file=/usr/local/kvm_images/slak01.img,if=virtio,boot=on -cdrom /usr/local/os_images/slackware64-13.37-install-dvd.iso -boot d -m 512 -monitor stdio <br> <br>
+  Then, you'll be seeing Slackware installer boot.  <br>
+  Now, never forget to use virtio.  <br>
+  You need this to install Slackware.  <br> <br>
+  7. install Slackware <br>
+  You do this, Just as you install Slack on physical server, <br>
+  except that you'll fail to install LILO.  <br>
+  * never choose btrfs as a filesystem for /boot, lilo don't like it <br> <br>
+  8. exit setup(we're gonna install LILO from here) <br> <br>
+  9. mount devices/sys/proc -> chroot <br>
+  # mount -obind /dev /mnt/dev <br> <br>
+  # mount -obind /sys /mnt/sys <br>
+  # mount -t proc proc /proc /mnt/proc chroot /mnt <br> <br>
+  10. make initrd <br> <br>
+  Edit mkinitrd.conf <br>
+  # cd /etc/ <br>
+  # cp mkinitrd.conf.sample mkinitrd.conf <br>
+  # vi mkinitrd.conf <br> <br>
+  Edit following lines: <br>
+  MODULE_LIST="ext4:virtio_blk:virtio_pci" <br>
+  ROOTFS="ext4" <br>
+  ROOTDEV="/dev/vda3" <br> <br>
+  Get a command line for making initrd.  <br>
+  # /usr/share/mkinitrd/mkinitrd_command_generator.sh -r <br>
+  # <execute above command's output ! > <br> <br>
+  11. edit lilo.conf <br>
+  # vi /etc/lilo.conf <br> <br>
+  Add following line after boot = /dev/vda <br>
+  disk = /dev/vda bios=0x80 max-partitions=7 <br> <br>
+  Add following line after image = /boot/vmlinuz <br>
+  initrd = /boot/initrd.gz <br> <br>
+  Comment out root = /dev/vda3.  <br> <br>
+  12. install LILO <br>
+  # lilo <br> <br>
+  13. reboot <br>
+  # reboot <br> <br>
+  14. pray it to boot up <br> <br>
+  That's all for today.  <br>
+  That did it for me, I think.  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div class="g-plusone" data-annotation="inline" data-width="300"></div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+    
+(function() {
+  var po = document.createElement('script');
+  po.type = 'text/javascript';
+  po.async = true;
+  po.src = 'https://apis.google.com/js/plusone.js';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(po, s);
+})(); 
+
+  </script>
+</div>
+
+
+<h2 >
+  Comments
+</h2>
+
+
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      I am glad to hear that.
+      <br>
+      I hope you enjoy it.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      xengineer, thanks for you reply.
+      <br>
+      i boot vm from cd and after mkinitrd with params all works fine.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      Aleksei K <br>
+      I am sorry to be late.  <br>
+      I was out of town for a while.  <br> <br>
+      It seems to me that you could have missed something in step 10.  <br>
+      When you generate the initial ram disk image.  <br> <br>
+      Maybe the following lines.  <br> <br>
+      Get a command line for making initrd.  <br>
+      # /usr/share/mkinitrd/mkinitrd_command_generator.sh -r <br>
+      # <execute above command's output ! >
+      <br>
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      <br>
+      <br>
+      Where you have to execute the output of previously executed command.  <br>
+      Can you see if this works ?
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      then i do something wrong my vm output is: <br>
+      VFS: Cannot open root device "fc01" or unknown-block(252,1) <br>
+      Please append a correct "root=" boot options; here are the available partitions: <br>
+      0b00 1048575 sr0 driver: sr <br>
+      ----------- <br> <br>
+      maybe i miss something.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      Hi Aleksei K.  <br> <br>
+      This is my slice.  <br> <br>
+      /dev/vda3 => / <br>
+      /dev/vda2 => /boot <br>
+      and a swap partition.  <br> <br>
+      On lilo.conf, I put <br> <br>
+      lba32 <br>
+      boot = /dev/vda <br>
+      disk = /dev/vda bios=0x80 max-partitions=7 <br>
+      image = /boot/vmlinuz <br>
+      initrd = /boot/initrd.gz <br> <br>
+      (there are other configs, but the above configs only matters if we are talking about slices)
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      what partition do you have on /dev/vda?  <br>
+      if i have 3 /boot and /, [swap] partitions, what is my lilo.conf?
+    </div>
+  </div>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
