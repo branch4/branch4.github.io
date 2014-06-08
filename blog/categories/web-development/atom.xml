@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Web Development | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/web-development/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-08T21:43:17+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Web Development] Sending Post Request With Google Chrome]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/"/>
+    <updated>2014-04-10T15:01:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose of the entry
+  </h3>
+  It's just an introduction of the tool I use for debugging purpose.  <br> 
+  I use it to check my APIs.  <br>
+  It can POST/GET/PUT/DELETE...send data in various HTTP method to any API.  <br><br>
+  <!-- more -->
+  <h3 >
+    Introduction
+  </h3>
+  Debugging APIs ?  <br>
+  It's easy to debug using 
+  <a  href=https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm>Postman REST client</a>.  <br> <br>
+  Screenshot below.  <br>
+  You need to set required HTTP method/parameters/URL etc...  <br>
+  Then press send.  <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png"></a>
+  </div>
+  <br> <br>
+  The response will be output below the settings part.  <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png"></a>
+  </div>
+  <br> <br>
+  Easy.  <br> <br>
+  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
