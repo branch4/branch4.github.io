@@ -4,7 +4,7 @@
   <title><![CDATA[branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-06-08T21:05:20+09:00</updated>
+  <updated>2014-06-08T21:07:17+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,503 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Blog on Github Pages With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/"/>
+    <updated>2014-06-07T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+<!-- more -->
+
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>まずは、前提知識から。
+今回のエントリで使うざっくり知識を下記に。</p>
+
+<ul>
+<li><a href="https://pages.github.com/">Github Pages</a>
+
+<ul>
+<li>安心<br/>
+みなさんご存知github.com提供。</li>
+<li>repositoryから直接静的ページを配信してくれる<br/>
+つまり、配信するHTMLページの作成は全然手伝ってくれない(そこが大変)</li>
+<li>サービス/プロダクトに紐づいたサイトを配信できる<br/>
+github.com上に作成している個人/組織レポジトリに対応したwebsiteを立ち上げて公開できます。</li>
+<li>たぶん高速-
+Githubのレポジトリから直接配信されることのどこが嬉しいかというと、<br/>
+恐らく、世界中どこからでも使われてるサービスなので、<br/>
+　どこからアクセスされても、かなり高速に配信できるんじゃないか？という点。</li>
+</ul>
+</li>
+<li><a href="http://jekyllrb.com/">Jekyll</a>
+
+<ul>
+<li>静的サイト生成ツール。 <a href="http://middlemanapp.com/">middleman</a>的な</li>
+<li>Github PagesでやってくれないことをやってくれるYO !</li>
+<li>特にGithub Pages専用なわけではなく、どこでも使えるぽい</li>
+<li>ただ、素で使おうとすると、細かいところまで全部手作業で、複雑らしい</li>
+<li>Jekyllについては、<a href="http://melborne.github.io/2012/05/13/first-step-of-jekyll/">koko</a>がわかりやすかったので、リンクのみで</li>
+</ul>
+</li>
+<li><a href="http://octopress.org/">Octopress</a>
+
+<ul>
+<li>Jekyllを使ってブログサイトを構築するためのフレームワーク<br/>
+便利！らしい<br/>
+他にも、<a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>なるものもあるけど、<br/>
+違いは、Octopressのほうが、楽。でも自由度が低い。そうです。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>ざっくりなイメージを図にまとめきれていないけども・・・図にすると・・・<br/>
+<img src="http://blog.branch4.pw/images/2014/06/jekyll_octopress_flow.png" alt="zakkuri flow" /></p>
+
+<p>こんな感じ。<br/>
+Octopressが、rakeで何から何まで出来るようにしてくれているので、<br/>
+rakeコマンド打ちまくって、
+&ndash; サイト生成
+&ndash; サイトプレビュー
+&ndash; サイトデプロイ（公開）
+する感じ。</p>
+
+<h3>how to setup github.io</h3>
+
+<hr />
+
+<p>まずは、github.ioでブログを公開するためのセットアップから。
+概ね、<a href="http://octopress.org/docs/setup/">koko</a>のパクリです。</p>
+
+<ol>
+<li>gitをinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li>ruby(>=1.9.3)をinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li><p>Octopressをdownloadしてsetupする</p>
+
+<pre><code> $ git clone git://github.com/imathis/octopress.git octopress  
+ $ cd octopress
+</code></pre>
+
+<p> octopress directory配下の、Gemfileをみると、octopressでやってくれる<br/>
+ 諸々の便利機能に必要なgemが列挙されている。</p>
+
+<pre><code> $ cat Gemfile
+ source ¥"https://rubygems.org  
+
+ group :development do  
+   gem 'rake', '~&gt; 0.9'  
+   gem 'jekyll', '~&gt; 0.12'  
+   gem 'rdiscount', '~&gt; 2.0.7'  
+   gem 'pygments.rb', '~&gt; 0.3.4'  
+   gem 'RedCloth', '~&gt; 4.2.9'  
+   gem 'haml', '~&gt; 3.1.7'  
+   gem 'compass', '~&gt; 0.12.2'  
+   gem 'sass', '~&gt; 3.2'  
+   gem 'sass-globbing', '~&gt; 1.0.0'  
+   gem 'rubypants', '~&gt; 0.2.0'  
+   gem 'rb-fsevent', '~&gt; 0.9'  
+   gem 'stringex', '~&gt; 1.4.0'  
+   gem 'liquid', '~&gt; 2.3.0'  
+   gem 'directory_watcher', '1.4.1'  
+ end  
+
+ gem 'sinatra', '~&gt; 1.4.2'  
+</code></pre>
+
+<p> なにはともあれinstall。</p>
+
+<pre><code> $ gem install bundler
+ $ rbenv rehash # rbenv使ってる場合のみ
+ $ bundle install
+ $ rake install # octopressのデフォルトテーマがinstallされる
+</code></pre></li>
+<li><p>githubに下記repositoryを作成する<br/>
+xxxx.github.io(xxxx:ユーザ名 or 組織名)</p></li>
+<li><p>下準備諸々<br/>
+ここがコマンド１個しか打たない割に重要。というか複雑。
+打つコマンドは、</p>
+
+<pre><code>$ rake setup_github_pages
+</code></pre>
+
+この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)<br/>
+以下、色々事前情報説明
+
+<ul>
+<li>xxxx.github.ioで一般公開されるのは、master branch</li>
+<li>つまり、誰かが、<a href="http://xxxx.github.io">http://xxxx.github.io</a> にアクセスすると、master branchがみえる</li>
+<li>公開前作業はsource branchで実施する</li>
+<li>今作業してるdirectoryとrepository
+octopressのdirectoryで、更に、repositoryとしても、imathis/octopressなので、このまま記事書いても、どこにcommitするんだ？になる</li>
+</ul>
+
+
+<p>上記を踏まえた作業を、rake setup_github_pagesがやってくれている、と。</p>
+
+<p>具体的には、</p>
+
+<ul>
+<li>実際に公開したいrepositoryを確認して、設定してくれる</li>
+<li>remote(imathis/octopress)をoriginではなくoctopressに設定してくれる</li>
+<li>originは、さっき確認したrepositoryに設定してくれる</li>
+<li>active branchをmasterではなくsourceにしてくれる</li>
+<li>さっき確認したrepositoryから、ブログのURLを設定してくれる</li>
+<li>master branchを、_deploy directoryに準備してくれる</li>
+</ul>
+
+
+<p>さて、ここまで来ると、ほとんど出来たも同然。</p>
+
+<ul>
+<li>コンテンツはない</li>
+<li>Jekyllに食わせるファイルは全部そろっている</li>
+<li>本番にpushするためのdirectory(_deploy)の準備は整っている</li>
+</ul>
+
+
+<p>なので、</p>
+
+<ul>
+<li>コンテンツを作って</li>
+<li>Jekyllに食わせて</li>
+<li>本番にpushすればOK!
+です。</li>
+</ul>
+</li>
+<li><p>ブログ生成＆本番公開<br/>
+コンテンツを作るところは別途エントリを書こうと思うので、その後から。<br/>
+まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<p>で、生成はされてるものの、本番前に確認したいので、下記でpreviewします。</p>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<p>  上記で、webrickが立ち上がるので、適当なブラウザで、<br/>
+  <a href="http://127.0.0.1:4000  ">http://127.0.0.1:4000  </a>
+  にアクセスして確認。問題なければ、下記を実行してソースをsource branchにpushしておきます。</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre>
+
+<p>  そして、下記を実行して本番にpushします。</p>
+
+<pre><code>$ rake deploy
+</code></pre></li>
+</ol>
+
+
+<p>はい、これで晴れて公開完了！<br/>
+要点は、こんなところでしょうかな。</p>
+
+<ol>
+<li>octopressを持ってくる</li>
+<li>githubに専用repository作る</li>
+<li>repositoryのsource branchでoctopress/jekyll用のファイル編集をする</li>
+<li>ファイル編集が終わったら、サイトを生成する</li>
+<li>repositoryのmaster branchに本番用ファイルをpushする</li>
+</ol>
+
+
+<p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Template]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/template/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/template</id>
+    <content type="html"><![CDATA[<h1>Title</h1>
+
+<hr />
+
+<h3>Lists</h3>
+
+<hr />
+
+<ol>
+<li>list1
+
+<ul>
+<li>list1</li>
+<li>list2</li>
+<li>list3</li>
+<li>list4</li>
+</ul>
+</li>
+<li>list2</li>
+<li>list3</li>
+<li>list4</li>
+</ol>
+
+
+<h3>Table</h3>
+
+<hr />
+
+<table>
+<thead>
+<tr>
+<th align="left">左揃え </th>
+<th align="center"> 中央揃え </th>
+<th align="right"> 右揃え</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">1111   </td>
+<td align="center"> 2222     </td>
+<td align="right"> 3333 </td>
+</tr>
+<tr>
+<td align="left">4444   </td>
+<td align="center"> 5555     </td>
+<td align="right"> 6666</td>
+</tr>
+<tr>
+<td align="left">7777   </td>
+<td align="center"> 8888     </td>
+<td align="right"> 9999  </td>
+</tr>
+</tbody>
+</table>
+
+
+<h3>Codes</h3>
+
+<hr />
+
+<p><code>$ command !!</code></p>
+
+<pre><code>$ ls -l
+$ ls -ltr
+$ sl -l
+$ sl -al
+
+param1 :
+説明  
+</code></pre>
+
+<h3>Links</h3>
+
+<hr />
+
+<p><a href="http://google.com" title="google">google test link</a><br/>
+<a href="http://google.com">google test link wo title</a></p>
+
+<h3>Images</h3>
+
+<hr />
+
+<p><img src="http://root04.github.com/images/email.png" alt="Root4Logo" /><br/>
+source/images配下にcommitしてpushした画像は、<a href="http://branch4.github.com/images/xxx.xxx  ">http://branch4.github.com/images/xxx.xxx  </a>
+でみれる。</p>
+
+<h3>Emphasize</h3>
+
+<hr />
+
+<p><em>EMPHASIZE</em><br/>
+<em>EMPHASIZE</em><br/>
+<strong>EMPHASIZE</strong><br/>
+<strong>EMPHASIZE</strong></p>
+
+<h3>Quote</h3>
+
+<hr />
+
+<blockquote><p>a said a</p>
+
+<blockquote><p>b said ba</p>
+
+<blockquote><p>c said ca</p></blockquote></blockquote></blockquote>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ElastiCache vs Redis@EC2]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/redis-on-aws/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/redis-on-aws</id>
+    <content type="html"><![CDATA[<h1>ElastiCache vs Redis@EC2</h1>
+
+<hr />
+
+<p>タイトルはちょっと言い過ぎです。
+Redis導入するとしたら、自前で管理したほうがいいのか、
+はたまた ElastiCache のほうがいいのか、について調べてみた結果です。
+調査は2014年4月時点なので、若干古いです。
+(その後追加された機能も既にあります)</p>
+
+<h3>What&rsquo;s ElastiCache</h3>
+
+<hr />
+
+<p>ElastiCacheは、Redisのマネージドサービスです。</p>
+
+<p>elasticache.pdf：
+　簡単にまとめてます。
+　ここからみていただくのがよいかと思います。</p>
+
+<p>redis_elasticache_config.pdf：
+　redis/elasticacheに共通している設定項目で、違いがあるかの比較。
+　一部redisにはない設定項目も含まれています。
+redisonly_config.pdf
+　redisにしか存在しない設定項目。ざっくり、下記に分かれています。
+　あんまりいじられるとAWSがつらくなりそうな項目が多かったです。
+　- 基本項目
+　- replication関連
+　- RDBダンプ関連
+　- AOF関連</p>
+
+<p>現状のインフラエンジニアの人数、規模感を考えると、なるべく運用
+必須のシステムはないほうがよいと思います。
+まだコスト比較できていないので、決定打ではないかもしれませんが、
+ElastiCacheは、DynamoDB比だとまだ運用コストが高い(手がかかる)
+かな、と思うので、可能であればDynamoがお勧めかと思います。</p>
+
+<h3>Lists</h3>
+
+<hr />
+
+<ol>
+<li>list1
+
+<ul>
+<li>list1</li>
+<li>list2</li>
+<li>list3</li>
+<li>list4</li>
+</ul>
+</li>
+<li>list2</li>
+<li>list3</li>
+<li>list4</li>
+</ol>
+
+
+<h3>Table</h3>
+
+<hr />
+
+<table>
+<thead>
+<tr>
+<th align="left">左揃え </th>
+<th align="center"> 中央揃え </th>
+<th align="right"> 右揃え</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">1111   </td>
+<td align="center"> 2222     </td>
+<td align="right"> 3333 </td>
+</tr>
+<tr>
+<td align="left">4444   </td>
+<td align="center"> 5555     </td>
+<td align="right"> 6666</td>
+</tr>
+<tr>
+<td align="left">7777   </td>
+<td align="center"> 8888     </td>
+<td align="right"> 9999  </td>
+</tr>
+</tbody>
+</table>
+
+
+<h3>Codes</h3>
+
+<hr />
+
+<p><code>$ command !!</code></p>
+
+<pre><code>$ ls -l
+$ ls -ltr
+$ sl -l
+$ sl -al
+
+param1 :
+説明  
+</code></pre>
+
+<h3>Links</h3>
+
+<hr />
+
+<p><a href="http://google.com" title="google">google test link</a><br/>
+<a href="http://google.com">google test link wo title</a></p>
+
+<h3>Images</h3>
+
+<hr />
+
+<p>DynamoDB運営の場合との比較を考えると・・・</p>
+
+<p>◎メリット
+・ElastiCacheで問題がある場合に、 Redis on EC2に移行しやすい
+・インスタンス単位での課金なので、コストが読みやすい
+・冗長構成の構築は簡単(でもDynamoDBは常に冗長構成だから優位性はない)</p>
+
+<p>◎デメリット
+・インスタンスを起動して運用するタイプのサービスなので、基本的に運用が発生する
+・サポートされないRedisの機能、コマンドがいくつかある
+　→RDBのダンプ機能は未サポート
+　→rename command/saveコマンド等は未サポート
+・メンテナンスウィンドウの設定が必須(指定した時間帯はAWS側メンテが入る可能性がある)
+　→マルチAZ構成にして、他 AZにレプリを作成、通信断時は自動Failoverの構成が必須
+・現実的に考えて、RDBダンプは必須(未サポートだけど)
+　→EC2上でredisを動かして、ElastiCacheからレプリを貼る。そこでダンプする構成が必要
+　　→ElastiCacheだけで完結しないので意味が・・・
+oot4Logo](<a href="http://root04.github.com/images/email.png">http://root04.github.com/images/email.png</a>)<br/>
+source/images配下にcommitしてpushした画像は、<a href="http://branch4.github.com/images/xxx.xxx  ">http://branch4.github.com/images/xxx.xxx  </a>
+でみれる。</p>
+
+<h3>Emphasize</h3>
+
+<hr />
+
+<p><em>EMPHASIZE</em><br/>
+<em>EMPHASIZE</em><br/>
+<strong>EMPHASIZE</strong><br/>
+<strong>EMPHASIZE</strong></p>
+
+<h3>Quote</h3>
+
+<hr />
+
+<blockquote><p>a said a</p>
+
+<blockquote><p>b said ba</p>
+
+<blockquote><p>c said ca</p></blockquote></blockquote></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法]]></title>
@@ -946,158 +1443,6 @@
   に書き換えてくれますよ、って話。 <br>
   今度わかりやすいように図解もつけようかな。 <br>
   今日は眠いからこれで終了。 <br>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[JS] in Place Editor]]></title>
-    <link href="http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor/"/>
-    <updated>2014-03-02T22:08:00+09:00</updated>
-    <id>http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor</id>
-    <content type="html"><![CDATA[<div  class=post>
-  Webの画面に表示されてるテキストとかを、クリックしてその場で編集できるやつ。 <br> <br>
-  を、In place editor、というらしい。 <br> <br>
-  <!-- more -->
-  http://d.hatena.ne.jp/cyokodog/20100628/exinplaceeditor01 <br>
-  http://www.hakkaku.net/articles/20100221-595 <br>
-  http://shimz.me/blog/jquery/1505 <br>
-  http://www.ideaxidea.com/archives/2009/06/jquery_edit_in_place.html <br>
-  http://cappee.net/coding/in-place-editor-ui <br> <br>
-  なんか色々plugin的なものがあるみたいなんだけど、 <br>
-  一旦x-editableっていうのを使ってみようかな。 <br> <br>
-  http://vitalets.github.io/x-editable/ <br> <br>
-  ちなみに、自分でもそれっぽく作ってみたものの、 <br>
-  思い通りに動かないので、冷静に先達のライブラリを探してみたのです(笑) <br> <br>
-  使い方は、、、使ってみてから書こうかな。そらそーだ。 <br> <br>
-  <br>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[Android] Entry Point of Android Program]]></title>
-    <link href="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/"/>
-    <updated>2014-02-11T12:55:00+09:00</updated>
-    <id>http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program</id>
-    <content type="html"><![CDATA[<div  class=post>
-  There&#8217;s no main function in Android programming.  <br>
-  Many people notice that. So where&#8217;s the entry point ?  <br>
-  It&#8217;s pointed in AndroidManifest.xml file.  <br>
-  There are many things written in this file so I&#8217;ll go into the details in other articles.  <br><br>
-  For now, example below will be enough.  <br> <br>
-  <!-- more -->
-  <pre  class=prettyprint>
-    <span  style=font-size: small;>
-      &lt;?xml version="1.0" encoding="utf-8"?&gt;
-      &lt;manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.XXXX.testApp"
-        android:versionCode="1" android:versionName="1.0" &gt;
-      &lt;uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="18" /&gt;
-      &lt;application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" &gt;
-      &lt;activity
-        android:name="com.xxxx.yyyy.MainActivity"
-        android:label="@string/app_name" &gt;
-      &lt;intent-filter&gt;
-      &lt;action android:name="android.intent.action.MAIN" /&gt;
-      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
-      &lt;/intent-filter&gt;
-      &lt;/activity&gt;
-      &lt;/application&gt;
-      &lt;/manifest&gt;
-    </span> </pre>
-  In above manifest, the activity with, the intent-filter below will be listed in the system launcher, and would be the entry point for that icon.  <br>
-  <pre  class=prettyprint>
-    <span  style=font-size: small;>
-      &lt;intent-filter&gt;
-      &lt;action android:name="android.intent.action.MAIN" /&gt;
-      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
-      &lt;/intent-filter&gt;
-    </span> </pre>
-  In detail, <br>
-  <pre  class=prettyprint>
-    <span  style=font-size: small;>
-      &lt;action android:name="android.intent.action.MAIN" /&gt;
-    </span> </pre>
-  &#8211;>this line sets the entry point <br><br>
-  <pre  class=prettyprint>
-    <span  style=font-size: small;>
-      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
-    </span> </pre>
-  &#8211;>this line sets the app to the launcher <br> <br>
-  This could be set to multiple activities.  <br>
-  I think facebook once used this with their messenger.  <br> <br>
-  <br>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[Android] onCreateメソッドの引数の意味]]></title>
-    <link href="http://blog.branch4.pw/blog/2014/02/03/android-oncreate/"/>
-    <updated>2014-02-03T00:43:00+09:00</updated>
-    <id>http://blog.branch4.pw/blog/2014/02/03/android-oncreate</id>
-    <content type="html"><![CDATA[<div  class=post>
-  Android開発やってみてるわけですが、わからないことだらけで困ってます。 <br> <br>
-  今日は、<br><br>
-  <pre  class=prettyprint>
-    <span  style=font-size: small;>
-    onCreate(Bundle savedInstanceState)
-    </span></pre>
-  の、引数のところって何？ という疑問でございます。<br><br>
-  まぁググれば沢山出てくるんですが。
-    <!-- more -->
-  <br><br>
-  一番は、
-  <a  href=http://developer.android.com/training/basics/activity-lifecycle/recreating.html style=font-family: inherit; target=_blank>ここ</a> 。当たり前か。 <br> 
-  日本語だと
-  <a  href=http://fernweh.jp/b/android-state-save-load/ target=_blank>ここ</a> がわかりやすかったです。 <br> <br>
-  僕も忘れないように反芻すると・・・ <br>
-  <ul>
-  Androidでは、こんなときに、Activityが破棄されてます。
-  <li>
-    画面を縦方向から横方向に持ち替えた時
-  </li>
-  <li>
-    バックグラウンドに入ってしばらく経った時<br>
-  </li>
-  <li>
-    システム容量が足りなくなった時
-  </li>
-  <li>
-    ユーザがアプリを終了した時
-  </li>
-  </ul>
-  などなど。 <br> <br>
-  ユーザが自分で閉じた時は別らしいけど、少なくとも、下記２パターンにおいては、 <br>
-  勝手にActivity破棄されると残念な気持ちになります。 <br><br>
-  <ul>
-  <li>
-    画面を縦方向から横方向に持ち替えた時
-  </li>
-  <li>
-    システム容量が足りなくなった時
-  </li>
-  </ul>
-  だって、こっちは悪くないもの。 <br>
-  そんなことはGoogleさんも百も承知のようで、破棄前に、 <br><br>
-    onSaveInstanceState() <br><br>
-  を呼ぶらしい。で、その時の状態が、key/valueペアになって、Bundleクラスに保存されて・・・ <br> <br>
-  onCreateメソッドの引数でわたってくる、ということのようでした。 <br> <br>
-  確かに、縦から横に持ち替えた時、layoutも変わるし、同じ情報じゃ画面再構築できないかもしれないし、再読み込み必要です。 <br> <br>
-  ちなみに、onCreateで渡ってくるので、ここでは処理しないといけないのと、 <br> <br>
-  onRestoreInstanceState()が、Activity cycleでいうと、onStart()の後に呼ばれる(<a  href=http://developer.android.com/reference/android/app/Activity.html target=_blank>ここ</a>
-  参照)ので、処理いれとかないと、onStop()->onRestart()のフローでの復帰時にうまくいかなそうな予感。 <br> <br>
-  ちなみに、Bundleのメソッドたちは、
-  <a  href=http://developer.android.com/reference/android/os/Bundle.html target=_blank>ここ</a>参照。 <br> <br>
-  とりあえず、そんなメモでした。 <br> <br>
 </div>
 ]]></content>
   </entry>

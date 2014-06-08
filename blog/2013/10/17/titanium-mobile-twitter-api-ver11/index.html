@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[Titanium Mobile] Twitter API ver1.1 - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="(function() { var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[Titanium Mobile] Twitter API ver1.1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-17T00:07:00+09:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div  class=post>
+  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <br>
+  <div  class=g-plusone data-annotation=inline data-width=300>
+  </div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+      (function() {
+       var po = document.createElement('script');
+       po.type = 'text/javascript';
+       po.async = true;
+       po.src = 'https://apis.google.com/js/plusone.js';
+       var s = document.getElementsByTagName('script')[0];
+       s.parentNode.insertBefore(po, s);
+       })(); 
+  </script>
+  <br>
+  I was implementing twitter API ver1.1 in Titanium Mobile.  <br> <br>
+  I really couldn&#8217;t find a good way to implement ver1.1, <br>
+  but I came across tm_twitter_api and oauth.js/sha1.js, <br>
+  which seem to have been working quite well for ver1.0.  <br> <br>
+  I decided to look into Twitter docs to see how I should implement Oauth on Twitter.  <br> <br>
+  reference: <br>
+  <a  href=https://dev.twitter.com/docs/auth/implementing-sign-twitter>https://dev.twitter.com/docs/auth/implementing-sign-twitter</a> <br>
+  <a  href=https://dev.twitter.com/docs/auth/3-legged-authorization>https://dev.twitter.com/docs/auth/3-legged-authorization</a> <br>
+  <a  href=https://dev.twitter.com/docs/auth/authorizing-request>https://dev.twitter.com/docs/auth/authorizing-request</a> <br> <br>
+  there seem to be some steps until I get to tweet or even get a list of my tweet.  <br>
+  And Oauth takes part in authorizing a specific application to do those actions.  <br> <br>
+  Mere goal for these step are to get an access token to be used at twitter API.  <br> <br>
+  <i >
+    <b >
+      [step1] obtain a request token
+    </b>
+  </i>
+  <br> <br>
+  I need to send a signed message to below URL.  <br>
+  (you have to use POST) <br> <br>
+  https://api.twitter.com/oauth/request_token <br> <br>
+  method POST with the following data.  <br> <br>
+  oauth_consumer_key <br>
+  oauth_nonce <br>
+  oauth_signature <br>
+  oauth_signature_method <br>
+  oauth_timestamp <br>
+  oauth_version <br> <br>
+  How I should generate these values are quoted in below URL.  <br>
+  <a  href=https://dev.twitter.com/docs/auth/authorizing-request>https://dev.twitter.com/docs/auth/authorizing-request</a> <br> <br>
+  I&#8217;ll probably just use methods from oauth.js.  <br> <br>
+  In response to this request, I should be getting these 3 items.  <br>
+  oauth_token : request token?  <br>
+  oauth_token_secret : ?  <br>
+  oauth_callback_confirmed : must check it&#8217;s value is &#8220;true&#8221;. No idea what it is.  <br>
+  Response code must be 200.  <br> <br>
+  For verification, I must check that oauth_callback_confirmed == true, <br>
+  and save other 2 variables for the next step to be processed.  <br> <br>
+  <i >
+    <b >
+      [step2] redirect user(and authorize the application)
+    </b>
+  </i>
+  <br>
+  Direct them to GET <br>
+  <a  href=https://api.twitter.com/oauth/authorize>https://api.twitter.com/oauth/authorize</a>.  <br>
+  In the request, I should pass oauth_token from the response of step1.  <br> <br>
+  According to the authorization status, the result will differ in the following manner.  <br> <br>
+  status1: if user is signed in on twitter.com, and approved <br>
+  They will be immediately authorized and return to the callback URL with a valid Oauth request token.  <br> <br>
+  status2: if user is signed in on twitter.com, but not approved <br>
+  A request to approve calling application will be shown.  <br>
+  After the user approves it, they&#8217;ll be returning to the callback URL with a valid Oauth request token.  <br> <br>
+  status3: if user is not signed in on twitter.com <br>
+  They will be prompted to fill in the credential information.  <br>
+  After the user sign in, they&#8217;ll be returning to the callback URL with a valid Oauth request token.  <br> <br>
+  In response to this request, the callback_url will receive a request containing the oauth_token and oauth_verifier parameters.  <br>
+  And the app should verify that this oauth_token is identical to the one saved in step1.  <br>
+  Also it must save these 2 values for the next step.  <br> <br>
+  <b >
+    <i >
+      [step3] get the access token(finally)
+    </i>
+  </b>
+  <br> <br> <br>
+  Call POST  <br>
+  <a  href=https://api.twitter.com/oauth/access_token>https://api.twitter.com/oauth/access_token</a> .  <br>
+  The request must contain oauth_verifier value obtained in step2.  <br>
+  Request token must also be passed as oauth_token.  <br> <br>
+  <br>
+  In response to this, I should receive a response containing oauth_token(which is access token), and oauth_token_secret parameters.  <br> <br>
+  These values should be save for later use in the authorized requests to the Twitter API.  <br> <br>
+  <br> <br>
+  So, this should be it.  <br>
+  But I&#8217;m not quite sure if I understood everything&#8230;  <br>
+  I&#8217;ll check the code in oauth_adopter, and update if I notice any mistakes.  <br>
+  (I&#8217;m already quite not sure about callback URLs &#8230;) <br> <br>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-17T00:07:00+09:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/titanium-mobile/'>Titanium Mobile</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11/" data-via="" data-counturl="http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/13/titanium-mobile-difference-between/" title="Previous Post: [Titanium Mobile] difference between Ti.include and require">&laquo; [Titanium Mobile] difference between Ti.include and require</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/10/22/ror-geminstallerextensionbuilderror/" title="Next Post: [RoR] Gem::Installer::ExtensionBuildError: ERROR: Failed to build gem native extension.">[RoR] Gem::Installer::ExtensionBuildError: ERROR: Failed to build gem native extension. &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/06/07/blog-on-github.io-with-octopress/">Blog on Github Pages With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/template/">Template</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/redis-on-aws/">ElastiCache vs Redis@EC2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/">[Misc] Sluggish Google Chrome With Ubuntu</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/root04">@root04</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'root04',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/nemoto.hideaki?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+We'll place our Google Adsense here !!
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2013/10/17/titanium-mobile-twitter-api-ver11/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
