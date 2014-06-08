@@ -3,7 +3,7 @@ layout: post
 title: "Blog on Github Pages with Octopress"
 date: 2014-06-06T23:20:00-07:00
 comments: true
-published: false
+published: true
 categories:
  - misc
 ---
