@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Aws | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/aws/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-15T14:49:02+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Resize Temp File of Oracle on RDS]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/"/>
+    <updated>2014-06-16T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize</id>
+    <content type="html"><![CDATA[<p>どもども。<a href="http://portfolio.risterlab.com">saorister</a>です。<br/>
+野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。<br/>
+(統一性なさすぎw)</p>
+
+<p>今回は私がブログ記事担当！<br/>
+ということで、<br/>
+この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。</p>
+
+<h3>DBのディスク空き容量が!!!</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/figure_graph_down.png" alt="DBのディスク空き容量が!!!" /></p>
+
+<p>RDSのOracleさんでTEMP表領域サイズがめっちゃでっかくなっちゃって<br/>
+空き容量がほとんどなくなっちゃったよぉぉぉぉ！！！</p>
+
+<p>パニック！！！</p>
+
+<p>って時の対処法を。</p>
+
+<h3>起きたこと</h3>
+
+<hr />
+
+<ol>
+<li>どこかのおばかさんがとんでもSQLを投げた</li>
+<li>コアDB(RDS)のディスク容量があと10%以下よーというアラートがCloudWatchから飛んできて異常に気づく</li>
+<li>怪しいセッションを発見。すぐにkill!KILL!!キル！！！</li>
+<li>とりあえずぐんぐん下がっていくディスクの空き容量のグラフはあと100MBのところで止まった。  はぁ。</li>
+<li>ひとまずディスク容量増やそうぜ！このためのRDSじゃないか！ってことでディスク容量を100GBから111GBへ(10%以上じゃないとあげられないのよ)</li>
+</ol>
+
+
+<p>退屈な毎日だとは思っていたけどこんなスリルは求めてない。</p>
+
+<h3>増えたTemp領域を小さくする</h3>
+
+<hr />
+
+<p>とんでもSQLってのはselect文だったわけだけど<br/>
+むちゃくちゃなjoinをしてTEMP表領域(一時領域)が膨れ上がっちゃったわけですね。<br/>
+今回は30GBがあった空きが100MBまで30分ぐらいでなくなっちゃったのよ。<br/>
+こわいねー。<br/>
+で、慌ててセッションkillしたから、その一時領域は開放されずそのまま残っちゃった。<br/>
+ので、これを小さくしてあげないといけない。<br/>
+「oracle temp領域 resize」「oracle 一時領域 縮小」<br/>
+とかで検索するとやりかたはいっぱいでてきます。<br/>
+だけどそこに書いてあるこのコマンド</p>
+
+<p><code>SQL&gt; alter database tempfile ~</code></p>
+
+<p>ってのはRDSじゃ権限がなくてできないんですよ。<br/>
+はい、困った。</p>
+
+<p>ってわけで先に結論。</p>
+
+<h4>RDSのoracleのtemp領域(一時領域)を縮小する方法</h4>
+
+<p>1.TEMP表領域を新規作成します。</p>
+
+<p><code>
+SQL&gt; CREATE TEMPORARY TABLESPACE TEMP02;
+Tablespace created.
+</code></p>
+
+<p>2.デフォルトのTEMP表領域を1.で作成したものに変更します。</p>
+
+<p><code>
+SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+PL/SQL procedure successfully completed.
+</code></p>
+
+<p>3.元のTEMP表領域を削除します。</p>
+
+<p><code>
+SQL&gt; DROP TABLESPACE temp;
+Tablespace dropped.
+</code></p>
+
+<h2>実際にやったこと Try &amp; Error編</h2>
+
+<p>上で書いた結論はたった３つだけど、そこにたどり着くまでの試行錯誤も書いちゃうよ。<br/>
+まず膨れ上がったのがTEMP表領域だったことの確認はこのSQLで。</p>
+
+<p><code>
+SELECT dt.file_name, dt.tablespace_name,
+to_char(dt.bytes / 1024, '99999990.000') file_kbytes,
+ to_char(t.bytes_cached / 1024, '99999990.000') used_kbytes,
+ to_char(t.bytes_cached / dt.bytes * 100, '990.00') || '%' capacity
+FROM sys.dba_temp_files dt, v$temp_extent_pool t, v$tempfile v
+WHERE t.file_id(+)= dt.file_id AND dt.file_id = v.file#;
+</code></p>
+
+<p>こんな状態でした。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/temp_30GB.png" alt="temp30GB" /></p>
+
+<p>で、単純に縮小しようとしてもできません。</p>
+
+<p><code>SQL&gt; alter tablespace temp resize 100M</code></p>
+
+<p>```
+SQLエラー: ORA-03297: ファイルには、リクエストしたRESIZE値を超える使用中のデータが含まれています。
+03297. 00000 &ndash;  &ldquo;file contains used data beyond requested RESIZE value&rdquo;
+*Cause:    Some portion of the file in the region to be trimmed is</p>
+
+<pre><code>       currently in use by a database object
+</code></pre>
+
+<p>*Action:   Drop or move segments containing extents in this region prior to</p>
+
+<pre><code>       resizing the file, or choose a resize value such that only free
+       space is in the trimmed.
+</code></pre>
+
+<p>```</p>
+
+<p>こう言われちゃいますね。使ってるのよって。<br/>
+じゃあ、ってことでオンプレのoracleで普通やる縮小方法を試してみると。</p>
+
+<p><code>SQL&gt; alter database tempfile '/path/to/temp/file1.tmp' resize 10M;</code><br/>
+&ndash;> はいalter databaseはRDSでうてませーん。権限ありませーん。</p>
+
+<p>じゃあお決まりの、新しくTEMP表領域を小さいのつくって、置き換える作成へ。</p>
+
+<p><code>SQL&gt; create temporary tablespace TEMP02 size 10M;</code><br/>
+&ndash;> だめ。これも権限ないって怒られる。<br/>
+でもこれはファイルサイズを決める権限がないってことらしく、これなら<br/>
+通った。<br/>
+<code>SQL&gt; create temporary tablespace TEMP02;</code></p>
+
+<p>さっきのSQLで確認するとtmpファイルが２つでてきて、<br/>
+新しいものは100MBでできていることがわかるはず。</p>
+
+<p>よし、ここでデフォルトのTEMP表領域を置き換える。<br/>
+そうalter databaseじゃなくてexec rdsadminを使ってね！</p>
+
+<p><code>
+SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+PL/SQL procedure successfully completed.
+</code></p>
+
+<p>よーしこれで用無しになった30GBのおデブちゃんを削除だ！</p>
+
+<p><code>
+SQL&gt; DROP TABLESPACE temp;
+Tablespace dropped.
+</code></p>
+
+<p>ぐっばい、おでぶちゃん。<br/>
+勝利の美酒に浸りながらCloudWatchで空き容量が一気にもどってるのを見ようとしたら<br/>
+なんと！<br/>
+グラフ微動だにせず、、、、<br/>
+むしろ追加したTEMP表領域の分の100MB分減っとるやないかーい！<br/>
+くそ、結局再起動しないと消えへんオチかい。<br/>
+と調べてたら、こっちにするべきだったみたい。</p>
+
+<p><code>
+SQL&gt; drop tablespace &lt;tablespace_name&gt; including contents and datafiles;
+</code></p>
+
+<p>これじゃないとファイルも一緒に削除してくれないとな。<br/>
+もー先に教えてよー。時既に遅しじゃーん。まぁ今日は寝よ。<br/>
+ってことで次の日CloudWatchのグラフ見たらびっくり。<br/>
+半日遅れでディスクの空き増えてるよ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/CloudWatch_storagefreespace_edit.png" alt="CloudWatch ディスク空きグラフ" /></p>
+
+<p>なんでやねん！</p>
+
+<p>答えは単純でOracleのマイナーバージョンアップをONにしてると<br/>
+指定した時間にパッチをあててアップデートしてくれてるんですな。<br/>
+そのときに再起動がかかってると。<br/>
+そのマイナーバージョンアップの指定してる時間を見ると、</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/minorvirsionup_widdow.png" alt="Minor VersionUP Widdow" /></p>
+
+<p>UTCでAM1:00-1:30だから+9時間で朝の10時半ごろ、、、<br/>
+グラフみるとビンゴ！！<br/>
+そうゆうことですか、、、</p>
+
+<p>なんだかなぁ。すっきりせんなぁ。</p>
+
+<h2>あとがき</h2>
+
+<p>ちなみに上で書いてるのはテストDBでやったこと。<br/>
+まだ本番DBはtemp表領域が30GBのままで動いてるんですよぉ。<br/>
+事情があってなかなかこの作業させてもらえなくてねぇ。<br/>
+だから本番でやるときはちゃんとincluding contents and datafilesもつけて<br/>
+ファイル削除してやろうと思うんです。<br/>
+その結果はまた続きとして書く予定です。</p>
+
+<p>ではでは、今日はこんなところで。</p>
+]]></content>
+  </entry>
+  
+</feed>
