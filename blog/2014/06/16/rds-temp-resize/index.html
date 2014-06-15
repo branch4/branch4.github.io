@@ -129,6 +129,11 @@
 
 <p>って時の対処法を。</p>
 
+<!-- more -->
+
+
+<p></p>
+
 <h3>起きたこと</h3>
 
 <hr />
@@ -137,8 +142,8 @@
 <li>どこかのおばかさんがとんでもSQLを投げた</li>
 <li>コアDB(RDS)のディスク容量があと10%以下よーというアラートがCloudWatchから飛んできて異常に気づく</li>
 <li>怪しいセッションを発見。すぐにkill!KILL!!キル！！！</li>
-<li>とりあえずぐんぐん下がっていくディスクの空き容量のグラフはあと100MBのところで止まった。  はぁ。</li>
-<li>ひとまずディスク容量増やそうぜ！このためのRDSじゃないか！ってことでディスク容量を100GBから111GBへ(10%以上じゃないとあげられないのよ)</li>
+<li>とりあえずぐんぐん下がっていくディスクの空き容量のグラフはもうほぼ０のところでぎりぎり止まった。  はぁ。</li>
+<li>ひとまずディスク容量増やそうぜ！このためのRDSじゃないか！ってことでディスク容量を10%増量。(10%以上じゃないとあげられないのよ)</li>
 </ol>
 
 
@@ -150,7 +155,6 @@
 
 <p>とんでもSQLってのはselect文だったわけだけど<br/>
 むちゃくちゃなjoinをしてTEMP表領域(一時領域)が膨れ上がっちゃったわけですね。<br/>
-今回は30GBがあった空きが100MBまで30分ぐらいでなくなっちゃったのよ。<br/>
 こわいねー。<br/>
 で、慌ててセッションkillしたから、その一時領域は開放されずそのまま残っちゃった。<br/>
 ので、これを小さくしてあげないといけない。<br/>
@@ -211,7 +215,7 @@
 
 
 <p>こんな状態でした。<br/>
-<img src="http://blog.branch4.pw/images/2014/06/temp_30GB.png" alt="temp30GB" /></p>
+<img src="http://blog.branch4.pw/images/2014/06/temp_30GB_masking.png" alt="temp30GB" /></p>
 
 <p>で、単純に縮小しようとしてもできません。</p>
 
@@ -259,7 +263,7 @@
 </span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
 
 
-<p>よーしこれで用無しになった30GBのおデブちゃんを削除だ！</p>
+<p>よーしこれで用無しになったおデブちゃんを削除だ！</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -303,8 +307,7 @@
 
 <h2>あとがき</h2>
 
-<p>ちなみに上で書いてるのはテストDBでやったこと。<br/>
-まだ本番DBはtemp表領域が30GBのままで動いてるんですよぉ。<br/>
+<p>ちなみに上で書いてるのはテストDBでやったこと。  <br/>
 事情があってなかなかこの作業させてもらえなくてねぇ。<br/>
 だから本番でやるときはちゃんとincluding contents and datafilesもつけて<br/>
 ファイル削除してやろうと思うんです。<br/>
