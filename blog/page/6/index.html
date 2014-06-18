@@ -1,0 +1,1106 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="I realized I&#8217;ve never written a script(or say config file) for upstart. And apache2 is gonna be the first sacrifice here&#8230;which didn&# &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/page/6">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/25/upstart-config-for-apache/">Upstart Config for Apache</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-25T02:50:00+09:00" pubdate data-updated="true">Mar 25<span>th</span>, 2012</time>
+        
+           | <a href="/blog/2012/03/25/upstart-config-for-apache/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2012/03/25/upstart-config-for-apache/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  I realized I&#8217;ve never written a script(or say config file) for upstart.  <br> <br>
+  And apache2 is gonna be the first sacrifice here&#8230;which didn&#8217;t succeed&#8230;  <br> <br>
+  I couldn&#8217;t get apache to be working without NO_DETACH.  <br> <br>
+  I guess the PID trace thing with upstart don&#8217;t support what apache does.  <br> <br>
+  And I haven&#8217;t been able to get rid of a weird error/warning thats out on <br> <br>
+  # stop apache2 <br> <br>
+  But it looks like start/stop is working&#8230; I give up for today&#8230;  <br> <br>
+  &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;cut from here&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212; <br> <br> <br>
+  description &#8220;Apache(HTTPD) Server&#8221; <br>
+  author      &#8221;hogehoge&#8221; <br> <br>
+  start on (local-filesystems <br>
+            and net-device-up <br>
+            and runlevel [2345]) <br>
+  stop on runlevel [!2345] <br> <br>
+  respawn <br> <br>
+  env APPNAME=apache2 <br>
+  env LOCKDIR=/var/run/apache2 <br>
+  env HTTPD_ENV=/etc/default/apache2 <br>
+  env EXECCMD_START=&#8221;/usr/local/httpd/bin/apachectl start&#8221; <br>
+  env EXECCMD_STOP=&#8221;/usr/local/httpd/bin/apachectl stop&#8221; <br>
+  env CONF=/usr/local/httpd/conf/httpd.conf <br>
+  env EXPECTPATH=&#8221;/usr/bin/expect&#8221; <br>
+  env EXPECTTIMEOUT=100 <br>
+  env TAILPATH=&#8221;/usr/bin/tail&#8221; <br>
+  env TAILOPT=&#8221;&#8211;lines=1 -f&#8221; <br>
+  env PKILLPATH=&#8221;/usr/bin/pkill&#8221; <br>
+  env PKILLSIG=&#8221; -9 &#8221; <br>
+  env PKILLOPT=&#8221; -f &#8221; <br>
+  env CHKWORD=&#8221;caught SIGTERM, shutting down&#8221; <br>
+  env PROCWORD=&#8221;/bin/httpd &#8221; <br>
+  env PGREP=/usr/bin/pgrep <br>
+  env EXECUSER=&#8221;root&#8221; <br>
+  env PROCFLG=&#8221;/usr/bin/pgrep -f -u root bin/httpd > /dev/null && echo FOUND || echo NOTFOUND&#8221; <br> <br>
+  pre-start script <br> <br>
+    #Sanity checks <br>
+    [ -r ${HOME}/httpd.conf ] || install -o httpd -g httpd -m 755 -d ${LOCKDIR} <br>
+    #[ -r ${HTTPD_ENV} ] && . ${HTTPD_ENV} <br>
+    if [ &#8220;x${PROCFLG}&#8221; = &#8220;xFOUND&#8221;  ]; then <br>
+      echo &#8220;${APPNAME} Found !!&#8221; <br>
+      exit 1 <br>
+    fi <br>
+    #emits apache2_starting <br>
+  end script <br> <br>
+  script <br>
+    #logger -t &#8220;$0&#8221; &#8220;DEBUG: `set`&#8221; <br>
+    #expect fork <br>
+    #exec ${EXECCMD_START} -D NO_DETACH -f ${CONF} <br>
+    exec /usr/local/httpd/bin/httpd -D NO_DETACH -f /usr/local/httpd/conf/httpd.conf <br>
+    #exec ${HOME}/bin/httpd -D NO_DETACH -f ${CONF} <br>
+    #exec /usr/sbin/apache2 -X -e debug -E /var/log/apache2/foo.log <br>
+  end script <br> <br>
+  post-stop script <br> <br>
+    if [ &#8220;x${PROCFLG}&#8221; = &#8220;xNOTFOUND&#8221;  ]; then <br>
+      echo &#8220;Stopped ${APPNAME} successfully or it hadn&#8217;t been started in the first place.&#8221; <br>
+      exit 0 <br>
+    fi <br> <br>
+    ${EXECCMD_STOP} <br>
+    ${EXPECTPATH} <<EOF <br>
+    set timeout ${EXPECTTIMEOUT} <br>
+    log_file log-stop.txt <br>
+    spawn ${TAILPATH} ${TAILOPT} ${TARGETLOG} <br>
+    expect &#8220;${CHKWORD}&#8221; <br>
+      { <br>
+        puts &#8220;OK. Normally shut down.&#8221; <br>
+      } <br>
+      timeout <br>
+      { <br>
+        puts &#8220;NG. Can&#8217;t shutdown. Execute Kill Process&#8221; <br>
+        system &#8220;${PKILLPATH} ${PKILLSIG} ${PKILLOPT} ${PROCWORD} &#8221; <br>
+        exit 1 <br>
+      } <br>
+    EOF <br>
+    RC=$?  <br>
+    if [ ${RC} != 0 ]; then <br>
+      exit ${RC} <br>
+    fi <br>
+    } <br>
+  end script <br> <br>
+  <br>
+    &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/">Ruby on Rails - rvm(Ruby Version Manager) -</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-19T00:21:00+09:00" pubdate data-updated="true">Mar 19<span>th</span>, 2012</time>
+        
+           | <a href="/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  This entry is a memo about developing with ruby on rails.  <br> <br>
+  Prerequisites: <br>
+    - I&#8217;ve never used ruby <br>
+    - I&#8217;ve developed with MVC Framework in Java and Python <br> <br>
+  First, I did some googling about ruby and etc.  <br> <br>
+  And decided to learn about following applications.  <br> <br>
+    - rvm(Ruby Version Manager) <br>
+    - rubygems <br>
+    - rails <br>
+    - passenger <br> <br>
+  From above, this entry focuses on RVM.  <br> <br>
+  RVM(Ruby Version Manager) manages ruby version and gemsets.  <br> <br>
+  You can install many versions of rubys, and many combinations of gemsets, <br> <br>
+  and choose to use a right version on right purposes.  <br> <br>
+  1. installing rvm <br>
+  go home and install it.  <br> <br> <br>
+  $ cd <br>
+  $ bash < <(curl -s https://rvm.beginrescueend.com/install/rvm) <br> <br>
+  You&#8217;ll get <br>
+  Deprecated command, please use: <br> <br>
+  bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer) <br> <br>
+  So, execute the command above, instead.  <br> <br>
+  This installs rvm under ${HOME}/.rvm <br> <br>
+  2. setup environment variables <br> <br>
+  Edit .bashrc and add this line.  <br> <br>
+    [[ -s &#8220;$HOME/.rvm/scripts/rvm&#8221; ]] && source &#8220;$HOME/.rvm/scripts/rvm&#8221; <br> <br>
+  3. check ruby version that can be installed and install some <br> <br>
+  &#8220;rvm list known&#8221; command shows what&#8217;s available.  <br> <br>
+  $ rvm list known <br>
+  # MRI Rubies <br> <br>
+  [ruby-]1.8.6[-p420] <br>
+  [ruby-]1.8.7[-p358] <br>
+  [ruby-]1.8.7-head <br>
+  [ruby-]1.9.1[-p431] <br>
+  [ruby-]1.9.2-p180 <br>
+  [ruby-]1.9.2-p290 <br>
+  [ruby-]1.9.2[-p318] <br>
+  [ruby-]1.9.2-head <br>
+  [ruby-]1.9.3-preview1 <br>
+  [ruby-]1.9.3-rc1 <br>
+  [ruby-]1.9.3-p0 <br>
+  [ruby-]1.9.3[-p125] <br>
+  [ruby-]1.9.3-head <br>
+  ruby-head <br>
+  &#8230;snip <br> <br>
+  I installed 1.9.3-p125 and 1.8.7-p358.  <br> <br>
+  $ rvm install 1.9.3-p125 <br>
+  $ rvm install 1.8.7-p358 <br> <br>
+  4. set default ruby <br> <br>
+  $ rvm use 1.9.3-p125 &#8211;default <br>
+  $ ruby -v <- check the version <br> <br>
+  ruby 1.9.3p125 (2012-02-16 revision 34643) [x86_64-linux] <br> <br>
+  <br>
+  5. create gemsets <br> <br>
+  gemset is a grouping function of gems.  <br> <br>
+  I can create gemset for rails version3.1 and rails version 3.2, <br> <br>
+  and use it on different purpose, when ever I need to.  <br> <br>
+  $ rvm gemset create rails31 <br> <br>
+  $ rvm gemset create rails32 <br> <br>
+  <br>
+  $ rvm gemset list <br>
+  gemsets for ruby-1.9.3-p125 (found in ${HOME}/.rvm/gems/ruby-1.9.3-p125) <br>
+     global <br>
+     rails31 <br>
+     rails32 <br> <br>
+  <br> <br>
+  6. set default gemsets <br>
+    $ rvm use 1.9.3-p125@rails32 &#8211;default <br>
+  7. install passenger and rails3.2.2 <br>
+    check where you are.  <br>
+    $ rvm gemset list <br>
+    gemsets for ruby-1.9.3-p125 (found in ${HOME}/.rvm/gems/ruby-1.9.3-p125) <br>
+       global <br>
+       rails31 <br>
+    => rails32 <br>
+    $ gem install rails &#8211;version 3.2.2 <br>
+    $ gem install passenger <br>
+    8. setup apache to use passenger(install modules and so on) <br>
+    a. if you use apt-get installed apache <br>
+    just type <br>
+    $ passenger-install-apache2 <br>
+    and follow the instructions.  <br>
+    b. if you plan to use self compiled apache <br>
+      - add apache binary path to PATH <br>
+        PATH=${PATH}:/usr/local/httpd/bin/ <br>
+        export PATH <br>
+      - set APXS2 path <br>
+      - set APR_CONFIG path <br>
+      - set APU_CONFIG path <br>
+          APXS2=/usr/local/httpd/bin/apxs <br>
+          APR_CONFIG=/usr/local/httpd/bin/apr-1-config <br>
+          APU_CONFIG=/usr/local/httpd/bin/apu-1-config <br>
+          export APXS2 <br>
+          export APR_CONFIG <br>
+          export APU_CONFIG <br>
+        - set HTTPD path <br>
+          HTTPD=/usr/local/httpd <br>
+          export HTTPD <br>
+      and then type <br>
+      $ rvmsudo passenger-install-apache2 <br>
+    and do what the terminal saids.  <br>
+    I&#8217;ll write about executing self made ruby app on rails on the next entry.  <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/12/managing-kvm-image-with-virt-manager/">Managing KVM Image With Virt-manager</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-12T21:53:00+09:00" pubdate data-updated="true">Mar 12<span>th</span>, 2012</time>
+        
+           | <a href="/blog/2012/03/12/managing-kvm-image-with-virt-manager/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2012/03/12/managing-kvm-image-with-virt-manager/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  # Some information added on 2012/4/1(at the end of an article) <br> <br>
+  On my last post, I wrote about installation of Slackware on KVM.  <br> <br>
+  I used kvm command.  <br> <br>
+  Today, I&#8217;ll write about managing KVM images.  <br> <br>
+  It looks like virsh(Command line) or virt-manager(GUI) is popular.  <br> <br>
+  First, about virt-manager.  <br> <br>
+  1. install virt-manager <br>
+  # apt-get install virt-manager <br> <br>
+  2. boot virt-manager <br>
+  I had a minor trouble where virt-manager complained about not being <br>
+  able to connect to the local QEMU.  <br> <br>
+  It told me to <br>
+  - check if I had installed libvirtd <br>
+  - check if the user was in the libvirtd group <br>
+  - check if the libvirtd was started <br> <br>
+  I checked, and the user wasn&#8217;t in the libvirtd group, which I added with <br>
+  # adduser <user> libvirtd <br> <br>
+  rebooted the whole system <br>
+  # reboot <br> <br>
+  and fixed the matter.  <br> <br>
+  3. set the correct storage directory to virt-manager <br>
+  On default, virt-manager is set to look for <br> <br>
+  /var/lib/libvirt/images <br> <br>
+  for the virtualized images.  <br> <br>
+  On my last post, I used
+  <strike >
+    virt-install
+  </strike>
+   kvm command, and placed the image to <br> <br>
+  /usr/local/kvs_images <br> <br>
+  so I had to change that first.  <br> <br>
+  To do that, edit, <br> <br>
+  /etc/libvirt/storage/default.xml <br> <br>
+  change the following to <br> <br>
+  before <br>
+  <path>/var/lib/libvirt/images</path> <br> <br>
+  after <br> <br>
+  <path>/usr/local/kvs_images</path> <br>
+  <br>
+  and reboot libvirtd. <br>
+  # service libvirt-bin restart<br>
+  <div >
+    and you&#8217;ll be able to see the images you created with virt-install.  <br> <br>
+    4. setup xml file for slackware guest <br>
+    create a test file with kvm command in it.  <br>
+    In my case this is it.  <br> <br>
+    &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;test.txt&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212; <br>
+    kvm -drive file=/usr/local/kvm_images/slak01.img,if=virtio,boot=on -boot d -m 512 -monitor stdio <br> <br>
+    &#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211; <br> <br>
+    Hit command below.  <br>
+    # virsh domxml-from-native qemu-argv test.txt > test.xml
+  </div>
+  <div >
+    <br>
+    Edit some lines.  <br>
+    Especially, <emulator> line as follows.  <br> <br> <br>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator> <br>
+    <br>
+    Execute, <br>
+    # virsh <br>
+    # define slak01 # in the virsh prompt <br> <br>
+    And you&#8217;ll now be able to use your slak from virt-manager!  <br> <br>
+  </div>
+  That&#8217;s all for today.  <br>
+  <div >
+    Byebye.  <br> <br> <br>
+    # added on 2012/4/2 <br> <br>
+    When managing KVM image on virt-manager(on ubuntu), <br> <br>
+    there is a configuration file on /etc/libvirt/qemu/*.xml.  <br> <br>
+    It&#8217;s called a Domain XML.  <br> <br>
+    And the format is in the web site below.  <br> <br>
+    <a  href=http://libvirt.org/formatdomain.html>http://libvirt.org/formatdomain.html</a>
+    <br>
+    <br>
+  </div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/11/slackware-on-kvm/">Slackware on KVM</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-11T02:07:00+09:00" pubdate data-updated="true">Mar 11<span>th</span>, 2012</time>
+        
+           | <a href="/blog/2012/03/11/slackware-on-kvm/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2012/03/11/slackware-on-kvm/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  It&#8217;s probably nothing new.
+  <br>
+  <br>
+  Below are the sites that I checked.
+  <br>
+  <a  href=http://www.grocock.me.uk/blog/booting-slackware-from-a-virtio-hard-disk-in-a-kvm-virtual-machine/>http://www.grocock.me.uk/blog/booting-slackware-from-a-virtio-hard-disk-in-a-kvm-virtual-machine/</a>
+  <br>
+  <a  href=http://www.linuxquestions.org/questions/slackware-14/slackware64-current-kvm-guest-boot-issue-871981/>http://www.linuxquestions.org/questions/slackware-14/slackware64-current-kvm-guest-boot-issue-871981/</a>
+  <br>
+  <br>
+  1. check your CPU for HW support <br> <br>
+  $ grep -E &#8216;vmx|svm&#8217; /proc/cpuinfo <br> <br>
+  2. install kvm and bridge-utils <br>
+  # apt-get install kvm bridge-utils <br> <br>
+  3. Add user (that executes kvm) to group kvm <br>
+  # adduser <user> kvm <br> <br>
+  4. prepare images <br>
+  $ kvm-img create -f qcow <somename>.img 10G <br> <br>
+  5. prepare guest OS images or CDs <br> <br>
+  I used ISO file.  <br>
+  # mount -t iso9660 -o loop <isofile> <mount point> <br> <br>
+  6. execute kvm <br>
+  $ kvm -drive file=/usr/local/kvm_images/slak01.img,if=virtio,boot=on -cdrom /usr/local/os_images/slackware64-13.37-install-dvd.iso -boot d -m 512 -monitor stdio <br> <br>
+  Then, you&#8217;ll be seeing Slackware installer boot.  <br>
+  Now, never forget to use virtio.  <br>
+  You need this to install Slackware.  <br> <br>
+  7. install Slackware <br>
+  You do this, Just as you install Slack on physical server, <br>
+  except that you&#8217;ll fail to install LILO.  <br>
+  * never choose btrfs as a filesystem for /boot, lilo don&#8217;t like it <br> <br>
+  8. exit setup(we&#8217;re gonna install LILO from here) <br> <br>
+  9. mount devices/sys/proc -> chroot <br>
+  # mount -obind /dev /mnt/dev <br> <br>
+  # mount -obind /sys /mnt/sys <br>
+  # mount -t proc proc /proc /mnt/proc chroot /mnt <br> <br>
+  10. make initrd <br> <br>
+  Edit mkinitrd.conf <br>
+  # cd /etc/ <br>
+  # cp mkinitrd.conf.sample mkinitrd.conf <br>
+  # vi mkinitrd.conf <br> <br>
+  Edit following lines: <br>
+  MODULE_LIST=&#8221;ext4:virtio_blk:virtio_pci&#8221; <br>
+  ROOTFS=&#8221;ext4&#8221; <br>
+  ROOTDEV=&#8221;/dev/vda3&#8221; <br> <br>
+  Get a command line for making initrd.  <br>
+  # /usr/share/mkinitrd/mkinitrd_command_generator.sh -r <br>
+  # <execute above command's output ! > <br> <br>
+  11. edit lilo.conf <br>
+  # vi /etc/lilo.conf <br> <br>
+  Add following line after boot = /dev/vda <br>
+  disk = /dev/vda bios=0x80 max-partitions=7 <br> <br>
+  Add following line after image = /boot/vmlinuz <br>
+  initrd = /boot/initrd.gz <br> <br>
+  Comment out root = /dev/vda3.  <br> <br>
+  12. install LILO <br>
+  # lilo <br> <br>
+  13. reboot <br>
+  # reboot <br> <br>
+  14. pray it to boot up <br> <br>
+  That&#8217;s all for today.  <br>
+  That did it for me, I think.  <br>
+  <!-- Place this tag where you want the +1 button to render. -->
+  <div class="g-plusone" data-annotation="inline" data-width="300"></div>
+  <!-- Place this tag after the last +1 button tag. -->
+  <script  type=text/javascript>
+    
+(function() {
+  var po = document.createElement('script');
+  po.type = 'text/javascript';
+  po.async = true;
+  po.src = 'https://apis.google.com/js/plusone.js';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(po, s);
+})(); 
+
+  </script>
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      I am glad to hear that.
+      <br>
+      I hope you enjoy it.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      xengineer, thanks for you reply.
+      <br>
+      i boot vm from cd and after mkinitrd with params all works fine.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      Aleksei K <br>
+      I am sorry to be late.  <br>
+      I was out of town for a while.  <br> <br>
+      It seems to me that you could have missed something in step 10.  <br>
+      When you generate the initial ram disk image.  <br> <br>
+      Maybe the following lines.  <br> <br>
+      Get a command line for making initrd.  <br>
+      # /usr/share/mkinitrd/mkinitrd_command_generator.sh -r <br>
+      # <execute above command's output ! >
+      <br>
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      <br>
+      <br>
+      Where you have to execute the output of previously executed command.  <br>
+      Can you see if this works ?
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      then i do something wrong my vm output is: <br>
+      VFS: Cannot open root device &#8220;fc01&#8221; or unknown-block(252,1) <br>
+      Please append a correct &#8220;root=&#8221; boot options; here are the available partitions: <br>
+      0b00 1048575 sr0 driver: sr <br>
+      &#8212;&#8212;&#8212;&#8211; <br> <br>
+      maybe i miss something.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      Hi Aleksei K.  <br> <br>
+      This is my slice.  <br> <br>
+      /dev/vda3 => / <br>
+      /dev/vda2 => /boot <br>
+      and a swap partition.  <br> <br>
+      On lilo.conf, I put <br> <br>
+      lba32 <br>
+      boot = /dev/vda <br>
+      disk = /dev/vda bios=0x80 max-partitions=7 <br>
+      image = /boot/vmlinuz <br>
+      initrd = /boot/initrd.gz <br> <br>
+      (there are other configs, but the above configs only matters if we are talking about slices)
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      Aleksei K
+    </div>
+    <div  class=content>
+      what partition do you have on /dev/vda?  <br>
+      if i have 3 /boot and /, [swap] partitions, what is my lilo.conf?
+    </div>
+  </div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/07/using-list-for-actionform/">[RoR] Using List for Actionform</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-07T00:02:00+09:00" pubdate data-updated="true">Mar 7<span>th</span>, 2012</time>
+        
+           | <a href="/blog/2012/03/07/using-list-for-actionform/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2012/03/07/using-list-for-actionform/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Just a quick memo.  <br> <br>
+  Look through this.  <br> <br>
+  <a  href=http://www.webkaifa.com/jsp/jakartaStrutsCookbook/059600771x/jakartastrutsckbk-chp-3-sect-4.html>http://www.webkaifa.com/jsp/jakartaStrutsCookbook/059600771x/jakartastrutsckbk-chp-3-sect-4.html</a>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/02/19/consider-using-cdist/">Consider Using Cdist</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-19T02:38:00+09:00" pubdate data-updated="true">Feb 19<span>th</span>, 2012</time>
+        
+           | <a href="/blog/2012/02/19/consider-using-cdist/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2012/02/19/consider-using-cdist/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Today, I&#8217;ll write about cdist.  <br> <br>
+  It&#8217;s a configuration management system, like puppet or chef or some others.  <br> <br>
+  I think the official website for cdist is 
+  <a  href=http://www.nico.schottelius.org/software/cdist/>here</a>
+  , and you could get most of the information there. So just read it(:-) <br> <br>
+  First my cdist version is 2.0.7.  <br> <br>
+  To check the version, type <br> <br>
+  hogehoge@localhost:~/cdist$ cdist -V <br> <br>
+  cdist 2.0.7 <br> <br>
+  Now to start with, I need a documentation, and the HTML document is handy.  <br>
+  It&#8217;s under ${CDIST}/doc/man/man{1,7} (${CDIST} assumes where you installed cdist) <br>
+  Open &#8220;cdist-quickstart.html&#8221; with chrome or something.  <br>
+  And the rest goes to the next blog&#8230;  <br>
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      This comment has been removed by the author.
+    </div>
+  </div>
+  <div  class=comment>
+    <div  class=author>
+      telmich
+    </div>
+    <div  class=content>
+      Hello.  <br> <br>
+      You are always root when doing configuration management on machine. Ssh is considered to be secure and password-less (key based) authentication as well.  <br> <br>
+      And if you really want to go a different way, you can use custom remote_exec and remote_copy commands.  <br> <br>
+      Cheers, <br> <br>
+      Nico
+    </div>
+  </div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/25/installing-adobe-air-to-oneiric/">Installing Adobe Air to Oneiric Ocelot(64bit)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-25T01:39:00+09:00" pubdate data-updated="true">Dec 25<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/25/installing-adobe-air-to-oneiric/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/25/installing-adobe-air-to-oneiric/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  This worked for me.  <br> <br>
+  <a  href=http://kb2.adobe.com/cps/521/cpsid_52132.html#main_Install_AIR_2_on_64_bit_Ubuntu_9_04>http://kb2.adobe.com/cps/521/cpsid_52132.html#main_Install_AIR_2_on_64_bit_Ubuntu_9_04</a>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/chef-setup/">Chef Setup</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T23:24:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/chef-setup/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/chef-setup/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  I started here.  <br> <br>
+  <a  href=http://wiki.opscode.com/display/chef/Installation>http://wiki.opscode.com/display/chef/Installation</a> <br> <br>
+  Installed the chef/chef-server via apt.  <br> <br>
+  Installation went pretty well, except my laptop hanged while the <br>
+  chef-solr installation, and had to delete the rabbitMQ user, after <br>
+  the reboot.  <br> <br>
+  # rabbitmqctl delete_user chef <br> <br>
+  Then, <br> <br>
+  # apt-get install chef chef-server <br> <br>
+  again.  <br>
+  This did it.  <br> <br>
+  I&#8217;ll add some more news later.
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/mysql-show-database-character-set-and/">[MySQL] Show Database Character-set and Change It to Utf8</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:23:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/mysql-show-database-character-set-and/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/mysql-show-database-character-set-and/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  <p  dir=ltr>
+    > show variables like &#8220;char%&#8221;;
+  </p>
+  <p  dir=ltr>
+    edit my.cnf.
+  </p>
+  <p  dir=ltr>
+    [mysqld] <br>
+    #character-set-server = latin1 <br>
+    #collation-server = latin1_general_ci <br>
+    default-character-set=utf8 <br>
+    skip-character-set-client-handshake
+  </p>
+  <p  dir=ltr>
+    character-set-server defines default character-set.  <br>
+    collation-server defines servers default check order for character-set.  <br>
+    To tell the truth, I havent had enough understanding for collation-server.  <br>
+    I&#8217;ll write about it again, when I looked it up.  <br>
+    I&#8217;ll have to edit others like, [mysqldump] and [mysql].  <br>
+    Just add
+  </p>
+  <p  dir=ltr>
+    default-character-set=utf8
+  </p>
+  <p  dir=ltr>
+    and finally, I got to set character-set for my CUI.  <br>
+    After getting into the mysql console, just type
+  </p>
+  <p  dir=ltr>
+    SET NAMES <what ever char-set with your console> <br>
+    char-set = cp932(in windows)/utf8(in Linux)
+  </p>
+  <p  dir=ltr>
+    that should be it.
+  </p>
+  <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/mysql-showing-sql-from-existing/">[MySQL] Generate SQL From Existing Database/table</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:21:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/mysql-showing-sql-from-existing/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/mysql-showing-sql-from-existing/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  > show create database <DB name> <br>
+  >show create table <table name> <br> <br>
+  thats it.
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/7/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/5/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/07/blog-on-github.io-with-octopress/">Blog on Github Pages With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/redis-on-aws/">ElastiCache vs Redis@EC2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

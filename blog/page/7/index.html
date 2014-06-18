@@ -1,0 +1,661 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="gconftool-2 &#8211;set /desktop/gnome/shell/windows/button_layout &#8211;type string close,minimize,maximize: or use gconf-editor.which ever you &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/page/7">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/enabling-minimizemaximize-button-on/">Enabling Minimize/maximize Button on Gnome3</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:21:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/enabling-minimizemaximize-button-on/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/enabling-minimizemaximize-button-on/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  gconftool-2 &#8211;set /desktop/gnome/shell/windows/button_layout &#8211;type string close,minimize,maximize: <br> <br>
+  or use gconf-editor.which ever you like.  <br> <br>
+  Logout->Login, there you have it.  <br>
+  BTW, if you want the buttons on the right top,the right string is &#8220;:close,minimize,maximize&#8221;.  <br> <br> <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/another-trouble-with-apt-mirror/">Another Trouble With Apt-mirror</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:17:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/another-trouble-with-apt-mirror/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/another-trouble-with-apt-mirror/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  it seems like apt-mirror is not downloading everything I need for Oneiric.  <br>
+  Why is that ??  <br>
+  Well, I dont know the answer yet, but I&#8217;m suspicious about &#8220;archive.ubuntu.com&#8221;.  <br> <br>
+  Yes, the connection limit, or the traffic shaping, if they have one.  <br>
+  That they might have cut my connection, since I&#8217;m experiencing a connection loss in rsync from the command line.  <br> <br>
+  I&#8217;m just checking on this with apt-mirror with ftp.riken.go.jp.  <br>
+  Hopefully, I&#8217;ll get the answer by tomorrow morning.  <br>
+  Let&#8217;s get a nap&#8230;
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      Unknown
+    </div>
+    <div  class=content>
+      oops. I think this is my bad.  <br>
+      In /etc/apt/mirror.list <br> <br>
+      this line here, <br>
+      deb-amd64 http://ftp.riken.go.jp/Linux/ubuntu oneiric main restricted universe multiverse <br> <br>
+      had to be like this, with debian-installer, I think.  <br>
+      deb-amd64 http://ftp.riken.go.jp/Linux/ubuntu oneiric main main/debian-installer restricted restricted/debian-installer universe multiverse <br> <br>
+      I&#8217;m giving a shot right now.
+    </div>
+  </div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/postmirrorsh-postmirrorsh/">postmirror.sh</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:16:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/postmirrorsh-postmirrorsh/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/postmirrorsh-postmirrorsh/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  apt-mirror didnt really get everything ready for me.  <br>
+  which took me to some googling.  <br>
+  and found that I need to execute something like the following.  <br> <br>
+  ====== here ====== <br>
+  #!/bin/sh -e <br> <br>
+  RSYNCSOURCE=rsync://jp.archive.ubuntu.com/ubuntu <br>
+  BASEDIR=/usr/local/repository_mirror/mirror/archive.ubuntu.com/ubuntu/ <br> <br>
+  # oneiric dists <br>
+  rsync &#8211;recursive &#8211;times &#8211;links &#8211;hard-links \ <br>
+        &#8211;exclude &#8220;Packages*&#8221; &#8211;exclude &#8220;Sources*&#8221; &#8211;exclude &#8220;Release*&#8221; &#8211;no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric/ ${BASEDIR}/dists/oneiric/ <br> <br>
+  rsync &#8211;recursive &#8211;times &#8211;links &#8211;hard-links &#8211;delete &#8211;delete-after &#8211;no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric/ ${BASEDIR}/dists/oneiric/ <br> <br>
+  # oneiric-update dists <br>
+  rsync &#8211;recursive &#8211;times &#8211;links &#8211;hard-links \ <br>
+        &#8211;exclude &#8220;Packages*&#8221; &#8211;exclude &#8220;Sources*&#8221; &#8211;exclude &#8220;Release*&#8221; &#8211;no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-updates/ ${BASEDIR}/dists/oneiric-updates/ <br> <br>
+  rsync &#8211;recursive &#8211;times &#8211;links &#8211;hard-links &#8211;delete &#8211;delete-after &#8211;no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-updates/ ${BASEDIR}/dists/oneiric-updates/ <br> <br>
+  # oneiric-security dists <br>
+  rsync &#8211;recursive &#8211;times &#8211;links &#8211;hard-links \ <br>
+        &#8211;exclude &#8220;Packages*&#8221; &#8211;exclude &#8220;Sources*&#8221; &#8211;exclude &#8220;Release*&#8221; &#8211;no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-security/ ${BASEDIR}/dists/oneiric-security/ <br> <br>
+  rsync &#8211;recursive &#8211;times &#8211;links &#8211;hard-links &#8211;delete &#8211;delete-after &#8211;no-motd \ <br>
+        ${RSYNCSOURCE}/dists/oneiric-security/ ${BASEDIR}/dists/oneiric-security/ <br> <br>
+  ====== to here ====== <br>
+  this will get me everything ready.  <br> <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/splitting-encrypted-pdf-splitting/">Splitting an Encrypted PDF Splitting an Encrypted PDF</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:13:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/splitting-encrypted-pdf-splitting/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/splitting-encrypted-pdf-splitting/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  # convert it to ps file.  <br>
+  $ pdf2ps <pdf> <br> <br>
+  # then revert it.  <br>
+  $ ps2pdf <ps> <br> <br>
+  # then split.  <br>
+  $ pdftk <pdf> burst <br> <br>
+  there you go.
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/apt-mirror/">Apt-mirror</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:12:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/apt-mirror/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/apt-mirror/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  I figured out why it didnt work.  <br>
+  It was just a matter of permission or ownership.  <br>
+  I did <br> <br>
+  chown -R /usr/local/repo <- where I make my repository <br> <br>
+  and it looks like its working just fine.
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/local-repository-for-ubuntu/">Local Repository for Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:11:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/local-repository-for-ubuntu/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/local-repository-for-ubuntu/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  quick googling told me theres 3 ways to do it.  <br> <br>
+  <ul >
+    <li >
+      apt-mirror
+    </li>
+    <li >
+      debmirror
+    </li>
+    <li >
+      reprepro
+    </li>
+  </ul>
+  <br>
+  reprepro seems to be better on management of the self-made debs(not the ones from Canonical, but the ones made by myself).  <br>
+  debmirror or apt-mirror fulfills my requirement.  <br>
+  But Natty apt-mirror wont work.(Looks like a bug) <br> <br>
+  So the only choice left is debmirror.  <br>
+  heres the script.  <br>
+  I&#8217;d have to admit that apt-mirror is more nice(in the way it has neat config file), <br>
+  but its worthless when all it does is spit an errror.  <br> <br>
+  #!/bin/bash <br> <br>
+  # sourcehost <br>
+  HOST=archive.ubuntu.com; <br> <br>
+  # destination directory <br>
+  DEST=/usr/local/repository_mirror <br> <br>
+  # Debian version(s) to mirror <br>
+  DIST=natty,oneiric <br> <br>
+  # architecture <br>
+  ARCH=amd64 <br> <br>
+  debmirror ${DEST} \ <br>
+   &#8211;nosource \ <br>
+   &#8211;host=${HOST} \ <br>
+   &#8211;root=/ubuntu \ <br>
+   &#8211;dist=${DIST} \ <br>
+   &#8211;section=main,restricted,main/debian-installer,restricted/debian-installer,universe,universe/debian-installer,multiverse,multiverse/debian-installer \ <br>
+   &#8211;arch=${ARCH} \ <br>
+   &#8211;passive &#8211;cleanup \ <br>
+   &#8211;state-cache-days=7 \ <br>
+   &#8211;ignore-release-gpg \ <br>
+   &#8211;method=rsync \ <br>
+   &#8211;rsync-batch=100 \ <br>
+   &#8211;progress &#8211;verbose
+</div>
+<h2 >
+  Comments
+</h2>
+<div  class=comments>
+  <div  class=comment>
+    <div  class=author>
+      xengineer
+    </div>
+    <div  class=content>
+      apt-mirror worked fine.  <br>
+      It was my bad.
+    </div>
+  </div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/vsftpd/">Vsftpd</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:07:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/vsftpd/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/vsftpd/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Done setting up vsftpd for PXE.  <br>
+  I&#8217;m using it to serve preseed file.  <br> <br>
+  <ul >
+    <li >
+      Had to be accessible by anonymous user
+    </li>
+    <li >
+      Needed to set root dir
+    </li>
+    <li >
+      root dir had to be unwritable by anonymous user
+    </li>
+  </ul>
+  <br>
+  so, <br> <br>
+  anonymous_enable=YES <br>
+  no_anon_password=YES <br>
+  anon_root=whateverdir <br> <br>
+  and <br> <br>
+  chmod 555 whateverdir <br> <br>
+  thats all I did.  <br> <br>
+  By the way, I&#8217;m using Natty Narwhal.
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/11/pxe-install-with-ubuntu/">Pxe Install With Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T17:04:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+           | <a href="/blog/2011/12/11/pxe-install-with-ubuntu/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2011/12/11/pxe-install-with-ubuntu/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  use <br> <br>
+  # debconf-get-selections > hoge.txt <br> <br>
+  when your lost.  <br> <br>
+  That&#8217;s best way to find your way.
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/6/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/07/blog-on-github.io-with-octopress/">Blog on Github Pages With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/redis-on-aws/">ElastiCache vs Redis@EC2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

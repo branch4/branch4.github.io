@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Misc | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/misc/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-06-18T22:37:13+09:00</updated>
+  <updated>2014-06-19T00:21:18+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,205 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Posting a Blog With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/"/>
+    <updated>2014-06-19T16:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+前回に引き続きOctopress関連です。</p>
+
+<p>今回は、実際投稿するときどうするか、という点を。<br/>
+投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、少しかぶり気味。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<p><code>
+$ git push origin source
+</code></p>
+
+<p>までは終わってること。<br/>
+そこまできてたらこのblogは読まなくても書け・・・ます、はい。<br/>
+強いて言えば、準備はできてるけど、なんかよくわからんうちに準備できた人用。<br/>
+それか、このブログみたいに、複数で更新してるので、セットアップした人と、<br/>
+書く人が違う場合用。</p>
+
+<!-- more -->
+
+
+<h3>Cloning</h3>
+
+<hr />
+
+<p>では、setupしたrepositoryを、</p>
+
+<p><code>
+https://github.com/xxxxxx/xxxxxx.github.io.git
+</code></p>
+
+<p>とした場合。まずは、repositoryをlocalにcloneします。</p>
+
+<p><code>
+$ git clone https://github.com/xxxxxx/xxxxxx.github.io.git
+</code></p>
+
+<p>この時点で、active branchは、source branchに設定されております。</p>
+
+<p><code>
+$ git status
+</code>
+でみるとわかるよん。<br/>
+前回の記事でも書いたけど、記事書くときの実作業は、このままsource branchでやって、<br/>
+本番投稿は、master branchにする、てな手口。</p>
+
+<h3>deploy用設定</h3>
+
+<hr />
+
+<p>次はdeploy用の設定しときます。<br/>
+cloneしたdirectoryにcdして、下記コマンドを実行。</p>
+
+<p><code>
+$ bundle exec rake setup_github_pages
+</code></p>
+
+<p>前回の記事でも出てきたんだけど、簡単にいうと、<br/>
+<em>deploy directoryを作ってくれる。<br/>
+で、本番deployのときは、この </em>deploy directoryにあるmaster branchにpushするので、<br/>
+_deploy に、master branchをpullしとく、と。</p>
+
+<p><code>
+$ cd _deploy
+$ git pull origin master
+</code>
+これでdeploy用の設定は完了。</p>
+
+<h3>しっぴつ！</h3>
+
+<hr />
+
+<p>ここでは２点紹介。</p>
+
+<ul>
+<li>どこに書く？</li>
+<li>画像はどうする？</li>
+</ul>
+
+
+<h4>どこに書くか。</h4>
+
+<p>例えば、この記事のファイルは下記に格納されておる。</p>
+
+<p><code>
+$ ls source/_post/2014-06-08-blog-on-github.io-with-octopress.markdown
+</code></p>
+
+<p>ポイントはファイル名。</p>
+
+<p>&lt;year&gt;&ndash;&lt;month&gt;&ndash;&lt;day&gt;-title.&lt;markdown/html&gt;</p>
+
+<p>的な。これ以外にすると静的ファイルが生成されまてん。<br/>
+内容は、こんな感じ。</p>
+
+<h2>```</h2>
+
+<p>layout: post
+title: &ldquo;Blog on Github Pages with Octopress&rdquo;
+date: 2014-06-06T23:20:00-07:00
+comments: true
+published: true
+categories:</p>
+
+<h2> &ndash; misc</h2>
+
+<p>ここから下に本文を書く
+```</p>
+
+<p>上のほうに、meta-dataを突っ込んで、その下にコンテンツを書く感じでござい。<br/>
+meta-dataの意味は・・・みればすぐわかるような内容しか設定してないので解説なしで。<br/>
+他にも色々あるので使いたい人は調べてみてちょ。</p>
+
+<h4>画像はどうするか</h4>
+
+<p>はい、画像は、source/images配下にcommitします。<br/>
+で、commit/pushすると、</p>
+
+<p><a href="http://github.com/xxxxxx/images/yyyyyy.png">http://github.com/xxxxxx/images/yyyyyy.png</a></p>
+
+<p>でみれるようになります。<br/>
+markdownの場合は、以下な感じで書いとけば、deployしたときに見えるようになります。</p>
+
+<p><code>
+[test](http://github.com/xxxxxx/images/yyyyyy.png)
+</code></p>
+
+<p>当然のようにpreviewのときは見えないので、previewでみたい場合は、画像だけ<br/>
+先にpushしとかないとだめかと。(面倒なので僕は一発本番チェック派)</p>
+
+<p>たぶん、この２つがわかればコンテンツ作るとこまではできるはず。<br/>
+コンテンツ書いたら、</p>
+
+<p><code>
+$ bundle exec rake generate; bundle exec rake preview
+</code></p>
+
+<p>を実行すると、<a href="http://127.0.0.1:4000">http://127.0.0.1:4000</a> に、Webrickがあがるので、<br/>
+ブラウザで見た目チェックと修正を繰り返して、完成までがんばりましょう。</p>
+
+<h3>投稿！</h3>
+
+<hr />
+
+<p>そんな工程を経て記事が無事完成したら、本番公開と、作業ファイルのcommitをしましょう。<br/>
+Octopressは、Jekyllに作業ファイルを食わせて本番用ファイルを生成するので、作業ファイルを<br/>
+commitしとかないと、次回本番生成時に記事がなくなっちゃうので要注意。</p>
+
+<p>そんなわけで、下記で作業ファイルのcommitと本番deploy。</p>
+
+<p><code>
+$ git add .
+$ git commit -m 'nanka message'
+$ git push origin source
+$ bundle exec rake deploy
+</code></p>
+
+<p>あとは無事投稿されてるかを本番で確認したら、完了！<br/>
+おつかれちゃん。</p>
+
+<h3>rake task for generatign new posts</h3>
+
+<hr />
+
+<p>はい、もう終わりなんだけど、新規投稿するときに、いちいちファイルを0から作るのは<br/>
+めんどくさいので、専用raketaskが用意されております。一応その共有。</p>
+
+<p><code>
+$ rake new_post['title']
+</code>
+を実行すると、下記ファイルができあがります、と。<br/>
+source/_posts/2014-06-19-title.markdown</p>
+
+<p>正直、そんなに重要じゃなさげにみえるんだけど、例えば、</p>
+
+<ul>
+<li>テンプレを用意しておきたい</li>
+<li>adsenseを毎回貼るのがめんどくさい</li>
+<li>&lt;!&mdash; more &mdash;&gt;を忘れないようにしたい</li>
+</ul>
+
+
+<p>などなどある人は、Rakefileのtaskに加筆するとスーパー便利になったり。<br/>
+そんな使い方もありますよ。</p>
+
+<p>今日はこの辺で。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Blog on Github Pages With Octopress]]></title>
@@ -242,6 +441,168 @@ git push origin source
 
 
 <p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ElastiCache vs Redis@EC2]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/redis-on-aws/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/redis-on-aws</id>
+    <content type="html"><![CDATA[<h1>ElastiCache vs Redis@EC2</h1>
+
+<hr />
+
+<p>タイトルはちょっと言い過ぎです。
+Redis導入するとしたら、自前で管理したほうがいいのか、
+はたまた ElastiCache のほうがいいのか、について調べてみた結果です。
+調査は2014年4月時点なので、若干古いです。
+(その後追加された機能も既にあります)</p>
+
+<h3>What&rsquo;s ElastiCache</h3>
+
+<hr />
+
+<p>ElastiCacheは、Redisのマネージドサービスです。</p>
+
+<p>elasticache.pdf：
+　簡単にまとめてます。
+　ここからみていただくのがよいかと思います。</p>
+
+<p>redis_elasticache_config.pdf：
+　redis/elasticacheに共通している設定項目で、違いがあるかの比較。
+　一部redisにはない設定項目も含まれています。
+redisonly_config.pdf
+　redisにしか存在しない設定項目。ざっくり、下記に分かれています。
+　あんまりいじられるとAWSがつらくなりそうな項目が多かったです。
+　- 基本項目
+　- replication関連
+　- RDBダンプ関連
+　- AOF関連</p>
+
+<p>現状のインフラエンジニアの人数、規模感を考えると、なるべく運用
+必須のシステムはないほうがよいと思います。
+まだコスト比較できていないので、決定打ではないかもしれませんが、
+ElastiCacheは、DynamoDB比だとまだ運用コストが高い(手がかかる)
+かな、と思うので、可能であればDynamoがお勧めかと思います。</p>
+
+<h3>Lists</h3>
+
+<hr />
+
+<ol>
+<li>list1
+
+<ul>
+<li>list1</li>
+<li>list2</li>
+<li>list3</li>
+<li>list4</li>
+</ul>
+</li>
+<li>list2</li>
+<li>list3</li>
+<li>list4</li>
+</ol>
+
+
+<h3>Table</h3>
+
+<hr />
+
+<table>
+<thead>
+<tr>
+<th align="left">左揃え </th>
+<th align="center"> 中央揃え </th>
+<th align="right"> 右揃え</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">1111   </td>
+<td align="center"> 2222     </td>
+<td align="right"> 3333 </td>
+</tr>
+<tr>
+<td align="left">4444   </td>
+<td align="center"> 5555     </td>
+<td align="right"> 6666</td>
+</tr>
+<tr>
+<td align="left">7777   </td>
+<td align="center"> 8888     </td>
+<td align="right"> 9999  </td>
+</tr>
+</tbody>
+</table>
+
+
+<h3>Codes</h3>
+
+<hr />
+
+<p><code>$ command !!</code></p>
+
+<pre><code>$ ls -l
+$ ls -ltr
+$ sl -l
+$ sl -al
+
+param1 :
+説明  
+</code></pre>
+
+<h3>Links</h3>
+
+<hr />
+
+<p><a href="http://google.com" title="google">google test link</a><br/>
+<a href="http://google.com">google test link wo title</a></p>
+
+<h3>Images</h3>
+
+<hr />
+
+<p>DynamoDB運営の場合との比較を考えると・・・</p>
+
+<p>◎メリット
+・ElastiCacheで問題がある場合に、 Redis on EC2に移行しやすい
+・インスタンス単位での課金なので、コストが読みやすい
+・冗長構成の構築は簡単(でもDynamoDBは常に冗長構成だから優位性はない)</p>
+
+<p>◎デメリット
+・インスタンスを起動して運用するタイプのサービスなので、基本的に運用が発生する
+・サポートされないRedisの機能、コマンドがいくつかある
+　→RDBのダンプ機能は未サポート
+　→rename command/saveコマンド等は未サポート
+・メンテナンスウィンドウの設定が必須(指定した時間帯はAWS側メンテが入る可能性がある)
+　→マルチAZ構成にして、他 AZにレプリを作成、通信断時は自動Failoverの構成が必須
+・現実的に考えて、RDBダンプは必須(未サポートだけど)
+　→EC2上でredisを動かして、ElastiCacheからレプリを貼る。そこでダンプする構成が必要
+　　→ElastiCacheだけで完結しないので意味が・・・
+oot4Logo](<a href="http://root04.github.com/images/email.png">http://root04.github.com/images/email.png</a>)<br/>
+source/images配下にcommitしてpushした画像は、<a href="http://branch4.github.com/images/xxx.xxx  ">http://branch4.github.com/images/xxx.xxx  </a>
+でみれる。</p>
+
+<h3>Emphasize</h3>
+
+<hr />
+
+<p><em>EMPHASIZE</em><br/>
+<em>EMPHASIZE</em><br/>
+<strong>EMPHASIZE</strong><br/>
+<strong>EMPHASIZE</strong></p>
+
+<h3>Quote</h3>
+
+<hr />
+
+<blockquote><p>a said a</p>
+
+<blockquote><p>b said ba</p>
+
+<blockquote><p>c said ca</p></blockquote></blockquote></blockquote>
 ]]></content>
   </entry>
   
