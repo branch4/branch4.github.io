@@ -9,7 +9,7 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content=" RVM使ってる人限定。 $ rails server つって起動すると、自動的に3000番であがっちゃいます。 ">
+  <meta name="description" content=" 業務で少しRedisの勉強をしたので、そのメモ。 Redisとは Redisは、KVS(Key-Value Store)の一種。 Web-site : http://redis.io/ Current stable : 2.8.8 License : BSD ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,53 +77,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/03/rails-rails80/">[Rails] Railsサーバを80番ポートで立ち上げちゃう</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-04-03T10:31:00+09:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2014</time>
-        
-           | <a href="/blog/2014/04/03/rails-rails80/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/03/rails-rails80/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><div  class=post>
-  RVM使ってる人限定。 <br><br>
-  <pre  class=prettyprint>
-      $ rails server</pre>
-  つって起動すると、自動的に3000番であがっちゃいます。 <br><br>
-  </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/04/03/rails-rails80/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
   
   
     <article>
@@ -604,6 +557,56 @@
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/04/infra-dnatrails-devise/">[Infra] DNAT環境下でのrails + Devise</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-04T02:19:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/04/infra-dnatrails-devise/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
+  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
+  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
+  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
+  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
+  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
+  いえ、全然難しくないんだけどね。。。 <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/04/infra-dnatrails-devise/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -633,11 +636,11 @@
       </li>
     
       <li class="post">
-        <a href="/blog/2014/04/18/redis-on-aws/">ElastiCache vs Redis@EC2</a>
+        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
+        <a href="/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/">[Misc] Sluggish Google Chrome With Ubuntu</a>
       </li>
     
   </ul>

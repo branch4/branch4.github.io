@@ -9,7 +9,7 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content="railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が &hellip;">
+  <meta name="description" content=" Webの画面に表示されてるテキストとかを、クリックしてその場で編集できるやつ。 を、In place editor、というらしい。 ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,56 +77,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/03/04/infra-dnatrails-devise/">[Infra] DNAT環境下でのrails + Devise</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-03-04T02:19:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/03/04/infra-dnatrails-devise/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><div  class=post>
-  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
-  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
-  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
-  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
-  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
-  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
-  いえ、全然難しくないんだけどね。。。 <br>
-  </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/03/04/infra-dnatrails-devise/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
   
   
     <article>
@@ -311,53 +261,6 @@
   
     <footer>
       <a rel="full-article" href="/blog/2014/01/29/mutt-finding-corresponding-keycode-by/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/26/gimp-exporting-layers-to-files-in/">[Gimp] Exporting Layers to Files in gimp@Mavericks</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-26T21:56:00+09:00" pubdate data-updated="true">Jan 26<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/01/26/gimp-exporting-layers-to-files-in/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/01/26/gimp-exporting-layers-to-files-in/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><div  class=post>
-  OS : Mavericks(MacOS X10.9.1) <br>
-  Gimp version : 2.8.10 <br> <br>
-  Just use this plug-in.  <br> <br>
-  http://registry.gimp.org/node/28268 <br> <br>
-  </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/01/26/gimp-exporting-layers-to-files-in/">Read on &rarr;</a>
     </footer>
   
 
@@ -560,9 +463,52 @@
 
     </article>
   
-  <div class="pagination">
+  
+    <article>
+      
+  <header>
     
-      <a class="prev" href="/blog/page/4/">&larr; Older</a>
+      <h1 class="entry-title"><a href="/blog/2013/10/23/ror-asset-pipeline-precompile/">[RoR] Asset Pipeline Precompile</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-23T19:48:00+09:00" pubdate data-updated="true">Oct 23<span>rd</span>, 2013</time>
+        
+           | <a href="/blog/2013/10/23/ror-asset-pipeline-precompile/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  After the production deployment, don&#8217;t forget to compile assets with following command.<br>
+  <pre  class=prettyprint>
+  $ cd &lt;app_root&gt;
+  $ bundle exec rake assets:precompile RAILS_ENV=production</pre>
+  <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -589,11 +535,11 @@
       </li>
     
       <li class="post">
-        <a href="/blog/2014/04/18/redis-on-aws/">ElastiCache vs Redis@EC2</a>
+        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
+        <a href="/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/">[Misc] Sluggish Google Chrome With Ubuntu</a>
       </li>
     
   </ul>
