@@ -76,6 +76,9 @@ rakeコマンド打ちまくって、
         $ git clone git://github.com/imathis/octopress.git octopress  
         $ cd octopress
 
+    この時点でのイメージ図。  
+    ![cloning](http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress1.png)  
+
     octopress directory配下の、Gemfileをみると、octopressでやってくれる  
     諸々の便利機能に必要なgemが列挙されている。
 
@@ -110,7 +113,7 @@ rakeコマンド打ちまくって、
 
 
 4. githubに下記repositoryを作成する  
-  xxxx.github.io(xxxx:ユーザ名 or 組織名)
+  xxxx.github.io(xxxx:ユーザ名 or 組織名)  
 
 5. 下準備諸々  
   ここがコマンド１個しか打たない割に重要。というか複雑。
@@ -119,7 +122,7 @@ rakeコマンド打ちまくって、
       $ rake setup_github_pages
 
   この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)  
-  以下、色々事前情報説明  
+  以下、色々事前情報説明(まだ読んでも意味わからんと思いますが)  
   - xxxx.github.ioで一般公開されるのは、master branch  
   - つまり、誰かが、http://xxxx.github.io にアクセスすると、master branchがみえる  
   - 公開前作業はsource branchで実施する  
@@ -148,6 +151,10 @@ rakeコマンド打ちまくって、
   - 本番にpushすればOK!
   です。
 
+  この時点でのイメージ図。  
+  ![github.io](http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress2.png)  
+
+
 6. ブログ生成＆本番公開  
   コンテンツを作るところは別途エントリを書こうと思うので、その後から。  
   まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。  
@@ -171,6 +178,9 @@ rakeコマンド打ちまくって、
       $ rake deploy
 
 はい、これで晴れて公開完了！  
+そしてこの時点でのイメージ図。  
+![github.io](http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress3.png)  
+
 要点は、こんなところでしょうかな。  
 
 1. octopressを持ってくる  
