@@ -1,0 +1,1422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-18T22:37:13+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Resize Temp File of Oracle on RDS]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/"/>
+    <updated>2014-06-16T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize</id>
+    <content type="html"><![CDATA[<p>どもども。<a href="http://portfolio.risterlab.com">saorister</a>です。<br/>
+野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。<br/>
+(統一性なさすぎw)</p>
+
+<p>今回は私がブログ記事担当！<br/>
+ということで、<br/>
+この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。</p>
+
+<h3>DBのディスク空き容量が!!!</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/figure_graph_down.png" alt="DBのディスク空き容量が!!!" /></p>
+
+<p>RDSのOracleさんでTEMP表領域サイズがめっちゃでっかくなっちゃって<br/>
+空き容量がほとんどなくなっちゃったよぉぉぉぉ！！！</p>
+
+<p>パニック！！！</p>
+
+<p>って時の対処法を。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>起きたこと</h3>
+
+<hr />
+
+<ol>
+<li>どこかのおばかさんがとんでもSQLを投げた</li>
+<li>コアDB(RDS)のディスク容量があと10%以下よーというアラートがCloudWatchから飛んできて異常に気づく</li>
+<li>怪しいセッションを発見。すぐにkill!KILL!!キル！！！</li>
+<li>とりあえずぐんぐん下がっていくディスクの空き容量のグラフはもうほぼ０のところでぎりぎり止まった。  はぁ。</li>
+<li>ひとまずディスク容量増やそうぜ！このためのRDSじゃないか！ってことでディスク容量を10%増量。(10%以上じゃないとあげられないのよ)</li>
+</ol>
+
+
+<p>退屈な毎日だとは思っていたけどこんなスリルは求めてない。</p>
+
+<h3>増えたTemp領域を小さくする</h3>
+
+<hr />
+
+<p>とんでもSQLってのはselect文だったわけだけど<br/>
+むちゃくちゃなjoinをしてTEMP表領域(一時領域)が膨れ上がっちゃったわけですね。<br/>
+こわいねー。<br/>
+で、慌ててセッションkillしたから、その一時領域は開放されずそのまま残っちゃった。<br/>
+ので、これを小さくしてあげないといけない。<br/>
+「oracle temp領域 resize」「oracle 一時領域 縮小」<br/>
+とかで検索するとやりかたはいっぱいでてきます。<br/>
+だけどそこに書いてあるこのコマンド</p>
+
+<p><code>SQL&gt; alter database tempfile ~</code></p>
+
+<p>ってのはRDSじゃ権限がなくてできないんですよ。<br/>
+はい、困った。</p>
+
+<p>ってわけで先に結論。</p>
+
+<h4>RDSのoracleのtemp領域(一時領域)を縮小する方法</h4>
+
+<p>1.TEMP表領域を新規作成します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; CREATE TEMPORARY TABLESPACE TEMP02;
+</span><span class='line'>Tablespace created.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.デフォルトのTEMP表領域を1.で作成したものに変更します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.元のTEMP表領域を削除します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>実際にやったこと Try &amp; Error編</h2>
+
+<p>上で書いた結論はたった３つだけど、そこにたどり着くまでの試行錯誤も書いちゃうよ。<br/>
+まず膨れ上がったのがTEMP表領域だったことの確認はこのSQLで。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT dt.file_name, dt.tablespace_name,
+</span><span class='line'>to_char(dt.bytes / 1024, '99999990.000') file_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / 1024, '99999990.000') used_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / dt.bytes * 100, '990.00') || '%' capacity
+</span><span class='line'>FROM sys.dba_temp_files dt, v$temp_extent_pool t, v$tempfile v
+</span><span class='line'>WHERE t.file_id(+)= dt.file_id AND dt.file_id = v.file#;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな状態でした。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/temp_30GB_masking.png" alt="temp30GB" /></p>
+
+<p>で、単純に縮小しようとしてもできません。</p>
+
+<p><code>SQL&gt; alter tablespace temp resize 100M</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQLエラー: ORA-03297: ファイルには、リクエストしたRESIZE値を超える使用中のデータが含まれています。
+</span><span class='line'>03297. 00000 -  "file contains used data beyond requested RESIZE value"
+</span><span class='line'>*Cause:    Some portion of the file in the region to be trimmed is
+</span><span class='line'>           currently in use by a database object
+</span><span class='line'>*Action:   Drop or move segments containing extents in this region prior to
+</span><span class='line'>           resizing the file, or choose a resize value such that only free
+</span><span class='line'>           space is in the trimmed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こう言われちゃいますね。使ってるのよって。<br/>
+じゃあ、ってことでオンプレのoracleで普通やる縮小方法を試してみると。</p>
+
+<p><code>SQL&gt; alter database tempfile '/path/to/temp/file1.tmp' resize 10M;</code><br/>
+&ndash;> はいalter databaseはRDSでうてませーん。権限ありませーん。</p>
+
+<p>じゃあお決まりの、新しくTEMP表領域を小さいのつくって、置き換える作成へ。</p>
+
+<p><code>SQL&gt; create temporary tablespace TEMP02 size 10M;</code><br/>
+&ndash;> だめ。これも権限ないって怒られる。<br/>
+でもこれはファイルサイズを決める権限がないってことらしく、これなら<br/>
+通った。<br/>
+<code>SQL&gt; create temporary tablespace TEMP02;</code></p>
+
+<p>さっきのSQLで確認するとtmpファイルが２つでてきて、<br/>
+新しいものは100MBでできていることがわかるはず。</p>
+
+<p>よし、ここでデフォルトのTEMP表領域を置き換える。<br/>
+そうalter databaseじゃなくてexec rdsadminを使ってね！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>よーしこれで用無しになったおデブちゃんを削除だ！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぐっばい、おでぶちゃん。<br/>
+勝利の美酒に浸りながらCloudWatchで空き容量が一気にもどってるのを見ようとしたら<br/>
+なんと！<br/>
+グラフ微動だにせず、、、、<br/>
+むしろ追加したTEMP表領域の分の100MB分減っとるやないかーい！<br/>
+くそ、結局再起動しないと消えへんオチかい。<br/>
+と調べてたら、こっちにするべきだったみたい。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; drop tablespace &lt;tablespace_name&gt; including contents and datafiles;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これじゃないとファイルも一緒に削除してくれないとな。<br/>
+もー先に教えてよー。時既に遅しじゃーん。まぁ今日は寝よ。<br/>
+ってことで次の日CloudWatchのグラフ見たらびっくり。<br/>
+半日遅れでディスクの空き増えてるよ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/CloudWatch_storagefreespace_edit.png" alt="CloudWatch ディスク空きグラフ" /></p>
+
+<p>なんでやねん！</p>
+
+<p>答えは単純でOracleのマイナーバージョンアップをONにしてると<br/>
+指定した時間にパッチをあててアップデートしてくれてるんですな。<br/>
+そのときに再起動がかかってると。<br/>
+そのマイナーバージョンアップの指定してる時間を見ると、</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/minorvirsionup_widdow.png" alt="Minor VersionUP Widdow" /></p>
+
+<p>UTCでAM1:00-1:30だから+9時間で朝の10時半ごろ、、、<br/>
+グラフみるとビンゴ！！<br/>
+そうゆうことですか、、、</p>
+
+<p>なんだかなぁ。すっきりせんなぁ。</p>
+
+<h2>あとがき</h2>
+
+<p>ちなみに上で書いてるのはテストDBでやったこと。  <br/>
+事情があってなかなかこの作業させてもらえなくてねぇ。<br/>
+だから本番でやるときはちゃんとincluding contents and datafilesもつけて<br/>
+ファイル削除してやろうと思うんです。<br/>
+その結果はまた続きとして書く予定です。</p>
+
+<p>ではでは、今日はこんなところで。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Blog on Github Pages With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/"/>
+    <updated>2014-06-07T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+<!-- more -->
+
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>まずは、前提知識から。
+今回のエントリで使うざっくり知識を下記に。</p>
+
+<ul>
+<li><a href="https://pages.github.com/">Github Pages</a>
+
+<ul>
+<li>安心<br/>
+みなさんご存知github.com提供。</li>
+<li>repositoryから直接静的ページを配信してくれる<br/>
+つまり、配信するHTMLページの作成は全然手伝ってくれない(そこが大変)</li>
+<li>サービス/プロダクトに紐づいたサイトを配信できる<br/>
+github.com上に作成している個人/組織レポジトリに対応したwebsiteを立ち上げて公開できます。</li>
+<li>たぶん高速-
+Githubのレポジトリから直接配信されることのどこが嬉しいかというと、<br/>
+恐らく、世界中どこからでも使われてるサービスなので、<br/>
+　どこからアクセスされても、かなり高速に配信できるんじゃないか？という点。</li>
+</ul>
+</li>
+<li><a href="http://jekyllrb.com/">Jekyll</a>
+
+<ul>
+<li>静的サイト生成ツール。 <a href="http://middlemanapp.com/">middleman</a>的な</li>
+<li>Github PagesでやってくれないことをやってくれるYO !</li>
+<li>特にGithub Pages専用なわけではなく、どこでも使えるぽい</li>
+<li>ただ、素で使おうとすると、細かいところまで全部手作業で、複雑らしい</li>
+<li>Jekyllについては、<a href="http://melborne.github.io/2012/05/13/first-step-of-jekyll/">koko</a>がわかりやすかったので、リンクのみで</li>
+</ul>
+</li>
+<li><a href="http://octopress.org/">Octopress</a>
+
+<ul>
+<li>Jekyllを使ってブログサイトを構築するためのフレームワーク<br/>
+便利！らしい<br/>
+他にも、<a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>なるものもあるけど、<br/>
+違いは、Octopressのほうが、楽。でも自由度が低い。そうです。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>ざっくりなイメージを図にまとめきれていないけども・・・図にすると・・・<br/>
+<img src="http://blog.branch4.pw/images/2014/06/jekyll_octopress_flow.png" alt="zakkuri flow" /></p>
+
+<p>こんな感じ。<br/>
+Octopressが、rakeで何から何まで出来るようにしてくれているので、<br/>
+rakeコマンド打ちまくって、
+&ndash; サイト生成
+&ndash; サイトプレビュー
+&ndash; サイトデプロイ（公開）
+する感じ。</p>
+
+<h3>how to setup github.io</h3>
+
+<hr />
+
+<p>まずは、github.ioでブログを公開するためのセットアップから。
+概ね、<a href="http://octopress.org/docs/setup/">koko</a>のパクリです。</p>
+
+<ol>
+<li>gitをinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li>ruby(>=1.9.3)をinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li><p>Octopressをdownloadしてsetupする</p>
+
+<pre><code> $ git clone git://github.com/imathis/octopress.git octopress  
+ $ cd octopress
+</code></pre>
+
+<p> この時点でのイメージ図。<br/>
+ <img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress1.png" alt="cloning" /></p>
+
+<p> octopress directory配下の、Gemfileをみると、octopressでやってくれる<br/>
+ 諸々の便利機能に必要なgemが列挙されている。</p>
+
+<pre><code> $ cat Gemfile
+ source ¥"https://rubygems.org  
+
+ group :development do  
+   gem 'rake', '~&gt; 0.9'  
+   gem 'jekyll', '~&gt; 0.12'  
+   gem 'rdiscount', '~&gt; 2.0.7'  
+   gem 'pygments.rb', '~&gt; 0.3.4'  
+   gem 'RedCloth', '~&gt; 4.2.9'  
+   gem 'haml', '~&gt; 3.1.7'  
+   gem 'compass', '~&gt; 0.12.2'  
+   gem 'sass', '~&gt; 3.2'  
+   gem 'sass-globbing', '~&gt; 1.0.0'  
+   gem 'rubypants', '~&gt; 0.2.0'  
+   gem 'rb-fsevent', '~&gt; 0.9'  
+   gem 'stringex', '~&gt; 1.4.0'  
+   gem 'liquid', '~&gt; 2.3.0'  
+   gem 'directory_watcher', '1.4.1'  
+ end  
+
+ gem 'sinatra', '~&gt; 1.4.2'  
+</code></pre>
+
+<p> なにはともあれinstall。</p>
+
+<pre><code> $ gem install bundler
+ $ rbenv rehash # rbenv使ってる場合のみ
+ $ bundle install
+ $ rake install # octopressのデフォルトテーマがinstallされる
+</code></pre></li>
+<li><p>githubに下記repositoryを作成する<br/>
+xxxx.github.io(xxxx:ユーザ名 or 組織名)</p></li>
+<li><p>下準備諸々<br/>
+ここがコマンド１個しか打たない割に重要。というか複雑。
+打つコマンドは、</p>
+
+<pre><code>$ rake setup_github_pages
+</code></pre>
+
+この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)<br/>
+以下、色々事前情報説明(まだ読んでも意味わからんと思いますが)
+
+<ul>
+<li>xxxx.github.ioで一般公開されるのは、master branch</li>
+<li>つまり、誰かが、<a href="http://xxxx.github.io">http://xxxx.github.io</a> にアクセスすると、master branchがみえる</li>
+<li>公開前作業はsource branchで実施する</li>
+<li>今作業してるdirectoryとrepository
+octopressのdirectoryで、更に、repositoryとしても、imathis/octopressなので、このまま記事書いても、どこにcommitするんだ？になる</li>
+</ul>
+
+
+<p>上記を踏まえた作業を、rake setup_github_pagesがやってくれている、と。</p>
+
+<p>具体的には、</p>
+
+<ul>
+<li>実際に公開したいrepositoryを確認して、設定してくれる</li>
+<li>remote(imathis/octopress)をoriginではなくoctopressに設定してくれる</li>
+<li>originは、さっき確認したrepositoryに設定してくれる</li>
+<li>active branchをmasterではなくsourceにしてくれる</li>
+<li>さっき確認したrepositoryから、ブログのURLを設定してくれる</li>
+<li>master branchを、_deploy directoryに準備してくれる</li>
+</ul>
+
+
+<p>さて、ここまで来ると、ほとんど出来たも同然。</p>
+
+<ul>
+<li>コンテンツはない</li>
+<li>Jekyllに食わせるファイルは全部そろっている</li>
+<li>本番にpushするためのdirectory(_deploy)の準備は整っている</li>
+</ul>
+
+
+<p>なので、</p>
+
+<ul>
+<li>コンテンツを作って</li>
+<li>Jekyllに食わせて</li>
+<li>本番にpushすればOK!
+です。</li>
+</ul>
+
+
+<p>この時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress2.png" alt="github.io" /></p></li>
+<li><p>ブログ生成＆本番公開<br/>
+コンテンツを作るところは別途エントリを書こうと思うので、その後から。<br/>
+まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<p>で、生成はされてるものの、本番前に確認したいので、下記でpreviewします。</p>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<p>  上記で、webrickが立ち上がるので、適当なブラウザで、<br/>
+  <a href="http://127.0.0.1:4000  ">http://127.0.0.1:4000  </a>
+  にアクセスして確認。問題なければ、下記を実行してソースをsource branchにpushしておきます。</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre>
+
+<p>  そして、下記を実行して本番にpushします。</p>
+
+<pre><code>$ rake deploy
+</code></pre></li>
+</ol>
+
+
+<p>はい、これで晴れて公開完了！<br/>
+そしてこの時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress3.png" alt="github.io" /></p>
+
+<p>要点は、こんなところでしょうかな。</p>
+
+<ol>
+<li>octopressを持ってくる</li>
+<li>githubに専用repository作る</li>
+<li>repositoryのsource branchでoctopress/jekyll用のファイル編集をする</li>
+<li>ファイル編集が終わったら、サイトを生成する</li>
+<li>repositoryのmaster branchに本番用ファイルをpushする</li>
+</ol>
+
+
+<p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/misc-excelpng</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    PDFでしかexportできない・・・
+  </div>
+  さっきExcelの表をpngでexportしようと思ったら・・・なんと！PDFでしかexportできないではありませんか。 <br> <br>
+  <!-- more -->
+  うーん、、、と悩んだ結果、 <br> <br>
+  表をコピーして、偉大なるマイクロソフトの「ペイント」に貼り付けたら、、、、できた！！！ <br> <br>
+  やほーい。 <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://blog.branch4.pw/images/onlyredis.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://blog.branch4.pw/images/onlyredis.png"></a>
+  </div>
+  <br>
+  表は、Elasticacheで使える設定項目のリスト。次の記事用に作ってたのね。 <br> <br>
+  一件落着。 <br> <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Sluggish Google Chrome With Ubuntu]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/"/>
+    <updated>2014-04-16T23:39:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Slow chrome
+  </div>
+  I&#8217;ve been suffering from quite sluggish response of google chrome installed on ubuntu for quite a while.  <br> <br>
+  Today, I&#8217;ve finally got that solved ! Maybe for a while &#8230;  <br> <br>
+  <!-- more -->
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Solution !!
+  </div>
+  Re intall !!!  <br>
+  That&#8217;s it.  <br> <br>
+  I didnt really take a note about the version info, but the former chrome definitely had major version of 34.  <br>
+  And so does the current one.  <br>
+  Before re installation, I&#8217;ve cleared the cache, deleted many bookmarks, which didn&#8217;t seem to have any effect.  <br> <br>
+  But reinstallation worked for me.  <br> <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Rails] Couldn't Find User With Id=sign_in]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin/"/>
+    <updated>2014-04-11T10:35:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Background
+  </h3>
+  While using devise on rails3, I got the following error message.  <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      Couldn't Find User With Id=sign_in Devise on Rails 3
+    </span> </pre>
+  It was working yesterday, but not today.  <br> <br>
+  <h3 >
+    Solution
+  </h3>
+  I checked config/routes.rb, and had <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      resources :users
+      devise_for :users
+    </span> </pre>
+  which seemed to be interupting each other.  <br>
+  So I commented out resources :users, and it started to work fine.  <br>
+  I don&#8217;t know why it kept working till yesterday&#8230;  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Web Development] Sending Post Request With Google Chrome]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/"/>
+    <updated>2014-04-10T15:01:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose of the entry
+  </h3>
+  It&#8217;s just an introduction of the tool I use for debugging purpose.  <br> 
+  I use it to check my APIs.  <br>
+  It can POST/GET/PUT/DELETE&#8230;send data in various HTTP method to any API.  <br><br>
+  <!-- more -->
+  <h3 >
+    Introduction
+  </h3>
+  Debugging APIs ?  <br>
+  It&#8217;s easy to debug using 
+  <a  href=https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm>Postman REST client</a>.  <br> <br>
+  Screenshot below.  <br>
+  You need to set required HTTP method/parameters/URL etc&#8230;  <br>
+  Then press send.  <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png"></a>
+  </div>
+  <br> <br>
+  The response will be output below the settings part.  <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png"></a>
+  </div>
+  <br> <br>
+  Easy.  <br> <br>
+  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[1 Liner] Easily Replacing a Domain in Multiple Files]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/"/>
+    <updated>2014-04-07T16:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will&#8230;  <br> <br>
+  <ol>
+    <li>
+      find files that contains &#8220;xxxxx.yyyyy.jp:1080&#8221; <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] onClick Event With ImageView]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/"/>
+    <updated>2014-04-06T22:42:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose
+  </h3>
+  As said in the title.  <br>
+  It was my first shot using onClick event with ImageView, so just for memo.  <br>
+  (in fact it&#8217;s my first Android development) <br>
+  Keep in mind that this seem just to be one way of implementing onClick event with a view.  <br> <br>
+  <!-- more -->
+  <h3 >
+    Details
+  </h3>
+  <fieldset >
+    <legend >
+      Follow these 2steps
+    </legend>
+    <ol >
+      <li >
+        set a function name that should be called on onClick event in XML file(say it&#8217;s onClickEvent in this entry)
+      </li>
+      <li >
+        declare the onClickEvent in java file(Let&#8217;s say we just pop a toast)
+      </li>
+    </ol>
+  </fieldset>
+  This is part of the XML file.
+  <br>
+  <pre  class=prettyprint>
+    &lt;ImageView
+    android:id="@+id/imageview01"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/image"
+    android:layout_gravity="bottom"
+    android:scaleType="fitEnd"
+    android:onClick="onClickEvent" />***** <- this Line !!!!  </pre>
+  Now, declare onClickEvent in the activity.  <br>
+  I use SherlockActivity, and SlidingMenu so it&#8217;s a little messy, but it&#8217;s ok to remove those.  <br>
+  <br>
+  <pre  class=prettyprint>
+    public class MainActivity extends SherlockActivity {
+      @Override
+      protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_Sherlock);
+        setTitle(R.string.attach);
+        // set the content view
+        setContentView(R.layout.activity_main);
+        // configure the SlidingMenu
+        SlidingMenu menu = new SlidingMenu(this);
+        menu.setMode(SlidingMenu.LEFT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        menu.setShadowWidthRes(R.dimen.shadow_width);
+        menu.setShadowDrawable(R.drawable.shadow);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setFadeDegree(0.35f);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        menu.setMenu(R.layout.list);
+      }
+      public void onClickEntry(View v) {
+        Toast.makeText(MainActivity.this, "test", Toast.LENGTH_LONG).show();
+      }
+    }</pre>
+  And you should see the toast after the tap.
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Rails] Railsサーバを80番ポートで立ち上げちゃう]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/03/rails-rails80/"/>
+    <updated>2014-04-03T10:31:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/03/rails-rails80</id>
+    <content type="html"><![CDATA[<div  class=post>
+  RVM使ってる人限定。 <br><br>
+  <pre  class=prettyprint>
+      $ rails server</pre>
+  つって起動すると、自動的に3000番であがっちゃいます。 <br><br>
+  <!-- more -->
+  <pre  class=prettyprint>
+      $ rails server -p 80 </pre>
+  つって起動すると、お前ごときに80番はやらん！ <br>
+  つって怒られます。 <br><br>
+  <pre  class=prettyprint>
+      $ sudo rails server -p 80 </pre>
+  つって起動すると、なんだか怒られる。 <br><br>
+  <pre  class=prettyprint>
+      $ rvmsudo rails server -p 80 </pre>
+  つって起動すると、rvm関連の環境変数とかもちゃんと読み込んでくれて実行できるようになるらしい。
+  やってみたらできた。 <br> <br>
+  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[KVS] Redis入門]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/01/kvs-redis/"/>
+    <updated>2014-04-01T11:38:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/01/kvs-redis</id>
+    <content type="html"><![CDATA[<div  class=post>
+  業務で少しRedisの勉強をしたので、そのメモ。 <br> <br>
+  <br>
+  <h3 >
+    Redisとは
+  </h3>
+  Redisは、KVS(Key-Value Store)の一種。 <br>
+  Web-site : http://redis.io/ <br>
+  Current stable : 2.8.8 <br>
+  License : BSD <br> <br>
+  <!-- more -->
+  <h3 >
+    特徴
+  </h3>
+  <ul >
+    <li >
+      In-memoryなのでスーパー速い
+    </li>
+    <li >
+      5つのデータ型をValueとして格納可能
+      <ul >
+        <li >
+          Strings : 基本データ。バイナリでも可。512MBまで格納可能
+        </li>
+        <li >
+          Lists : リスト構造のデータ。2^32 - 1個のデータを格納可能
+        </li>
+        <li >
+          Sets : Stringsの集合。データが重複しないことが保証される。2^32 - 1個のデータを格納可能
+        </li>
+        <li >
+          Hashes : keyに対応するvalueとして、複数のkey-valueのペアを格納可能
+        </li>
+        <li >
+          Sorted sets : Setsと似てる集合。各データがScoreという値に紐づけられている
+        </li>
+      </ul>
+    </li>
+    <li >
+      Atomic処理可能
+    </li>
+    <li >
+      replicationを作成できる(master-slave構成)
+    </li>
+    <ul >
+      <li >
+        一度レプリが切れると、最初から全部レプリし直す(2.8で改善された)
+      </li>
+      <li >
+        slaveからmasterにリクエストがいくと、masterはプロセスをforkしてデータをファイルに出力して、slaveに転送する
+      </li>
+      <li >
+        sentinel(2.8以降に同梱)を利用して、自動フェイルオーバ機能が使える(かも)
+      </li>
+    </ul>
+    <li >
+      永続化も可能 ２種類の方法がある。
+      <ol >
+        <li >
+          RDB Persistence
+          <dt >
+          </dt>
+          <dd >
+            要はスナップショット
+          </dd>
+          <dd >
+            バックアップに最適
+          </dd>
+          <dd >
+            ファイルサイズも小さい
+          </dd>
+          <dd >
+            データ復旧も速い
+          </dd>
+          <dd >
+            データロストしやすい
+          </dd>
+          <dd >
+            バックアップには最悪、データ量の倍のメモリが必要になる
+          </dd>
+        </li>
+        <li >
+          AOF Persistence
+          <dt >
+          </dt>
+          <dd >
+            Logファイルに全更新を記録する方法
+          </dd>
+          <dd >
+            データロストが少ない
+          </dd>
+          <dd >
+            append-onlyのファイルなので、ファイルが壊れることも少ない
+          </dd>
+          <dd >
+            データ復旧は、Logファイル記載のコマンドを逐次実行するため時間がかかる
+          </dd>
+          <dd >
+            ファイルサイズが肥大しやすいが、過去のコマンドを上書きする機能を利用することでコンパクトにできる
+          </dd>
+          <dd >
+            書き込みが多い場合、AOFが足を引っ張ることもある
+          </dd>
+        </li>
+      </ol>
+    </li>
+    <li >
+      online backupも取れる
+      <dt >
+      </dt>
+      <dd >
+        RDB/AOFのどちらか
+      </dd>
+    </li>
+  </ul>
+  <br>
+  <h4 >
+    運用Tips
+  </h4>
+  <ul >
+    <li >
+      maxclientsのhardlimitはkernel設定次第
+    </li>
+    <li >
+      apサーバがautoscale設定の場合、timeoutは適正値を模索する必要あり
+    </li>
+    <li >
+      single processなので、CPU使い切りたい場合は複数プロセスあげる。メモリ領域のオーバーヘッドはでかくなりそう
+    </li>
+  </ul>
+  <br>
+  な、感じ。まとまってないけど。 どんな技術も使ってみないとほんとのとこはわからんねー。
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Git] Tagging in Git]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git/"/>
+    <updated>2014-03-14T12:02:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git</id>
+    <content type="html"><![CDATA[<div  class=post>
+  These are some commands I use when taggin in git.  <br> <br>
+  Or say&#8230;some commands I will be using, since I haven&#8217;t really started using them.  <br> <br>
+  <h3 >
+    Work flow of git in my environment.
+  </h3>
+  <ul >
+    <li >
+      debugging in master branch
+    </li>
+    <li >
+      little bug fix in master branch
+    </li>
+    <li >
+      new branches for major fix/new features
+    </li>
+  </ul>
+  (beware that I&#8217;m developing alone) <br> <br>
+  <h3 >
+    What I want to accomplish
+  </h3>
+  <ul >
+    <li >
+      I want to tag the source before releasing
+    </li>
+    <li >
+      I want to maintain files(add/delete/change revision) in exisisting tags
+    </li>
+    <li >
+      I want to accomplish this easily
+    </li>
+    <li >
+      I want to learn git
+    </li>
+  </ul>
+  <!-- more -->
+  Maybe this is my goal for today.  <br> <br>
+  And from what I&#8217;ve googled so far&#8230;  <br>
+  Tag in git doesn&#8217;t tag files. It tags to the commit.  <br>
+  So I&#8217;ll follow that rule.  <br><br>
+  <h4 >
+    What I want to accomplish(fixed)
+  </h4>
+  <ul >
+    <li >
+      I want to tag the source before releasing
+    </li>
+    <li >
+      I want to maintain existing tags (tag different commit)
+    </li>
+    <li >
+      I want to accomplish this easily
+    </li>
+    <li >
+      I want to learn git
+    </li>
+  </ul>
+  OK, now I&#8217;ll list some commands I would probably use frequently.  <br> <br>
+  <h4 >
+    <a name="checkeachtagsannotation">Check each tags&#8217; annotation</a>
+  </h4>
+  Check out what this tag&#8217;s for !  <br>
+  <pre  class=prettyprint>
+    $ git tag -n </pre>
+
+  <h4 >
+    Edit annotations in existing tags
+  </h4>
+  it looks like this command will overwrite a &#8220;tagname&#8221; with a &#8220;tagname&#8221;.  <br>
+  <pre  class=prettyprint>
+      $ git tag tagname tagname -f -m *annotation* </pre>
+
+  <h4 >
+    Get diff of a tag and HEAD
+  </h4>
+  <pre  class=prettyprint>
+    $ git diff tagname HEAD </pre>
+
+  <h4 >
+    <a name="takediff">Get rough diff of a tag and HEAD</a>
+  </h4>
+  <pre  class=prettyprint>
+      $ git diff --stat --color tagname HEAD </pre>
+
+  <h4 >
+    <a name="taghead">Tag HEAD</a>
+  </h4>
+  <pre  class=prettyprint>
+    $ git tag -a tagname
+    $ git tag -a tagname -m "annotation" </pre>
+
+  <h4 >
+    <a name="tagcommit">Tag commit</a>
+  </h4>
+  <pre  class=prettyprint>
+    $ git tag tagname commit </pre>
+
+  <h4 >
+    Check changes in each commit
+  </h4>
+  <pre  class=prettyprint>
+    $ git log --stat
+    $ git log --numstat
+    $ git log --numstate
+    $ git log --name-status
+    $ git log --name-only </pre>
+  <h4 >
+    Check coresponding commit to a tag
+  </h4>
+  <pre  class=prettyprint>
+    $ git show tagname </pre>
+  <br>
+
+  <h3 >
+    Overall flow to what I want to accomplish
+  </h3>
+  2patterns so far.  <br> <br>
+  <h4 >
+    Pattern1
+  </h4>
+  <fieldset >
+    <legend >
+      tag to HEAD!!!! pattern.  <br>
+      Execute the command in
+    </legend>
+    <ul >
+      <li >
+        <a href="#taghead">Tag HEAD</a>
+      </li>
+    </ul>
+  </fieldset>
+  <br>
+  <h4 >
+    Pattern2
+  </h4>
+  <fieldset >
+    <legend >
+      Maintaining the tag(changing a commit in a tag) pattern.  <br>
+    </legend>
+    <ul >
+      <li >
+        Read <a href="#checkeachtagsannotation">Check each tags annotation</a> part and decide which tag to change
+      </li>
+      <li >
+        <a href="#takediff">Take diff of the tag and the commit</a> to decide which commit to relate to tag
+      </li>
+      <li >
+        Read <a href="#tagcommit">&#8220;Tag commit&#8221;</a> part and tag a commit
+      </li>
+    </ul>
+  </fieldset>
+
+
+
+  That should do it.
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Games] Jungle Heat感想文]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/12/games-jungle-heat/"/>
+    <updated>2014-03-12T09:57:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/12/games-jungle-heat</id>
+    <content type="html"><![CDATA[<div  class=post>
+  いつインストールしたのかわからないけど、携帯に入ってたのでプレイしてみた。 <br> <br>
+  けど・・・完全にCoC(Clash of Clans)クローン。 <br> <br>
+  <!-- more -->
+  全然やり込んでないけど、触った感じ、CoCとの違いは見た目くらい。 <br> <br>
+  あと、「ヒーロー」なる概念があるみたい。 <br> <br>
+  コマンドセンター(タウンホール的な)に、各ヒーローのアンロック条件が書いてある。 <br> <br>
+  たぶん、CoCでいうとこの、バーバリアンキングとかアーチャークイーン的ポジション。 <br> <br>
+  特殊スキルもあるし。でも数が多い(シークレット含めて7人)。 <br> <br>
+  UIは、色が賑やかなのと、全体感少しずつでかいアイコンだったり、 <br> <br>
+  でかい文字だったりするので、目が疲れる。 <br> <br>
+  マネタイズは、、、時短ですね。 <br> <br>
+  えーと・・・以上。
+  <br>
+  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Game] Subway Surf 感想文]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/game-subway-surf/"/>
+    <updated>2014-03-10T15:48:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/10/game-subway-surf</id>
+    <content type="html"><![CDATA[<div  class=post>
+  テンプルラン的な、ランアクションゲーム。 <br>
+  少年が警察に追いかけらて逃げる的な。 <br>
+  世界観としては、アメリカの地下鉄？なの？ <br>
+  subwayって割には、地上な気が・・・ <br>
+  まぁ電車ということで。 <br>
+  絵は僕はこういうの好きです。 <br><br>
+  <h4 >
+    ■サイクル
+  </h4>
+  1. 走る <br>
+  2. コインとアイテムを集める <br>
+  3. ハイスコアでる＆先に進めて難易度高いところもクリアできる <br> <br>
+  <!-- more -->
+  <h4 >
+    ■基本プレイ
+  </h4>
+  ・3レーンのどこかを選んで走り続ける <br>
+  ・障害物をよけて走り続ける <br>
+  ・避け方は、上下、左右で、よけるスピードが速くなったり遅くなったりの違い <br>
+  ・その中でどんだけコインをとったかでハイスコアが決まる <br>
+  ・ハイスコアをFB等に投稿して競う人もいるぽい <br>
+  ・あとは、ミッションという名のクエストがあるので、それをやる人もいるのかな、きっと <br> <br>
+  <h4 >
+    ■モチベーション
+  </h4>
+  ・単純なゲーム <br>
+  　- 最初、慣れるまではすぐに死んじゃう <br>
+  　- 慣れてくると結構１プレイが長くなってくる <br>
+  　- 慣れるまでが、短時間ゲームを何回もやることになるんだけど、「すぐ終わるからいっか」で遊ぶ気がする <br>
+    - で、長くプレイできるようになった頃にはすっかりはまってる、って感じでしょうか <br> <br>
+  <h4 >
+    ■マネタイズ
+  </h4>
+  ・Boostアイテムがコインで買える(でもコインはゲームすれば取れる) <br>
+  ・アイテムとしては、Double Coins/Starter Pack/鍵の３つだけが課金アイテム <br>
+  ・通貨としては、コインは課金で購入できる <br> <br>
+  <h4 >
+    ■広告
+  </h4>
+  ・AdColonyが入ってる <br>
+  ・アイテム購入画面に、AdColonyのビデオを見るボタンがあって、それを押すとビデオが流れて、全部見終わると、コイン100と、鍵2つがもらえる <br>
+  ・何回でも見ることはできるけど、リワードは1日一回もらえる <br>
+  ・これでマネタイズしてる部分は結構ありそう <br> <br>
+  軽いゲームなので、女性とか小学生あたりには結構刺さりそうな気が。 <br> <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] Android Studioでdebugする方法その１]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug/"/>
+    <updated>2014-03-10T03:18:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug</id>
+    <content type="html"><![CDATA[<div  class=post>
+  とりあえずEcllipseのプロジェクトをimportしてつまずいたこと。 <br> <br>
+  <h4 >
+    1. Gradleのversionが高杉なんだよ！と怒られた。
+  </h4>
+  ので、versionをさげた。 <br> <br>
+  brew でversion下げるのはこんな感じ。 <br>
+  <!-- more -->
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ brew unlink gradle
+      $ brew versions gradle
+      $ cd /usr/local/Library/Formula/
+      $ git checkout
+      &lt;commit&gt;
+        /usr/local/Library/Formula/gradle.rb
+        $ brew info gradle
+        $ brew install gradle
+      &lt;/commit&gt;
+    </span> </pre>
+  <br>
+  # &lt;commit&gt;は、brew versions gradleで表示されるのをコピペ <br> <br>
+  <h4 >
+    ビルドしたらエラー
+  </h4>
+  Run with stacktrace option to get the stack trace. Run with &#8211;info or &#8211;debug option to get more log output.  <br>
+  こんなエラーがでた。 <br> <br>
+  まず、どうやってdebugモードで実行すんの？からぐぐった。 <br>
+  どうやら、プロジェクトのrootにterminalでいって、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ gradle compileDebugAidl --stacktrace --debug
+    </span> </pre>
+  <br>
+  こんなん打てばおっけー。 <br>
+  これでやっと原因がわかる。 <br> <br>
+  <h4 >
+    libararyと、applicationの、minSdk/targetSdkをそろえる
+  </h4>
+  揃えないと怒られるので揃える。 <br> <br>
+  <h4 >
+    ビルドしたらまたエラー
+  </h4>
+  Could not find element /manifest/application.<br>
+  このエラー。意味不明なんだけど、検索したら、manifest mergerのbugらしい。 <br> <br>
+  <a  href=http://stackoverflow.com/questions/16987512/building-android-studio-project-with-holoeverywhere-fails>ここ</a>
+  に書いてあった。   全部の、AndroidManifest.xmlに、application要素が入ってないと出るらしいので、入ってなかったslidingmenuに
+  <application></application>
+  って入れこんで無事ビルド完了。 <br> <br>
+  明日は開発に入れるのだろうか・・・ <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] Android Studio]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9/"/>
+    <updated>2014-03-10T00:51:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9</id>
+    <content type="html"><![CDATA[<div  class=post>
+  まぁ・・・Ecllipse使うよりは使い勝手はよさそうなんだけど・・・<br>
+  なにかにつけて、  あれのバージョンがあわないー だの、<br>
+  これのバージョンが古いー  だの言われるのがすごい面倒・・・<br>
+  開発させろよ・・・
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Infra] Geo Directive in Nginx]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx/"/>
+    <updated>2014-03-06T23:46:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx</id>
+    <content type="html"><![CDATA[<div  class=post>
+  送信元IPによって色々挙動変えたりしたいなー、 <br>
+  と思って検索してたら、geo directiveがいい！！！ <br>
+  的な記事があったので、読み進めてみた。 <br><br>
+  が、結論、if directive使わないといけないので没案。 <br>
+  nginxさんのif directiveは鬼門。 <br>
+  挙動怪しいし、ifの中で使えるdirectiveもめっちゃ少なくて、あんまり意味なし。 <br>
+  そんな意味のないエントリでした・・・ <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Git] タグ打ちするときーーー]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/git/"/>
+    <updated>2014-03-04T14:10:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/04/git</id>
+    <content type="html"><![CDATA[<div  class=post>
+  タグ打ちするときの便利コマンド。 <br> <br>
+  というか僕がよく使うことになる予定のコマンドのメモ。 <br> <br>
+  <h4 >
+    今のgitの運用
+  </h4>
+  <ul >
+    <li >
+      bug対はmaster
+    </li>
+    <li >
+      ちょい修正もmaster
+    </li>
+    <li >
+      大き目機能改善・機能開発は都度新しいbranch切る
+    </li>
+  </ul>
+  1人でテキトウに作ってるのでなんとなくな感じです。 <br> <br>
+  <!-- more -->
+  <h4 >
+    大体やりたいこと
+  </h4>
+  <ul >
+    <li >
+      releaseするときはtagを打ちたい
+    </li>
+    <li >
+      既存で打ってあるtagの修正、ファイル追加・削除をしたい
+    </li>
+    <li >
+      上記を便利コマンドを使ってやりたい
+    </li>
+    <li >
+      ついでにgitを覚えたい
+    </li>
+  </ul>
+  きっとこんなところ。 <br> <br>
+  そして、色々調べてみてわかったこと。 <br>
+  gitのtagは、ファイルに打つんじゃなくて、commitに対して打つ、ということ。 <br>
+  まぁそれならそれでそういう方針にしようかな。 <br> <br>
+  <h4 >
+    大体やりたいこと(修正版)
+  </h4>
+  <ul >
+    <li >
+      releaseするときはtagを打ちたい
+    </li>
+    <li >
+      既存で打ってあるtagの修正(違うcommitに対して打ちたい)
+    </li>
+    <li >
+      上記を便利コマンドを使ってやりたい
+    </li>
+    <li >
+      ついでにgitを覚えたい
+    </li>
+  </ul>
+  くらいかなぁ。 <br>
+  では、以下で実際使いそうなコマンドたちを羅列。 <br> <br>
+  <h4 >
+    <a name="checkannotation">各tagのアノテーションを確認する</a>
+  </h4>
+  このタグなんのタグ？ってときに。 <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag -n
+    </span> </pre>
+  <br>
+  <h4 >
+    既存tagのアノテーションを編集する
+  </h4>
+  tagnameをtagnameで上書きするみたい。 <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag tagname tagname -f -m *annotation*
+    </span> </pre>
+  <br>
+  <h4 >
+    任意のtagとHEADのdiffを取る
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git diff tagname HEAD
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="zakkuridiff">任意のtagとHEADのざっくりdiffを取る</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git diff --stat --color tagname HEAD
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="taghead">HEADに、任意のtagを打つ</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag -a tagname
+      $ git tag -a tagname -m "annotation"
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="tagcommit">任意のcommitに、任意のtagを打つ</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag tagname commit
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="checkchange">各commitで変更されたファイルを確認する</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git log --stat
+      $ git log --numstat
+      $ git log --numstate
+      $ git log --name-status
+      $ git log --name-only
+    </span> </pre>
+  <br>
+  <h4 >
+    各tagに対応するcommitを確認する
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git show tagname
+    </span> </pre>
+  <h4 >
+    全体的なフロー
+  </h4>
+  今のところ2パターン。 <br> <br>
+  <h4 >
+    パターン１：
+  </h4>
+  HEADにこのtag打っちゃえ～！！やっほ～！！！のパターン。 <br>
+  <ul >
+    <li >
+      <a href="#taghead">HEADに、任意のtagを打つ</a>
+    </li>
+  </ul>
+  をやればOK。 <br>
+  <h4 >
+    パターン２：
+  </h4>
+  あー、tag間違って打った・・・どのcommitに打ちなおすんだっけ・・・。のパターン。 <br>
+  <ul >
+    <li >
+      <a href="#checkannotation">各tagのアノテーションを確認</a>する、でアノテーション見て修正するtagを決める
+    </li>
+    <li >
+      <a href="#zakkuridiff">任意のtagとcommitのざっくりdiffを取る</a> ＆ <a href="#checkchange">各commitで変更されたファイルを確認</a>して、正しいcommitを探す
+    </li>
+    <li >
+      <a href="#tagcommit">任意のcommitに、任意のtagを打つ</a>
+    </li>
+  </ul>
+  これできっといけるはず。
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Something That Might Help You Keep Working]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/if-you-cant-keep-working/"/>
+    <updated>2014-03-04T02:34:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/04/if-you-cant-keep-working</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Its not so easy to keep working on something for long time.　 <br>
+  I&#8217;m not good at it either.  <br>
+  But I always try to keep one thing in mind.  <br>
+  If I work on one thing for 30min everyday, <br>
+  I&#8217;ll be ahead of guys that didnt work on it.  <br>
+  If I keep on working for a year, <br>
+  It will become 180hrs/yr, almost a week ahead.  <br>
+  A week/yr might not be enough advantage for many people, <br>
+  and if so, stop working. It&#8217;s a good reason for me.  <br>
+  Just a little tips to keep working.  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Infra] DNAT環境下でのrails + Devise]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/"/>
+    <updated>2014-03-04T02:19:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise</id>
+    <content type="html"><![CDATA[<div  class=post>
+  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
+  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
+  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
+  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
+  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
+  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
+  いえ、全然難しくないんだけどね。。。 <br>
+  <!-- more -->
+  <br>
+  nginx.confあたりに、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      proxy_redirect http://xxx.yyy.jp/ http://xxx.yyy.jp:10080/;
+    </span></pre>
+  って書く。するとHTTP responseで、 <br><br>
+  Location: http://xxx.yyy.jp/ <br> <br>
+  を受信したときに、 <br> <br>
+  Location: http://xxx.yyy.jp:10080/ <br> <br>
+  に書き換えてくれますよ、って話。 <br>
+  今度わかりやすいように図解もつけようかな。 <br>
+  今日は眠いからこれで終了。 <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[JS] in Place Editor]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor/"/>
+    <updated>2014-03-02T22:08:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Webの画面に表示されてるテキストとかを、クリックしてその場で編集できるやつ。 <br> <br>
+  を、In place editor、というらしい。 <br> <br>
+  <!-- more -->
+  http://d.hatena.ne.jp/cyokodog/20100628/exinplaceeditor01 <br>
+  http://www.hakkaku.net/articles/20100221-595 <br>
+  http://shimz.me/blog/jquery/1505 <br>
+  http://www.ideaxidea.com/archives/2009/06/jquery_edit_in_place.html <br>
+  http://cappee.net/coding/in-place-editor-ui <br> <br>
+  なんか色々plugin的なものがあるみたいなんだけど、 <br>
+  一旦x-editableっていうのを使ってみようかな。 <br> <br>
+  http://vitalets.github.io/x-editable/ <br> <br>
+  ちなみに、自分でもそれっぽく作ってみたものの、 <br>
+  思い通りに動かないので、冷静に先達のライブラリを探してみたのです(笑) <br> <br>
+  使い方は、、、使ってみてから書こうかな。そらそーだ。 <br> <br>
+  <br>
+</div>
+]]></content>
+  </entry>
+  
+</feed>

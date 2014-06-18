@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Misc | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/misc/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-06-18T22:37:13+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Blog on Github Pages With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/"/>
+    <updated>2014-06-07T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+<!-- more -->
+
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>まずは、前提知識から。
+今回のエントリで使うざっくり知識を下記に。</p>
+
+<ul>
+<li><a href="https://pages.github.com/">Github Pages</a>
+
+<ul>
+<li>安心<br/>
+みなさんご存知github.com提供。</li>
+<li>repositoryから直接静的ページを配信してくれる<br/>
+つまり、配信するHTMLページの作成は全然手伝ってくれない(そこが大変)</li>
+<li>サービス/プロダクトに紐づいたサイトを配信できる<br/>
+github.com上に作成している個人/組織レポジトリに対応したwebsiteを立ち上げて公開できます。</li>
+<li>たぶん高速-
+Githubのレポジトリから直接配信されることのどこが嬉しいかというと、<br/>
+恐らく、世界中どこからでも使われてるサービスなので、<br/>
+　どこからアクセスされても、かなり高速に配信できるんじゃないか？という点。</li>
+</ul>
+</li>
+<li><a href="http://jekyllrb.com/">Jekyll</a>
+
+<ul>
+<li>静的サイト生成ツール。 <a href="http://middlemanapp.com/">middleman</a>的な</li>
+<li>Github PagesでやってくれないことをやってくれるYO !</li>
+<li>特にGithub Pages専用なわけではなく、どこでも使えるぽい</li>
+<li>ただ、素で使おうとすると、細かいところまで全部手作業で、複雑らしい</li>
+<li>Jekyllについては、<a href="http://melborne.github.io/2012/05/13/first-step-of-jekyll/">koko</a>がわかりやすかったので、リンクのみで</li>
+</ul>
+</li>
+<li><a href="http://octopress.org/">Octopress</a>
+
+<ul>
+<li>Jekyllを使ってブログサイトを構築するためのフレームワーク<br/>
+便利！らしい<br/>
+他にも、<a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>なるものもあるけど、<br/>
+違いは、Octopressのほうが、楽。でも自由度が低い。そうです。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>ざっくりなイメージを図にまとめきれていないけども・・・図にすると・・・<br/>
+<img src="http://blog.branch4.pw/images/2014/06/jekyll_octopress_flow.png" alt="zakkuri flow" /></p>
+
+<p>こんな感じ。<br/>
+Octopressが、rakeで何から何まで出来るようにしてくれているので、<br/>
+rakeコマンド打ちまくって、
+&ndash; サイト生成
+&ndash; サイトプレビュー
+&ndash; サイトデプロイ（公開）
+する感じ。</p>
+
+<h3>how to setup github.io</h3>
+
+<hr />
+
+<p>まずは、github.ioでブログを公開するためのセットアップから。
+概ね、<a href="http://octopress.org/docs/setup/">koko</a>のパクリです。</p>
+
+<ol>
+<li>gitをinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li>ruby(>=1.9.3)をinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li><p>Octopressをdownloadしてsetupする</p>
+
+<pre><code> $ git clone git://github.com/imathis/octopress.git octopress  
+ $ cd octopress
+</code></pre>
+
+<p> この時点でのイメージ図。<br/>
+ <img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress1.png" alt="cloning" /></p>
+
+<p> octopress directory配下の、Gemfileをみると、octopressでやってくれる<br/>
+ 諸々の便利機能に必要なgemが列挙されている。</p>
+
+<pre><code> $ cat Gemfile
+ source ¥"https://rubygems.org  
+
+ group :development do  
+   gem 'rake', '~&gt; 0.9'  
+   gem 'jekyll', '~&gt; 0.12'  
+   gem 'rdiscount', '~&gt; 2.0.7'  
+   gem 'pygments.rb', '~&gt; 0.3.4'  
+   gem 'RedCloth', '~&gt; 4.2.9'  
+   gem 'haml', '~&gt; 3.1.7'  
+   gem 'compass', '~&gt; 0.12.2'  
+   gem 'sass', '~&gt; 3.2'  
+   gem 'sass-globbing', '~&gt; 1.0.0'  
+   gem 'rubypants', '~&gt; 0.2.0'  
+   gem 'rb-fsevent', '~&gt; 0.9'  
+   gem 'stringex', '~&gt; 1.4.0'  
+   gem 'liquid', '~&gt; 2.3.0'  
+   gem 'directory_watcher', '1.4.1'  
+ end  
+
+ gem 'sinatra', '~&gt; 1.4.2'  
+</code></pre>
+
+<p> なにはともあれinstall。</p>
+
+<pre><code> $ gem install bundler
+ $ rbenv rehash # rbenv使ってる場合のみ
+ $ bundle install
+ $ rake install # octopressのデフォルトテーマがinstallされる
+</code></pre></li>
+<li><p>githubに下記repositoryを作成する<br/>
+xxxx.github.io(xxxx:ユーザ名 or 組織名)</p></li>
+<li><p>下準備諸々<br/>
+ここがコマンド１個しか打たない割に重要。というか複雑。
+打つコマンドは、</p>
+
+<pre><code>$ rake setup_github_pages
+</code></pre>
+
+この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)<br/>
+以下、色々事前情報説明(まだ読んでも意味わからんと思いますが)
+
+<ul>
+<li>xxxx.github.ioで一般公開されるのは、master branch</li>
+<li>つまり、誰かが、<a href="http://xxxx.github.io">http://xxxx.github.io</a> にアクセスすると、master branchがみえる</li>
+<li>公開前作業はsource branchで実施する</li>
+<li>今作業してるdirectoryとrepository
+octopressのdirectoryで、更に、repositoryとしても、imathis/octopressなので、このまま記事書いても、どこにcommitするんだ？になる</li>
+</ul>
+
+
+<p>上記を踏まえた作業を、rake setup_github_pagesがやってくれている、と。</p>
+
+<p>具体的には、</p>
+
+<ul>
+<li>実際に公開したいrepositoryを確認して、設定してくれる</li>
+<li>remote(imathis/octopress)をoriginではなくoctopressに設定してくれる</li>
+<li>originは、さっき確認したrepositoryに設定してくれる</li>
+<li>active branchをmasterではなくsourceにしてくれる</li>
+<li>さっき確認したrepositoryから、ブログのURLを設定してくれる</li>
+<li>master branchを、_deploy directoryに準備してくれる</li>
+</ul>
+
+
+<p>さて、ここまで来ると、ほとんど出来たも同然。</p>
+
+<ul>
+<li>コンテンツはない</li>
+<li>Jekyllに食わせるファイルは全部そろっている</li>
+<li>本番にpushするためのdirectory(_deploy)の準備は整っている</li>
+</ul>
+
+
+<p>なので、</p>
+
+<ul>
+<li>コンテンツを作って</li>
+<li>Jekyllに食わせて</li>
+<li>本番にpushすればOK!
+です。</li>
+</ul>
+
+
+<p>この時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress2.png" alt="github.io" /></p></li>
+<li><p>ブログ生成＆本番公開<br/>
+コンテンツを作るところは別途エントリを書こうと思うので、その後から。<br/>
+まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<p>で、生成はされてるものの、本番前に確認したいので、下記でpreviewします。</p>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<p>  上記で、webrickが立ち上がるので、適当なブラウザで、<br/>
+  <a href="http://127.0.0.1:4000  ">http://127.0.0.1:4000  </a>
+  にアクセスして確認。問題なければ、下記を実行してソースをsource branchにpushしておきます。</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre>
+
+<p>  そして、下記を実行して本番にpushします。</p>
+
+<pre><code>$ rake deploy
+</code></pre></li>
+</ol>
+
+
+<p>はい、これで晴れて公開完了！<br/>
+そしてこの時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress3.png" alt="github.io" /></p>
+
+<p>要点は、こんなところでしょうかな。</p>
+
+<ol>
+<li>octopressを持ってくる</li>
+<li>githubに専用repository作る</li>
+<li>repositoryのsource branchでoctopress/jekyll用のファイル編集をする</li>
+<li>ファイル編集が終わったら、サイトを生成する</li>
+<li>repositoryのmaster branchに本番用ファイルをpushする</li>
+</ol>
+
+
+<p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/misc-excelpng</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    PDFでしかexportできない・・・
+  </div>
+  さっきExcelの表をpngでexportしようと思ったら・・・なんと！PDFでしかexportできないではありませんか。 <br> <br>
+  <!-- more -->
+  うーん、、、と悩んだ結果、 <br> <br>
+  表をコピーして、偉大なるマイクロソフトの「ペイント」に貼り付けたら、、、、できた！！！ <br> <br>
+  やほーい。 <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://blog.branch4.pw/images/onlyredis.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://blog.branch4.pw/images/onlyredis.png"></a>
+  </div>
+  <br>
+  表は、Elasticacheで使える設定項目のリスト。次の記事用に作ってたのね。 <br> <br>
+  一件落着。 <br> <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Sluggish Google Chrome With Ubuntu]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/"/>
+    <updated>2014-04-16T23:39:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Slow chrome
+  </div>
+  I've been suffering from quite sluggish response of google chrome installed on ubuntu for quite a while.  <br> <br>
+  Today, I've finally got that solved ! Maybe for a while ...  <br> <br>
+  <!-- more -->
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Solution !!
+  </div>
+  Re intall !!!  <br>
+  That's it.  <br> <br>
+  I didnt really take a note about the version info, but the former chrome definitely had major version of 34.  <br>
+  And so does the current one.  <br>
+  Before re installation, I've cleared the cache, deleted many bookmarks, which didn't seem to have any effect.  <br> <br>
+  But reinstallation worked for me.  <br> <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
