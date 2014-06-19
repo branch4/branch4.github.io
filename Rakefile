@@ -183,6 +183,8 @@ task :new_post, :title do |t, args|
     post.puts "> a said a  "
     post.puts ">> b said ba  "
     post.puts ">>> c said ca  "
+    post.puts "  "
+    post.puts "<a href=\"http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON\" target=\"_blank\"><img src=\"http://image.moshimo.com/af-img/0068/000000004157.gif\" width=\"300\" height=\"250\" style=\"border:none;\"></a><img src=\"http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157\" width=\"1\" height=\"1\" style=\"border:none;\">"
   end
 end
 
