@@ -4,10 +4,12 @@ title: "Posting a Blog with Octopress"
 date: 2014-06-19T00:20:00-07:00
 comments: true
 published: true
+author: xengineer01
 categories:
  - misc
 ---
 
+※  内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。
 
 こんちには、[@xengineer01](https://twitter.com/xengineer01)です。  
 前回に引き続きOctopress関連です。
@@ -46,7 +48,16 @@ https://github.com/xxxxxx/xxxxxx.github.io.git
 $ git clone https://github.com/xxxxxx/xxxxxx.github.io.git
 ```
 
+~~この時点で、active branchは、source branchに設定されております。~~  
+これは、うそでしたｗｗ  
+clone直後は、master branchでした。  
+cloneしたディレクトリに、cdして、下記を実行するとsource branchに変わるです。  
+
+```
+$ git checkout source
+```
 この時点で、active branchは、source branchに設定されております。  
+が、正解であります！
 
 ```
 $ git status
