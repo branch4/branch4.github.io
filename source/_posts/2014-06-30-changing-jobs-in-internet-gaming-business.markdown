@@ -1,13 +1,16 @@
 ---
 layout: post
 title: "IT・インターネット・ゲーム業界の【転職】ノウハウ"
-date: 2014-06-23 02:19:26 +0900
+date: 2014-06-30 19:00:00 +0900
 comments: true
-published: false
+published: true
 author: maringerz
 categories:
- - misc
+ - recruit
+ - carrier
 ---
+
+[紫陽花](http://blog.branch4.pw/images/2014/06/ajisai.png)  
 
 こんにちは、[@maringerz](https://github.com/maringerz)です。  
 
