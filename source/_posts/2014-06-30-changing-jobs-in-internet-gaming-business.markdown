@@ -10,9 +10,10 @@ categories:
  - carrier
 ---
 
-[紫陽花](http://blog.branch4.pw/images/2014/06/ajisai.png)  
+![紫陽花](http://blog.branch4.pw/images/2014/06/ajisai.jpg)  
 
 こんにちは、[@maringerz](https://github.com/maringerz)です。  
+紫陽花にはなんの意味もありません。  
 
 この度、私もブログを書かせてもらうことになりましたぁ！！！  
 私はIT・ネット・ゲーム業界の転職エージェントを数年やって、  
