@@ -13,7 +13,7 @@ categories:
 こんちには、おフランス帰りの[@xengineer01](https://twitter.com/xengineer01)です。  
 ほっほっほ。
 
-![セーヌ川](http://blog.branch4.pw/blog/images/2014/07/seine.png)
+![セーヌ川](http://blog.branch4.pw/images/2014/07/seine.png)
 
 パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、  
 珍しく海外におりました。  
