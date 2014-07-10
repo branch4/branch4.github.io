@@ -3,7 +3,7 @@ layout: post
 title: "What I did after the installation of Octopress"
 date: 2014-07-11 01:30:00 +0900
 comments: true
-published: false
+published: true
 author: xengineer01
 categories: 
  - misc
