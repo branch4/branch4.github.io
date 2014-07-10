@@ -10,10 +10,10 @@ categories:
 ---
 
 
-こんちには、[@xengineer01](https://twitter.com/xengineer01)です。  
-今日はおフランス帰りの飛行機の中で書いております。ほっほっほ。
-※ 書き終わりませんでした
-[セーヌ川](http://blog.branch4.pw/blog/images/2014/)
+こんちには、おフランス帰りの[@xengineer01](https://twitter.com/xengineer01)です。  
+ほっほっほ。
+
+![セーヌ川](http://blog.branch4.pw/blog/images/2014/)
 
 パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、  
 珍しく海外におりました。  
@@ -217,15 +217,91 @@ github_skip_forks: true
 affiliate枠は一つにして、そこにランダムに複数affiliateを表示するようにしよう。  
 そうすればABテストも兼ねられるし、一石二鳥。  
 
-まずは、_config.ymlのいつもの行探しと追記。  
+まずは、affiliateから。  
+
+ざっくりやること。  
+1. sidebarに読み込むhtmlの設定と設置
+2. 1のhtmlから読み込んで実行するjsファイルの設置
+3. jsファイルのinclude
+4. sidebarのwidth変更
+かな。  
+
+[ここ](http://lblevery.com/sfn/aff/course/aff-banner-randomview/)参考にしましたね、私。  
+
+#### sidebarに読み込むhtmlの設定と設置
+_config.ymlのいつもの行探しと追記。  
 
 ```
 default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
 default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html, custom/asides/affiliate.html] <- 追記後
 ```
 
+上記で、custom/asides配下に、affiliate.htmlを設置することにしてるので、  
+source/_include/custom/asides/affiliate.htmlを下記内容で設置。  
+
+```
+$ cat source/_includes/custom/asides/affiliate.html
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+```
+
+Math.random() * 6 の、"6"は、何個のaffiliateバナーを回すかを書く。  
+
+#### 1のhtmlから読み込んで実行するjsファイルの設置
+次は、実行するjsファイルを設置。  
+source/javascripts/affiliate.jsを、下記内容で設置。  
+
+```
+var aff = new Array();
+aff[0] = 'affiliate tag1'
+aff[1] = 'affiliate tag2'
+aff[2] = 'affiliate tag3'
+aff[3] = 'affiliate tag4'
+aff[4] = 'affiliate tag5'
+aff[5] = 'affiliate tag6'
+```
+affiliate tagXのところに、表示したいaffiliateのtagを突っ込む。  
+(ダブルクオーテーションは、バックスラでエスケープ)  
+
+#### jsファイルのinclude
+次は、html <head> - </head>の中に、上記で設置したjsファイルをincludeするように、下記を追記する。  
+僕は、source/_includes/head.html中に追記したです。  
+
+```
+<script type="text/javascript" src="http://xxx.yyy.zzz/javascripts/affiliate.js" charset="utf-8"></script>
+```
+
+#### sidebarのwidth変更
+最後に、affiliateのサイズに合わせて、sidebar widthの調整。  
+僕は、全部 300 x 250 でそろえたので、sidebar widthを、310pxにしたですよ。  
+
+```
+$ vi sass/base/_layout.scss
+
+...
+略
+...
+// Sidebar widths used in media queries
+$sidebar-width-medium: 310px !default;
+$sidebar-pad-medium: 5px !default;
+$sidebar-pad-wide: 5px !default;
+$sidebar-width-wide: 310px !default;
+...
+略
+...
+```
+
+これでいける、はず。  
+
 ### category generator/category listモジュールを導入するには
 ----------
+category generatorは、install直後から使えるpluginなので、_config.ymlを設定するだけで、  
+category分けしたアーカイブページ作ってくれます。[ここ](http://octopress.org/docs/plugins/category-generator/)ね。  
+
+category listは、[こっち](http://qiita.com/amay077/items/3296fdf1ea11c7c9ace4)を参照。  
+
 
 ### Google Analyticsで色々みれるようにするには
 ----------
