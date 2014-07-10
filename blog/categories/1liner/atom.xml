@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 1Liner | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/1liner/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-11T01:42:31+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[1 Liner] Easily Replacing a Domain in Multiple Files]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/"/>
+    <updated>2014-04-07T16:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will...  <br> <br>
+  <ol>
+    <li>
+      find files that contains "xxxxx.yyyyy.jp:1080" <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
