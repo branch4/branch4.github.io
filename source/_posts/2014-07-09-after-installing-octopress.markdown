@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "What I did after the installation of Octopress"
-date: 2014-07-10 03:00:00 +0900
+date: 2014-07-11 01:30:00 +0900
 comments: true
 published: false
 author: xengineer01
@@ -13,29 +13,30 @@ categories:
 こんちには、おフランス帰りの[@xengineer01](https://twitter.com/xengineer01)です。  
 ほっほっほ。
 
-![セーヌ川](http://blog.branch4.pw/blog/images/2014/)
+![セーヌ川](http://blog.branch4.pw/blog/images/2014/07/seine.png)
 
 パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、  
 珍しく海外におりました。  
 ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。  
+セーヌ川と聞くと、いつも、セーム革ね、と思っているのは内緒です。  
 
 さてさてまたしてもOctopress関連です。  
 
 Octopressは、インストールしてすぐ公開できるけど、その状態はほんとに真っ新なわけで。  
 サイドバーモジュール出したり、コメントつけられるようにしたり、と多少手をかけないと  
-いけなかったりしたので作業メモ。  
+いけなかったりしたので、インストール後にやったことの作業メモ。  
 
 ### prerequisite
 ----------
 Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。  
-![ここ](http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/)でいうとこの、  
+[ここ](http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/)でいうとこの、  
 
 ```
 $ git push origin source
 ```
 
 までは終わってること。  
-いまのところやったのは、  
+インストール後にいまのところやったのは、  
 
 - 記事にコメントをつけられるようにした  
 - google plusの+1モジュールを出した  
@@ -82,7 +83,7 @@ disqusアカウントの作り方は、ぐぐればいいよ。
 ...
 中略
 ...
-disqus_short_name: 'shortname'
+disqus_short_name: 'ikemenblog'
 disqus_show_comment_count: true
 ...
 中略
@@ -142,7 +143,7 @@ $ cat source/_includes/asides/googleplus.html
 {% endif %}
 ```
 
-source/_includes/asidesにhtmlファイルがあって、それを読み込んで生成するというわけで。  
+source/\_includes/asidesにhtmlファイルがあって、それを読み込んで生成するというわけで。  
 同じディレクトリに他にもファイルがあるけど、どれを表示するかは、_config.ymlに記載してありんす。  
 
 ```
@@ -191,13 +192,13 @@ cat source/_includes/asides/github.html
 {% endif %}
 ```
 
-で、またどれを表示するかは、_config.ymlに記載してありんす。  
+で、またどれを表示するかは、_config.ymlに記載してあります。  
 (github.htmlを追加した)  
 ```
 default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
 ```
 
-更に、_config.ymlに、下記を記入。  
+更に、_config.yml、下記箇所をあわせて編集。  
 
 ```
 # Github repositories
@@ -263,10 +264,10 @@ aff[4] = 'affiliate tag5'
 aff[5] = 'affiliate tag6'
 ```
 affiliate tagXのところに、表示したいaffiliateのtagを突っ込む。  
-(ダブルクオーテーションは、バックスラでエスケープ)  
+(ダブルクオーテーションは、backslashでエスケープ)  
 
 #### jsファイルのinclude
-次は、html <head> - </head>の中に、上記で設置したjsファイルをincludeするように、下記を追記する。  
+次は、html &lt;head&gt; - &lt;/head&gt;の中に、上記で設置したjsファイルをincludeするように、下記を追記する。  
 僕は、source/_includes/head.html中に追記したです。  
 
 ```
@@ -298,11 +299,33 @@ $sidebar-width-wide: 310px !default;
 ### category generator/category listモジュールを導入するには
 ----------
 category generatorは、install直後から使えるpluginなので、_config.ymlを設定するだけで、  
-category分けしたアーカイブページ作ってくれます。[ここ](http://octopress.org/docs/plugins/category-generator/)ね。  
+category分けしたアーカイブページ作ってくれます。
+設定は簡単に[公式サイト](http://octopress.org/docs/plugins/category-generator/)に説明あり。  
+
+category generatorは、このブログでいうと、例えば、  
+[こんな感じ](http://blog.branch4.pw/blog/categories/misc)のアーカイブページを作ってくれますよ。
 
 category listは、[こっち](http://qiita.com/amay077/items/3296fdf1ea11c7c9ace4)を参照。  
 
+こんな感じのリストを作れますよ。  
+![category list](http://blog.branch4.pw/images/2014/07/category_list.png)
 
 ### Google Analyticsで色々みれるようにするには
 ----------
+最後に、Google Analytics導入。  
 
+これもあんまり書くことないんだけど、Analyticsアカウント登録して、  
+tracking_id を、_config.ymlの下記箇所に書けばOK。
+
+```
+# Google Analytics
+google_analytics_tracking_id: UA-XXXXXX-Y
+```
+
+Analyticsに数字が反映されるまで結構（24hr以上かかった）時間かかるけど、  
+それを除けば、特に難しいことはないっす。  
+
+と、いうわけで、いまのところ僕がoctopressインストール後にやったことをまとめてみましたです。  
+
+色々間違ってメモってそうなので、その時はこっそり教えていただけるとうれしいです。  
+Au revoir !
