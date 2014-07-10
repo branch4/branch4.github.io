@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Misc | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/misc/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-07-11T01:42:31+09:00</updated>
+  <updated>2014-07-11T01:44:20+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,383 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[What I Did After the Installation of Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/"/>
+    <updated>2014-07-11T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、おフランス帰りの<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+ほっほっほ。</p>
+
+<p><img src="http://blog.branch4.pw/blog/images/2014/07/seine.png" alt="セーヌ川" /></p>
+
+<p>パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、<br/>
+珍しく海外におりました。<br/>
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。<br/>
+セーヌ川と聞くと、いつも、セーム革ね、と思っているのは内緒です。</p>
+
+<p>さてさてまたしてもOctopress関連です。</p>
+
+<p>Octopressは、インストールしてすぐ公開できるけど、その状態はほんとに真っ新なわけで。<br/>
+サイドバーモジュール出したり、コメントつけられるようにしたり、と多少手をかけないと<br/>
+いけなかったりしたので、インストール後にやったことの作業メモ。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<p><code>
+$ git push origin source
+</code></p>
+
+<p>までは終わってること。<br/>
+インストール後にいまのところやったのは、</p>
+
+<ul>
+<li>記事にコメントをつけられるようにした</li>
+<li>google plusの+1モジュールを出した</li>
+<li>サイドバーにGoogle Adsense/Affiliateを出した</li>
+<li>github repositoryを出した、そして引っ込めた</li>
+<li>category generator/category listモジュールを導入した</li>
+<li>Google Analyticsで色々みれるようにした
+こんなもんだったかな？</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>今後やりたいなー、と思ってるのは、</p>
+
+<ul>
+<li>英語のブログと日本語のブログを分けて表示できるようにしたい</li>
+<li>code blockいけてない表示を変更したい<br/>
+くらいかな。</li>
+</ul>
+
+
+<h3>記事にコメントをつけるには</h3>
+
+<hr />
+
+<p>Octopress自体は、以前も紹介した通り、静的サイトGenerator Jekyllのラッパー的な<br/>
+存在なので、当然、コメントなんつー動的コンテンツ管理機能はないっす。</p>
+
+<p>そこは、<a href="https://disqus.com/">disqus</a>っつー外部サービスに依存してるので、disqusアカウントを作りましょう。<br/>
+disqusアカウントの作り方は、ぐぐればいいよ。</p>
+
+<p>作ったら、下図的な感じで、"Add Disqus to Site"を選択。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/add_disqus_to_site.png" alt="add disqus to site" /></p>
+
+<p>そんで、Site name入れたりする。例は適当にいれてみた。<br/>
+これでも問題ない。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/site_profile.png" alt="site profile" /></p>
+
+<p>次は、この画面の、"Install"タブが選択された状態で出てくるので、<br/>
+下図みたいに、"General"を選択する。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus1.png" alt="configure disqus1" /></p>
+
+<p>下の方にいくと、Your website&rsquo;s shortname is ikmenblog と出てくるので、<br/>
+これを覚えておく。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus2.png" alt="configure disqus2" /></p>
+
+<p>そして、_config.ymlを下記のように編集してちょ。<br/>
+<code>
+...
+中略
+...
+disqus_short_name: 'ikemenblog'
+disqus_show_comment_count: true
+...
+中略
+...
+</code></p>
+
+<p>short nameは、さっき覚えた名前ね。<br/>
+あとは、各postのmetadataに、下記を追記しておけばOK。
+<code>
+comments: true
+</code>
+これで投稿すれば漏れなくコメントがつけられるようになりますわ。Tre bien。</p>
+
+<h3>google plusの+1モジュールを出すには</h3>
+
+<hr />
+
+<p>ブログのPVを増やすには内容が面白くないと何やってもだめなんだろうけどね。<br/>
+このモジュール、簡単に出せるので出してみようかな、と。<br/>
+もうちょい記事が増えて、Fanpageにも投稿できるようになったらFacebookモジュールも<br/>
+出しますかね。</p>
+
+<p>まずは、_config.ymlにこんな行があるので探しましょう。<br/>
+```</p>
+
+<h1>Google +1</h1>
+
+<p>google_plus_one: false
+google_plus_one_size: medium</p>
+
+<h1>Google Plus Profile</h1>
+
+<h1>Hidden: No visible button, just add author information to search results</h1>
+
+<p>googleplus_user:
+googleplus_hidden: false
+```</p>
+
+<p>そんで、googleplus_userのところを埋めればOK。<br/>
+googleplus_userって何？という方は、<a href="http://gphangouts.com/googleplusurl.html">こちら</a>。<br/>
+ちなみに僕もなんのことかわからなかった。</p>
+
+<p>あとは、どういう仕組みで表示されるかというと、これをみると少しわかるかね。</p>
+
+<p>```
+$ ls -l source/_includes/asides
+-rw-r&mdash;r&mdash;  1 user  group  406  6 15 08:32 delicious.html
+-rw-r&mdash;r&mdash;  1 user  group 1005  6 15 08:32 github.html
+-rw-r&mdash;r&mdash;  1 user  group  360  6 15 08:32 googleplus.html
+-rw-r&mdash;r&mdash;  1 user  group  799  6 15 08:32 pinboard.html
+-rw-r&mdash;r&mdash;  1 user  group  329  6 15 08:32 recent_posts.html</p>
+
+<p>$ cat source/_includes/asides/googleplus.html
+
+<section class="googleplus">
+  <h1></p>
+
+<pre><code>&lt;a href="https://plus.google.com/106189997190821430505?rel=author"&gt;
+  &lt;img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32"&gt;
+    Google+
+&lt;/a&gt;
+</code></pre>
+
+<p>  </h1>
+</section>
+
+```</p>
+
+<p>source/_includes/asidesにhtmlファイルがあって、それを読み込んで生成するというわけで。<br/>
+同じディレクトリに他にもファイルがあるけど、どれを表示するかは、_config.ymlに記載してありんす。</p>
+
+<p><code>
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
+</code>
+こんな感じで。<br/>
+これでgoogle plus +1モジュールは表示されるはず。</p>
+
+<h3>github repositoryを出して、そして引っ込めるには</h3>
+
+<hr />
+
+<p>これもgoogle plusモジュールと似たようなもん。<br/>
+さっきのlsの結果をみると、source/_includes/asides配下に、github.htmlがあったわけで。</p>
+
+<p>```
+$ ls -l source/<em>includes/asides
+cat source/</em>includes/asides/github.html
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos"></p>
+
+<pre><code>&lt;li class="loading"&gt;Status updating...&lt;/li&gt;
+</code></pre>
+
+<p>  </ul>
+  </p>
+
+<pre><code>&lt;a href="https://github.com/root04"&gt;@root04&lt;/a&gt; on GitHub
+</code></pre>
+
+<p>  
+  <script type="text/javascript"></p>
+
+<pre><code>$(document).ready(function(){
+  if (!window.jXHR){
+    var jxhr = document.createElement('script');
+    jxhr.type = 'text/javascript';
+    jxhr.src = '/javascripts/libs/jXHR.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(jxhr, s);
+  }
+
+  github.showRepos({
+    user: 'root04',
+    count: 0,
+    skip_forks: true,
+    target: '#gh_repos'
+  });
+});
+</code></pre>
+
+<p>  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+```</p>
+
+<p>で、またどれを表示するかは、_config.ymlに記載してあります。<br/>
+(github.htmlを追加した)<br/>
+<code>
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
+</code></p>
+
+<p>更に、_config.yml、下記箇所をあわせて編集。</p>
+
+<p>```</p>
+
+<h1>Github repositories</h1>
+
+<p>github_user: xxxxxxxx
+github_repo_count: 0
+github_show_profile_link: true
+github_skip_forks: true
+```</p>
+
+<p>これで表示される、と。非表示にしたい場合は、default_asidesから抜いてしまえばOK。</p>
+
+<h3>サイドバーにGoogle Adsense/Affiliateを出すには</h3>
+
+<hr />
+
+<p>せっかくブログ書くので、Adsense貼ったり、affiliate出したりして億万長者になろう！<br/>
+というわけで、こんな感じにすると貼れまっせ。<br/>
+ただ貼るだけだとaffiliateを貼ろうとすると、広告だらけの酷いサイトになっちゃうので、<br/>
+affiliate枠は一つにして、そこにランダムに複数affiliateを表示するようにしよう。<br/>
+そうすればABテストも兼ねられるし、一石二鳥。</p>
+
+<p>まずは、affiliateから。</p>
+
+<p>ざっくりやること。<br/>
+1. sidebarに読み込むhtmlの設定と設置
+2. 1のhtmlから読み込んで実行するjsファイルの設置
+3. jsファイルのinclude
+4. sidebarのwidth変更
+かな。</p>
+
+<p><a href="http://lblevery.com/sfn/aff/course/aff-banner-randomview/">ここ</a>参考にしましたね、私。</p>
+
+<h4>sidebarに読み込むhtmlの設定と設置</h4>
+
+<p>_config.ymlのいつもの行探しと追記。</p>
+
+<p><code>
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html, custom/asides/affiliate.html] &lt;- 追記後
+</code></p>
+
+<p>上記で、custom/asides配下に、affiliate.htmlを設置することにしてるので、<br/>
+source/_include/custom/asides/affiliate.htmlを下記内容で設置。</p>
+
+<p>```
+$ cat source/_includes/custom/asides/affiliate.html</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+
+<p>```</p>
+
+<p>Math.random() * 6 の、"6"は、何個のaffiliateバナーを回すかを書く。</p>
+
+<h4>1のhtmlから読み込んで実行するjsファイルの設置</h4>
+
+<p>次は、実行するjsファイルを設置。<br/>
+source/javascripts/affiliate.jsを、下記内容で設置。</p>
+
+<p><code>
+var aff = new Array();
+aff[0] = 'affiliate tag1'
+aff[1] = 'affiliate tag2'
+aff[2] = 'affiliate tag3'
+aff[3] = 'affiliate tag4'
+aff[4] = 'affiliate tag5'
+aff[5] = 'affiliate tag6'
+</code>
+affiliate tagXのところに、表示したいaffiliateのtagを突っ込む。<br/>
+(ダブルクオーテーションは、backslashでエスケープ)</p>
+
+<h4>jsファイルのinclude</h4>
+
+<p>次は、html &lt;head&gt; &ndash; &lt;/head&gt;の中に、上記で設置したjsファイルをincludeするように、下記を追記する。<br/>
+僕は、source/_includes/head.html中に追記したです。</p>
+
+<p>```</p>
+
+<script type="text/javascript" src="http://xxx.yyy.zzz/javascripts/affiliate.js" charset="utf-8"></script>
+
+
+<p>```</p>
+
+<h4>sidebarのwidth変更</h4>
+
+<p>最後に、affiliateのサイズに合わせて、sidebar widthの調整。<br/>
+僕は、全部 300 x 250 でそろえたので、sidebar widthを、310pxにしたですよ。</p>
+
+<p>```
+$ vi sass/base/_layout.scss</p>
+
+<p>&hellip;
+略
+&hellip;
+// Sidebar widths used in media queries
+$sidebar-width-medium: 310px !default;
+$sidebar-pad-medium: 5px !default;
+$sidebar-pad-wide: 5px !default;
+$sidebar-width-wide: 310px !default;
+&hellip;
+略
+&hellip;
+```</p>
+
+<p>これでいける、はず。</p>
+
+<h3>category generator/category listモジュールを導入するには</h3>
+
+<hr />
+
+<p>category generatorは、install直後から使えるpluginなので、_config.ymlを設定するだけで、<br/>
+category分けしたアーカイブページ作ってくれます。
+設定は簡単に<a href="http://octopress.org/docs/plugins/category-generator/">公式サイト</a>に説明あり。</p>
+
+<p>category generatorは、このブログでいうと、例えば、<br/>
+<a href="http://blog.branch4.pw/blog/categories/misc">こんな感じ</a>のアーカイブページを作ってくれますよ。</p>
+
+<p>category listは、<a href="http://qiita.com/amay077/items/3296fdf1ea11c7c9ace4">こっち</a>を参照。</p>
+
+<p>こんな感じのリストを作れますよ。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/category_list.png" alt="category list" /></p>
+
+<h3>Google Analyticsで色々みれるようにするには</h3>
+
+<hr />
+
+<p>最後に、Google Analytics導入。</p>
+
+<p>これもあんまり書くことないんだけど、Analyticsアカウント登録して、<br/>
+tracking_id を、_config.ymlの下記箇所に書けばOK。</p>
+
+<p>```</p>
+
+<h1>Google Analytics</h1>
+
+<p>google_analytics_tracking_id: UA-XXXXXX-Y
+```</p>
+
+<p>Analyticsに数字が反映されるまで結構（24hr以上かかった）時間かかるけど、<br/>
+それを除けば、特に難しいことはないっす。</p>
+
+<p>と、いうわけで、いまのところ僕がoctopressインストール後にやったことをまとめてみましたです。</p>
+
+<p>色々間違ってメモってそうなので、その時はこっそり教えていただけるとうれしいです。<br/>
+Au revoir !</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Posting a Blog With Octopress]]></title>
