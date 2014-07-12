@@ -72,7 +72,7 @@ UTC=False
 ----------
 
 いろんなサイトに書いてる  
-`cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime`
+`cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime`  
 は今すぐ時間を合わせたいときには有効だけど  
 そのインスタンスの時間の設定をFIXすることにはならないので注意。  
 うっかりUTCに戻ってしまわないようにするには  
