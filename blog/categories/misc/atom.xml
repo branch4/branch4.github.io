@@ -1,0 +1,951 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Misc | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/misc/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-12T19:17:15+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/"/>
+    <updated>2014-07-12T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2</id>
+    <content type="html"><![CDATA[<p>はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア<a href="http://diary.risterlab.com">@risterlab</a>です。 <br/>
+来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！<br/>
+晴れますように。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="時計" /></p>
+
+<p>今回はちょっとした小ネタを。</p>
+
+<p>AWSのEC2のAmazon Linuxを立ち上げた人はまずUTCから日本時間に合わせるでしょう。<br/>
+しかし、大抵検索すると出てくる方法で合わせてしまうと、 <br/>
+再起動したときにたまに時間がUTCに戻っちゃって、困ってる人向けに。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>よくネットで出てくるEC2の時間の合わせ方</h3>
+
+<hr />
+
+<p><code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code></p>
+
+<p>だいたい、これがでてきますね。<br/>
+これをやるとすぐに日本時間になりますよ。じゃんじゃん。<br/>
+って。<br/>
+でもこれだとたまーに時間UTCに戻っちゃうので注意です。<br/>
+しかもたまーに戻るからこれがまた困るのです。<br/>
+私の場合実際にリリース前は何度再起動しても戻らなかったものが<br/>
+リリース後半年以上経ってから、再起動を機にしれっと戻っていました。</p>
+
+<p>cronとかアプリが時間見ていろいろやるから、大変でした。</p>
+
+<h3>時間がUTCに戻ってしまう理由</h3>
+
+<hr />
+
+<p>実は/etc/localtime はglibcパッケージが更新されると、<br/>
+パッケージ更新に含まれるスクリプトによりUTCに設定されます。<br/>
+Amazon Linuxの場合、cloud_initがインスタンスの起動時にセキュリティの更新を実行するので、<br/>
+そのタイミングで設定が初期化されてしまいます。</p>
+
+<p>なのでglibcパッケージが更新された後、インスタンスを再起動すると、<br/>
+glibcパッケージが更新され、/etc/localtimeが初期化されてしまう、<br/>
+というカラクリ。</p>
+
+<h3>時間が初期化されないようにするには</h3>
+
+<hr />
+
+<p>上記の防止策は２つ。</p>
+
+<ol>
+<li>/etc/localtimeではなく、/etc/sysconfig/clockを編集する</li>
+</ol>
+
+
+<p><code>
+ZONE="Asia/Tokyo"
+UTC=False
+</code></p>
+
+<p>2.cloud_initの設定ファイル（/etc/cloud/cloud.cfg）でセキュリティの更新を無効にする</p>
+
+<p>セキュリティの更新はしたいけど、<br/>
+時間は勝手に戻ってしまっては困る、っていうのが大抵の場合だと思いますし、<br/>
+セキュリティの更新を無効にするのはオススメできません。</p>
+
+<h3>まとめ</h3>
+
+<hr />
+
+<p>いろんなサイトに書いてる<br/>
+<code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code><br/>
+は今すぐ時間を合わせたいときには有効だけど<br/>
+そのインスタンスの時間の設定をFIXすることにはならないので注意。<br/>
+うっかりUTCに戻ってしまわないようにするには<br/>
+/etc/localtimeではなく、/etc/sysconfig/clockを編集すること。</p>
+
+<p><code>
+ZONE="Asia/Tokyo"
+UTC=False
+</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[What I Did After the Installation of Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/"/>
+    <updated>2014-07-11T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、おフランス帰りの<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+ほっほっほ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/seine.png" alt="セーヌ川" /></p>
+
+<p>パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、<br/>
+珍しく海外におりました。<br/>
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。<br/>
+セーヌ川と聞くと、いつも、セーム革ね、と思っているのは内緒です。</p>
+
+<p>さてさてまたしてもOctopress関連です。</p>
+
+<p>Octopressは、インストールしてすぐ公開できるけど、その状態はほんとに真っ新なわけで。<br/>
+サイドバーモジュール出したり、コメントつけられるようにしたり、と多少手をかけないと<br/>
+いけなかったりしたので、インストール後にやったことの作業メモ。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<p><code>
+$ git push origin source
+</code></p>
+
+<p>までは終わってること。<br/>
+インストール後にいまのところやったのは、</p>
+
+<ul>
+<li>記事にコメントをつけられるようにした</li>
+<li>google plusの+1モジュールを出した</li>
+<li>サイドバーにGoogle Adsense/Affiliateを出した</li>
+<li>github repositoryを出した、そして引っ込めた</li>
+<li>category generator/category listモジュールを導入した</li>
+<li>Google Analyticsで色々みれるようにした
+こんなもんだったかな？</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>今後やりたいなー、と思ってるのは、</p>
+
+<ul>
+<li>英語のブログと日本語のブログを分けて表示できるようにしたい</li>
+<li>code blockいけてない表示を変更したい<br/>
+くらいかな。</li>
+</ul>
+
+
+<h3>記事にコメントをつけるには</h3>
+
+<hr />
+
+<p>Octopress自体は、以前も紹介した通り、静的サイトGenerator Jekyllのラッパー的な<br/>
+存在なので、当然、コメントなんつー動的コンテンツ管理機能はないっす。</p>
+
+<p>そこは、<a href="https://disqus.com/">disqus</a>っつー外部サービスに依存してるので、disqusアカウントを作りましょう。<br/>
+disqusアカウントの作り方は、ぐぐればいいよ。</p>
+
+<p>作ったら、下図的な感じで、"Add Disqus to Site"を選択。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/add_disqus_to_site.png" alt="add disqus to site" /></p>
+
+<p>そんで、Site name入れたりする。例は適当にいれてみた。<br/>
+これでも問題ない。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/site_profile.png" alt="site profile" /></p>
+
+<p>次は、この画面の、"Install"タブが選択された状態で出てくるので、<br/>
+下図みたいに、"General"を選択する。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus1.png" alt="configure disqus1" /></p>
+
+<p>下の方にいくと、Your website&rsquo;s shortname is ikmenblog と出てくるので、<br/>
+これを覚えておく。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus2.png" alt="configure disqus2" /></p>
+
+<p>そして、_config.ymlを下記のように編集してちょ。<br/>
+<code>
+...
+中略
+...
+disqus_short_name: 'ikemenblog'
+disqus_show_comment_count: true
+...
+中略
+...
+</code></p>
+
+<p>short nameは、さっき覚えた名前ね。<br/>
+あとは、各postのmetadataに、下記を追記しておけばOK。
+<code>
+comments: true
+</code>
+これで投稿すれば漏れなくコメントがつけられるようになりますわ。Tre bien。</p>
+
+<h3>google plusの+1モジュールを出すには</h3>
+
+<hr />
+
+<p>ブログのPVを増やすには内容が面白くないと何やってもだめなんだろうけどね。<br/>
+このモジュール、簡単に出せるので出してみようかな、と。<br/>
+もうちょい記事が増えて、Fanpageにも投稿できるようになったらFacebookモジュールも<br/>
+出しますかね。</p>
+
+<p>まずは、_config.ymlにこんな行があるので探しましょう。<br/>
+```</p>
+
+<h1>Google +1</h1>
+
+<p>google_plus_one: false
+google_plus_one_size: medium</p>
+
+<h1>Google Plus Profile</h1>
+
+<h1>Hidden: No visible button, just add author information to search results</h1>
+
+<p>googleplus_user:
+googleplus_hidden: false
+```</p>
+
+<p>そんで、googleplus_userのところを埋めればOK。<br/>
+googleplus_userって何？という方は、<a href="http://gphangouts.com/googleplusurl.html">こちら</a>。<br/>
+ちなみに僕もなんのことかわからなかった。</p>
+
+<p>あとは、どういう仕組みで表示されるかというと、これをみると少しわかるかね。</p>
+
+<p>```
+$ ls -l source/_includes/asides
+-rw-r&mdash;r&mdash;  1 user  group  406  6 15 08:32 delicious.html
+-rw-r&mdash;r&mdash;  1 user  group 1005  6 15 08:32 github.html
+-rw-r&mdash;r&mdash;  1 user  group  360  6 15 08:32 googleplus.html
+-rw-r&mdash;r&mdash;  1 user  group  799  6 15 08:32 pinboard.html
+-rw-r&mdash;r&mdash;  1 user  group  329  6 15 08:32 recent_posts.html</p>
+
+<p>$ cat source/_includes/asides/googleplus.html
+
+<section class="googleplus">
+  <h1></p>
+
+<pre><code>&lt;a href="https://plus.google.com/106189997190821430505?rel=author"&gt;
+  &lt;img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32"&gt;
+    Google+
+&lt;/a&gt;
+</code></pre>
+
+<p>  </h1>
+</section>
+
+```</p>
+
+<p>source/_includes/asidesにhtmlファイルがあって、それを読み込んで生成するというわけで。<br/>
+同じディレクトリに他にもファイルがあるけど、どれを表示するかは、_config.ymlに記載してありんす。</p>
+
+<p><code>
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
+</code>
+こんな感じで。<br/>
+これでgoogle plus +1モジュールは表示されるはず。</p>
+
+<h3>github repositoryを出して、そして引っ込めるには</h3>
+
+<hr />
+
+<p>これもgoogle plusモジュールと似たようなもん。<br/>
+さっきのlsの結果をみると、source/_includes/asides配下に、github.htmlがあったわけで。</p>
+
+<p>```
+$ ls -l source/<em>includes/asides
+cat source/</em>includes/asides/github.html
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos"></p>
+
+<pre><code>&lt;li class="loading"&gt;Status updating...&lt;/li&gt;
+</code></pre>
+
+<p>  </ul>
+  </p>
+
+<pre><code>&lt;a href="https://github.com/root04"&gt;@root04&lt;/a&gt; on GitHub
+</code></pre>
+
+<p>  
+  <script type="text/javascript"></p>
+
+<pre><code>$(document).ready(function(){
+  if (!window.jXHR){
+    var jxhr = document.createElement('script');
+    jxhr.type = 'text/javascript';
+    jxhr.src = '/javascripts/libs/jXHR.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(jxhr, s);
+  }
+
+  github.showRepos({
+    user: 'root04',
+    count: 0,
+    skip_forks: true,
+    target: '#gh_repos'
+  });
+});
+</code></pre>
+
+<p>  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+```</p>
+
+<p>で、またどれを表示するかは、_config.ymlに記載してあります。<br/>
+(github.htmlを追加した)<br/>
+<code>
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
+</code></p>
+
+<p>更に、_config.yml、下記箇所をあわせて編集。</p>
+
+<p>```</p>
+
+<h1>Github repositories</h1>
+
+<p>github_user: xxxxxxxx
+github_repo_count: 0
+github_show_profile_link: true
+github_skip_forks: true
+```</p>
+
+<p>これで表示される、と。非表示にしたい場合は、default_asidesから抜いてしまえばOK。</p>
+
+<h3>サイドバーにGoogle Adsense/Affiliateを出すには</h3>
+
+<hr />
+
+<p>せっかくブログ書くので、Adsense貼ったり、affiliate出したりして億万長者になろう！<br/>
+というわけで、こんな感じにすると貼れまっせ。<br/>
+ただ貼るだけだとaffiliateを貼ろうとすると、広告だらけの酷いサイトになっちゃうので、<br/>
+affiliate枠は一つにして、そこにランダムに複数affiliateを表示するようにしよう。<br/>
+そうすればABテストも兼ねられるし、一石二鳥。</p>
+
+<p>まずは、affiliateから。</p>
+
+<p>ざっくりやること。<br/>
+1. sidebarに読み込むhtmlの設定と設置
+2. 1のhtmlから読み込んで実行するjsファイルの設置
+3. jsファイルのinclude
+4. sidebarのwidth変更
+かな。</p>
+
+<p><a href="http://lblevery.com/sfn/aff/course/aff-banner-randomview/">ここ</a>参考にしましたね、私。</p>
+
+<h4>sidebarに読み込むhtmlの設定と設置</h4>
+
+<p>_config.ymlのいつもの行探しと追記。</p>
+
+<p><code>
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
+default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html, custom/asides/affiliate.html] &lt;- 追記後
+</code></p>
+
+<p>上記で、custom/asides配下に、affiliate.htmlを設置することにしてるので、<br/>
+source/_include/custom/asides/affiliate.htmlを下記内容で設置。</p>
+
+<p>```
+$ cat source/_includes/custom/asides/affiliate.html</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+
+<p>```</p>
+
+<p>Math.random() * 6 の、"6"は、何個のaffiliateバナーを回すかを書く。</p>
+
+<h4>1のhtmlから読み込んで実行するjsファイルの設置</h4>
+
+<p>次は、実行するjsファイルを設置。<br/>
+source/javascripts/affiliate.jsを、下記内容で設置。</p>
+
+<p><code>
+var aff = new Array();
+aff[0] = 'affiliate tag1'
+aff[1] = 'affiliate tag2'
+aff[2] = 'affiliate tag3'
+aff[3] = 'affiliate tag4'
+aff[4] = 'affiliate tag5'
+aff[5] = 'affiliate tag6'
+</code>
+affiliate tagXのところに、表示したいaffiliateのtagを突っ込む。<br/>
+(ダブルクオーテーションは、backslashでエスケープ)</p>
+
+<h4>jsファイルのinclude</h4>
+
+<p>次は、html &lt;head&gt; &ndash; &lt;/head&gt;の中に、上記で設置したjsファイルをincludeするように、下記を追記する。<br/>
+僕は、source/_includes/head.html中に追記したです。</p>
+
+<p>```</p>
+
+<script type="text/javascript" src="http://xxx.yyy.zzz/javascripts/affiliate.js" charset="utf-8"></script>
+
+
+<p>```</p>
+
+<h4>sidebarのwidth変更</h4>
+
+<p>最後に、affiliateのサイズに合わせて、sidebar widthの調整。<br/>
+僕は、全部 300 x 250 でそろえたので、sidebar widthを、310pxにしたですよ。</p>
+
+<p>```
+$ vi sass/base/_layout.scss</p>
+
+<p>&hellip;
+略
+&hellip;
+// Sidebar widths used in media queries
+$sidebar-width-medium: 310px !default;
+$sidebar-pad-medium: 5px !default;
+$sidebar-pad-wide: 5px !default;
+$sidebar-width-wide: 310px !default;
+&hellip;
+略
+&hellip;
+```</p>
+
+<p>これでいける、はず。</p>
+
+<h3>category generator/category listモジュールを導入するには</h3>
+
+<hr />
+
+<p>category generatorは、install直後から使えるpluginなので、_config.ymlを設定するだけで、<br/>
+category分けしたアーカイブページ作ってくれます。
+設定は簡単に<a href="http://octopress.org/docs/plugins/category-generator/">公式サイト</a>に説明あり。</p>
+
+<p>category generatorは、このブログでいうと、例えば、<br/>
+<a href="http://blog.branch4.pw/blog/categories/misc">こんな感じ</a>のアーカイブページを作ってくれますよ。</p>
+
+<p>category listは、<a href="http://qiita.com/amay077/items/3296fdf1ea11c7c9ace4">こっち</a>を参照。</p>
+
+<p>こんな感じのリストを作れますよ。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/category_list.png" alt="category list" /></p>
+
+<h3>Google Analyticsで色々みれるようにするには</h3>
+
+<hr />
+
+<p>最後に、Google Analytics導入。</p>
+
+<p>これもあんまり書くことないんだけど、Analyticsアカウント登録して、<br/>
+tracking_id を、_config.ymlの下記箇所に書けばOK。</p>
+
+<p>```</p>
+
+<h1>Google Analytics</h1>
+
+<p>google_analytics_tracking_id: UA-XXXXXX-Y
+```</p>
+
+<p>Analyticsに数字が反映されるまで結構（24hr以上かかった）時間かかるけど、<br/>
+それを除けば、特に難しいことはないっす。</p>
+
+<p>と、いうわけで、いまのところ僕がoctopressインストール後にやったことをまとめてみましたです。</p>
+
+<p>色々間違ってメモってそうなので、その時はこっそり教えていただけるとうれしいです。<br/>
+Au revoir !</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Posting a Blog With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/"/>
+    <updated>2014-06-19T16:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress</id>
+    <content type="html"><![CDATA[<p>※  内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。</p>
+
+<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+前回に引き続きOctopress関連です。</p>
+
+<p>今回は、実際投稿するときどうするか、という点を。<br/>
+投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、少しかぶり気味。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<p><code>
+$ git push origin source
+</code></p>
+
+<p>までは終わってること。<br/>
+そこまできてたらこのblogは読まなくても書け・・・ます、はい。<br/>
+強いて言えば、準備はできてるけど、なんかよくわからんうちに準備できた人用。<br/>
+それか、このブログみたいに、複数で更新してるので、セットアップした人と、<br/>
+書く人が違う場合用。</p>
+
+<!-- more -->
+
+
+<h3>Cloning</h3>
+
+<hr />
+
+<p>では、setupしたrepositoryを、</p>
+
+<p><code>
+https://github.com/xxxxxx/xxxxxx.github.io.git
+</code></p>
+
+<p>とした場合。まずは、repositoryをlocalにcloneします。</p>
+
+<p><code>
+$ git clone https://github.com/xxxxxx/xxxxxx.github.io.git
+</code></p>
+
+<p><del>この時点で、active branchは、source branchに設定されております。</del><br/>
+これは、うそでしたｗｗ<br/>
+clone直後は、master branchでした。<br/>
+cloneしたディレクトリに、cdして、下記を実行するとsource branchに変わるです。</p>
+
+<p><code>
+$ git checkout source
+</code>
+この時点で、active branchは、source branchに設定されております。<br/>
+が、正解であります！</p>
+
+<p><code>
+$ git status
+</code>
+でみるとわかるよん。<br/>
+前回の記事でも書いたけど、記事書くときの実作業は、このままsource branchでやって、<br/>
+本番投稿は、master branchにする、てな手口。</p>
+
+<h3>deploy用設定</h3>
+
+<hr />
+
+<p>次はdeploy用の設定しときます。<br/>
+cloneしたdirectoryにcdして、下記コマンドを実行。</p>
+
+<p><code>
+$ bundle exec rake setup_github_pages
+</code></p>
+
+<p>前回の記事でも出てきたんだけど、簡単にいうと、<br/>
+<em>deploy directoryを作ってくれる。<br/>
+で、本番deployのときは、この </em>deploy directoryにあるmaster branchにpushするので、<br/>
+_deploy に、master branchをpullしとく、と。</p>
+
+<p><code>
+$ cd _deploy
+$ git pull origin master
+</code>
+これでdeploy用の設定は完了。</p>
+
+<h3>しっぴつ！</h3>
+
+<hr />
+
+<p>ここでは２点紹介。</p>
+
+<ul>
+<li>どこに書く？</li>
+<li>画像はどうする？</li>
+</ul>
+
+
+<h4>どこに書くか。</h4>
+
+<p>例えば、この記事のファイルは下記に格納されておる。</p>
+
+<p><code>
+$ ls source/_post/2014-06-08-blog-on-github.io-with-octopress.markdown
+</code></p>
+
+<p>ポイントはファイル名。</p>
+
+<p>&lt;year&gt;&ndash;&lt;month&gt;&ndash;&lt;day&gt;-title.&lt;markdown/html&gt;</p>
+
+<p>的な。これ以外にすると静的ファイルが生成されまてん。<br/>
+内容は、こんな感じ。</p>
+
+<h2>```</h2>
+
+<p>layout: post
+title: &ldquo;Blog on Github Pages with Octopress&rdquo;
+date: 2014-06-06T23:20:00-07:00
+comments: true
+published: true
+categories:</p>
+
+<h2> &ndash; misc</h2>
+
+<p>ここから下に本文を書く
+```</p>
+
+<p>上のほうに、meta-dataを突っ込んで、その下にコンテンツを書く感じでござい。<br/>
+meta-dataの意味は・・・みればすぐわかるような内容しか設定してないので解説なしで。<br/>
+他にも色々あるので使いたい人は調べてみてちょ。</p>
+
+<h4>画像はどうするか</h4>
+
+<p>はい、画像は、source/images配下にcommitします。<br/>
+で、commit/pushすると、</p>
+
+<p><a href="http://github.com/xxxxxx/images/yyyyyy.png">http://github.com/xxxxxx/images/yyyyyy.png</a></p>
+
+<p>でみれるようになります。<br/>
+markdownの場合は、以下な感じで書いとけば、deployしたときに見えるようになります。</p>
+
+<p><code>
+[test](http://github.com/xxxxxx/images/yyyyyy.png)
+</code></p>
+
+<p>当然のようにpreviewのときは見えないので、previewでみたい場合は、画像だけ<br/>
+先にpushしとかないとだめかと。(面倒なので僕は一発本番チェック派)</p>
+
+<p>たぶん、この２つがわかればコンテンツ作るとこまではできるはず。<br/>
+コンテンツ書いたら、</p>
+
+<p><code>
+$ bundle exec rake generate; bundle exec rake preview
+</code></p>
+
+<p>を実行すると、<a href="http://127.0.0.1:4000">http://127.0.0.1:4000</a> に、Webrickがあがるので、<br/>
+ブラウザで見た目チェックと修正を繰り返して、完成までがんばりましょう。</p>
+
+<h3>投稿！</h3>
+
+<hr />
+
+<p>そんな工程を経て記事が無事完成したら、本番公開と、作業ファイルのcommitをしましょう。<br/>
+Octopressは、Jekyllに作業ファイルを食わせて本番用ファイルを生成するので、作業ファイルを<br/>
+commitしとかないと、次回本番生成時に記事がなくなっちゃうので要注意。</p>
+
+<p>そんなわけで、下記で作業ファイルのcommitと本番deploy。</p>
+
+<p><code>
+$ git add .
+$ git commit -m 'nanka message'
+$ git push origin source
+$ bundle exec rake deploy
+</code></p>
+
+<p>あとは無事投稿されてるかを本番で確認したら、完了！<br/>
+おつかれちゃん。</p>
+
+<h3>rake task for generatign new posts</h3>
+
+<hr />
+
+<p>はい、もう終わりなんだけど、新規投稿するときに、いちいちファイルを0から作るのは<br/>
+めんどくさいので、専用raketaskが用意されております。一応その共有。</p>
+
+<p><code>
+$ rake new_post['title']
+</code>
+を実行すると、下記ファイルができあがります、と。<br/>
+source/_posts/2014-06-19-title.markdown</p>
+
+<p>正直、そんなに重要じゃなさげにみえるんだけど、例えば、</p>
+
+<ul>
+<li>テンプレを用意しておきたい</li>
+<li>adsenseを毎回貼るのがめんどくさい</li>
+<li>&lt;!&mdash; more &mdash;&gt;を忘れないようにしたい</li>
+</ul>
+
+
+<p>などなどある人は、Rakefileのtaskに加筆するとスーパー便利になったり。<br/>
+そんな使い方もありますよ。</p>
+
+<p>今日はこの辺で。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Blog on Github Pages With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/"/>
+    <updated>2014-06-07T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+<!-- more -->
+
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>まずは、前提知識から。
+今回のエントリで使うざっくり知識を下記に。</p>
+
+<ul>
+<li><a href="https://pages.github.com/">Github Pages</a>
+
+<ul>
+<li>安心<br/>
+みなさんご存知github.com提供。</li>
+<li>repositoryから直接静的ページを配信してくれる<br/>
+つまり、配信するHTMLページの作成は全然手伝ってくれない(そこが大変)</li>
+<li>サービス/プロダクトに紐づいたサイトを配信できる<br/>
+github.com上に作成している個人/組織レポジトリに対応したwebsiteを立ち上げて公開できます。</li>
+<li>たぶん高速-
+Githubのレポジトリから直接配信されることのどこが嬉しいかというと、<br/>
+恐らく、世界中どこからでも使われてるサービスなので、<br/>
+　どこからアクセスされても、かなり高速に配信できるんじゃないか？という点。</li>
+</ul>
+</li>
+<li><a href="http://jekyllrb.com/">Jekyll</a>
+
+<ul>
+<li>静的サイト生成ツール。 <a href="http://middlemanapp.com/">middleman</a>的な</li>
+<li>Github PagesでやってくれないことをやってくれるYO !</li>
+<li>特にGithub Pages専用なわけではなく、どこでも使えるぽい</li>
+<li>ただ、素で使おうとすると、細かいところまで全部手作業で、複雑らしい</li>
+<li>Jekyllについては、<a href="http://melborne.github.io/2012/05/13/first-step-of-jekyll/">koko</a>がわかりやすかったので、リンクのみで</li>
+</ul>
+</li>
+<li><a href="http://octopress.org/">Octopress</a>
+
+<ul>
+<li>Jekyllを使ってブログサイトを構築するためのフレームワーク<br/>
+便利！らしい<br/>
+他にも、<a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>なるものもあるけど、<br/>
+違いは、Octopressのほうが、楽。でも自由度が低い。そうです。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>ざっくりなイメージを図にまとめきれていないけども・・・図にすると・・・<br/>
+<img src="http://blog.branch4.pw/images/2014/06/jekyll_octopress_flow.png" alt="zakkuri flow" /></p>
+
+<p>こんな感じ。<br/>
+Octopressが、rakeで何から何まで出来るようにしてくれているので、<br/>
+rakeコマンド打ちまくって、
+&ndash; サイト生成
+&ndash; サイトプレビュー
+&ndash; サイトデプロイ（公開）
+する感じ。</p>
+
+<h3>how to setup github.io</h3>
+
+<hr />
+
+<p>まずは、github.ioでブログを公開するためのセットアップから。
+概ね、<a href="http://octopress.org/docs/setup/">koko</a>のパクリです。</p>
+
+<ol>
+<li>gitをinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li>ruby(>=1.9.3)をinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li><p>Octopressをdownloadしてsetupする</p>
+
+<pre><code> $ git clone git://github.com/imathis/octopress.git octopress  
+ $ cd octopress
+</code></pre>
+
+<p> この時点でのイメージ図。<br/>
+ <img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress1.png" alt="cloning" /></p>
+
+<p> octopress directory配下の、Gemfileをみると、octopressでやってくれる<br/>
+ 諸々の便利機能に必要なgemが列挙されている。</p>
+
+<pre><code> $ cat Gemfile
+ source ¥"https://rubygems.org  
+
+ group :development do  
+   gem 'rake', '~&gt; 0.9'  
+   gem 'jekyll', '~&gt; 0.12'  
+   gem 'rdiscount', '~&gt; 2.0.7'  
+   gem 'pygments.rb', '~&gt; 0.3.4'  
+   gem 'RedCloth', '~&gt; 4.2.9'  
+   gem 'haml', '~&gt; 3.1.7'  
+   gem 'compass', '~&gt; 0.12.2'  
+   gem 'sass', '~&gt; 3.2'  
+   gem 'sass-globbing', '~&gt; 1.0.0'  
+   gem 'rubypants', '~&gt; 0.2.0'  
+   gem 'rb-fsevent', '~&gt; 0.9'  
+   gem 'stringex', '~&gt; 1.4.0'  
+   gem 'liquid', '~&gt; 2.3.0'  
+   gem 'directory_watcher', '1.4.1'  
+ end  
+
+ gem 'sinatra', '~&gt; 1.4.2'  
+</code></pre>
+
+<p> なにはともあれinstall。</p>
+
+<pre><code> $ gem install bundler
+ $ rbenv rehash # rbenv使ってる場合のみ
+ $ bundle install
+ $ rake install # octopressのデフォルトテーマがinstallされる
+</code></pre></li>
+<li><p>githubに下記repositoryを作成する<br/>
+xxxx.github.io(xxxx:ユーザ名 or 組織名)</p></li>
+<li><p>下準備諸々<br/>
+ここがコマンド１個しか打たない割に重要。というか複雑。
+打つコマンドは、</p>
+
+<pre><code>$ rake setup_github_pages
+</code></pre>
+
+この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)<br/>
+以下、色々事前情報説明(まだ読んでも意味わからんと思いますが)
+
+<ul>
+<li>xxxx.github.ioで一般公開されるのは、master branch</li>
+<li>つまり、誰かが、<a href="http://xxxx.github.io">http://xxxx.github.io</a> にアクセスすると、master branchがみえる</li>
+<li>公開前作業はsource branchで実施する</li>
+<li>今作業してるdirectoryとrepository
+octopressのdirectoryで、更に、repositoryとしても、imathis/octopressなので、このまま記事書いても、どこにcommitするんだ？になる</li>
+</ul>
+
+
+<p>上記を踏まえた作業を、rake setup_github_pagesがやってくれている、と。</p>
+
+<p>具体的には、</p>
+
+<ul>
+<li>実際に公開したいrepositoryを確認して、設定してくれる</li>
+<li>remote(imathis/octopress)をoriginではなくoctopressに設定してくれる</li>
+<li>originは、さっき確認したrepositoryに設定してくれる</li>
+<li>active branchをmasterではなくsourceにしてくれる</li>
+<li>さっき確認したrepositoryから、ブログのURLを設定してくれる</li>
+<li>master branchを、_deploy directoryに準備してくれる</li>
+</ul>
+
+
+<p>さて、ここまで来ると、ほとんど出来たも同然。</p>
+
+<ul>
+<li>コンテンツはない</li>
+<li>Jekyllに食わせるファイルは全部そろっている</li>
+<li>本番にpushするためのdirectory(_deploy)の準備は整っている</li>
+</ul>
+
+
+<p>なので、</p>
+
+<ul>
+<li>コンテンツを作って</li>
+<li>Jekyllに食わせて</li>
+<li>本番にpushすればOK!
+です。</li>
+</ul>
+
+
+<p>この時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress2.png" alt="github.io" /></p></li>
+<li><p>ブログ生成＆本番公開<br/>
+コンテンツを作るところは別途エントリを書こうと思うので、その後から。<br/>
+まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<p>で、生成はされてるものの、本番前に確認したいので、下記でpreviewします。</p>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<p>  上記で、webrickが立ち上がるので、適当なブラウザで、<br/>
+  <a href="http://127.0.0.1:4000  ">http://127.0.0.1:4000  </a>
+  にアクセスして確認。問題なければ、下記を実行してソースをsource branchにpushしておきます。</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre>
+
+<p>  そして、下記を実行して本番にpushします。</p>
+
+<pre><code>$ rake deploy
+</code></pre></li>
+</ol>
+
+
+<p>はい、これで晴れて公開完了！<br/>
+そしてこの時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress3.png" alt="github.io" /></p>
+
+<p>要点は、こんなところでしょうかな。</p>
+
+<ol>
+<li>octopressを持ってくる</li>
+<li>githubに専用repository作る</li>
+<li>repositoryのsource branchでoctopress/jekyll用のファイル編集をする</li>
+<li>ファイル編集が終わったら、サイトを生成する</li>
+<li>repositoryのmaster branchに本番用ファイルをpushする</li>
+</ol>
+
+
+<p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/misc-excelpng</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    PDFでしかexportできない・・・
+  </div>
+  さっきExcelの表をpngでexportしようと思ったら・・・なんと！PDFでしかexportできないではありませんか。 <br> <br>
+  <!-- more -->
+  うーん、、、と悩んだ結果、 <br> <br>
+  表をコピーして、偉大なるマイクロソフトの「ペイント」に貼り付けたら、、、、できた！！！ <br> <br>
+  やほーい。 <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://blog.branch4.pw/images/onlyredis.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://blog.branch4.pw/images/onlyredis.png"></a>
+  </div>
+  <br>
+  表は、Elasticacheで使える設定項目のリスト。次の記事用に作ってたのね。 <br> <br>
+  一件落着。 <br> <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
