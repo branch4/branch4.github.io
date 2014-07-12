@@ -1,15 +1,13 @@
-EC2の時間を合わせる
 ---
 layout: post
 title: "EC2の時間を合わせる UTCに戻ってしまって困ってるあなたに"
-date: 2014-07-11 01:30:00 +0900
+date: 2014-07-12 01:30:00 +0900
 comments: true
 published: true
-author: xengineer01
+author: risterlab
 categories: 
  - misc
 ---
-
 
 はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア[@risterlab](http://diary.risterlab.com)です。 
 来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！ 
