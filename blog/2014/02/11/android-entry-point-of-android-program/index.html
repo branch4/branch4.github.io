@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[Android] Entry Point of Android Program - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="There&#8217;s no main function in Android programming. Many people notice that. So where&#8217;s the entry point ? It&#8217;s pointed in &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[Android] Entry Point of Android Program</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T12:55:00+09:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div  class=post>
+  There&#8217;s no main function in Android programming.  <br>
+  Many people notice that. So where&#8217;s the entry point ?  <br>
+  It&#8217;s pointed in AndroidManifest.xml file.  <br>
+  There are many things written in this file so I&#8217;ll go into the details in other articles.  <br><br>
+  For now, example below will be enough.  <br> <br>
+  <!-- more -->
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;manifest
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.XXXX.testApp"
+        android:versionCode="1" android:versionName="1.0" &gt;
+      &lt;uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="18" /&gt;
+      &lt;application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" &gt;
+      &lt;activity
+        android:name="com.xxxx.yyyy.MainActivity"
+        android:label="@string/app_name" &gt;
+      &lt;intent-filter&gt;
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+      &lt;/intent-filter&gt;
+      &lt;/activity&gt;
+      &lt;/application&gt;
+      &lt;/manifest&gt;
+    </span> </pre>
+  In above manifest, the activity with, the intent-filter below will be listed in the system launcher, and would be the entry point for that icon.  <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;intent-filter&gt;
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+      &lt;/intent-filter&gt;
+    </span> </pre>
+  In detail, <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+    </span> </pre>
+  &#8211;>this line sets the entry point <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+    </span> </pre>
+  &#8211;>this line sets the app to the launcher <br> <br>
+  This could be set to multiple activities.  <br>
+  I think facebook once used this with their messenger.  <br> <br>
+  <br>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T12:55:00+09:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/03/android-oncreate/" title="Previous Post: [Android] onCreateメソッドの引数の意味">&laquo; [Android] onCreateメソッドの引数の意味</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/02/js-in-place-editor/" title="Next Post: [JS] In place editor">[JS] In place editor &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/11/after-installing-octopress/">What I Did After the Installation of Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">IT・インターネット・ゲーム業界の【転職】ノウハウ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/infra'>Infra (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/web-development'>Web Development (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/carrier'>carrier (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

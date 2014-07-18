@@ -1,0 +1,734 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="Just 1 liner I sometimes use. for i in `find -type f`; do grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i; if [ $? -eq 0 ]; then sed -i.bak -e s,http:// &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/page/2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/07/1-liner-line-editing/">[1 Liner] Easily Replacing a Domain in Multiple Files</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-07T16:07:00+09:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/04/07/1-liner-line-editing/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will&#8230;  <br> <br>
+  <ol>
+    <li>
+      find files that contains &#8220;xxxxx.yyyyy.jp:1080&#8221; <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/06/android-onclick-event-with-imageview/">[Android] onClick Event With ImageView</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-06T22:42:00+09:00" pubdate data-updated="true">Apr 6<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/04/06/android-onclick-event-with-imageview/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  <h3 >
+    Purpose
+  </h3>
+  As said in the title.  <br>
+  It was my first shot using onClick event with ImageView, so just for memo.  <br>
+  (in fact it&#8217;s my first Android development) <br>
+  Keep in mind that this seem just to be one way of implementing onClick event with a view.  <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/06/android-onclick-event-with-imageview/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/03/rails-rails80/">[Rails] Railsサーバを80番ポートで立ち上げちゃう</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-03T10:31:00+09:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2014</time>
+        
+           | <a href="/blog/2014/04/03/rails-rails80/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/03/rails-rails80/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  RVM使ってる人限定。 <br><br>
+  <pre  class=prettyprint>
+      $ rails server</pre>
+  つって起動すると、自動的に3000番であがっちゃいます。 <br><br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/03/rails-rails80/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/01/kvs-redis/">[KVS] Redis入門</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-01T11:38:00+09:00" pubdate data-updated="true">Apr 1<span>st</span>, 2014</time>
+        
+           | <a href="/blog/2014/04/01/kvs-redis/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/01/kvs-redis/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  業務で少しRedisの勉強をしたので、そのメモ。 <br> <br>
+  <br>
+  <h3 >
+    Redisとは
+  </h3>
+  Redisは、KVS(Key-Value Store)の一種。 <br>
+  Web-site : http://redis.io/ <br>
+  Current stable : 2.8.8 <br>
+  License : BSD <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/01/kvs-redis/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/14/git-tagging-in-git/">[Git] Tagging in Git</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-14T12:02:00+09:00" pubdate data-updated="true">Mar 14<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/14/git-tagging-in-git/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  These are some commands I use when taggin in git.  <br> <br>
+  Or say&#8230;some commands I will be using, since I haven&#8217;t really started using them.  <br> <br>
+  <h3 >
+    Work flow of git in my environment.
+  </h3>
+  <ul >
+    <li >
+      debugging in master branch
+    </li>
+    <li >
+      little bug fix in master branch
+    </li>
+    <li >
+      new branches for major fix/new features
+    </li>
+  </ul>
+  (beware that I&#8217;m developing alone) <br> <br>
+  <h3 >
+    What I want to accomplish
+  </h3>
+  <ul >
+    <li >
+      I want to tag the source before releasing
+    </li>
+    <li >
+      I want to maintain files(add/delete/change revision) in exisisting tags
+    </li>
+    <li >
+      I want to accomplish this easily
+    </li>
+    <li >
+      I want to learn git
+    </li>
+  </ul>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/14/git-tagging-in-git/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/10/android-android-studiodebug/">[Android] Android Studioでdebugする方法その１</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-10T03:18:00+09:00" pubdate data-updated="true">Mar 10<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/10/android-android-studiodebug/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  とりあえずEcllipseのプロジェクトをimportしてつまずいたこと。 <br> <br>
+  <h4 >
+    1. Gradleのversionが高杉なんだよ！と怒られた。
+  </h4>
+  ので、versionをさげた。 <br> <br>
+  brew でversion下げるのはこんな感じ。 <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/10/android-android-studiodebug/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/10/android-android-studio_9/">[Android] Android Studio</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-10T00:51:00+09:00" pubdate data-updated="true">Mar 10<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/10/android-android-studio_9/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  まぁ・・・Ecllipse使うよりは使い勝手はよさそうなんだけど・・・<br>
+  なにかにつけて、  あれのバージョンがあわないー だの、<br>
+  これのバージョンが古いー  だの言われるのがすごい面倒・・・<br>
+  開発させろよ・・・
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/06/infra-geo-directive-in-nginx/">[Infra] Geo Directive in Nginx</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-06T23:46:00+09:00" pubdate data-updated="true">Mar 6<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/06/infra-geo-directive-in-nginx/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  送信元IPによって色々挙動変えたりしたいなー、 <br>
+  と思って検索してたら、geo directiveがいい！！！ <br>
+  的な記事があったので、読み進めてみた。 <br><br>
+  が、結論、if directive使わないといけないので没案。 <br>
+  nginxさんのif directiveは鬼門。 <br>
+  挙動怪しいし、ifの中で使えるdirectiveもめっちゃ少なくて、あんまり意味なし。 <br>
+  そんな意味のないエントリでした・・・ <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/04/git/">[Git] タグ打ちするときーーー</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-04T14:10:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/04/git/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/04/git/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  タグ打ちするときの便利コマンド。 <br> <br>
+  というか僕がよく使うことになる予定のコマンドのメモ。 <br> <br>
+  <h4 >
+    今のgitの運用
+  </h4>
+  <ul >
+    <li >
+      bug対はmaster
+    </li>
+    <li >
+      ちょい修正もmaster
+    </li>
+    <li >
+      大き目機能改善・機能開発は都度新しいbranch切る
+    </li>
+  </ul>
+  1人でテキトウに作ってるのでなんとなくな感じです。 <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/04/git/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/04/if-you-cant-keep-working/">Something That Might Help You Keep Working</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-04T02:34:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/04/if-you-cant-keep-working/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/04/if-you-cant-keep-working/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Its not so easy to keep working on something for long time.　 <br>
+  I&#8217;m not good at it either.  <br>
+  But I always try to keep one thing in mind.  <br>
+  If I work on one thing for 30min everyday, <br>
+  I&#8217;ll be ahead of guys that didnt work on it.  <br>
+  If I keep on working for a year, <br>
+  It will become 180hrs/yr, almost a week ahead.  <br>
+  A week/yr might not be enough advantage for many people, <br>
+  and if so, stop working. It&#8217;s a good reason for me.  <br>
+  Just a little tips to keep working.  <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/3/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/11/after-installing-octopress/">What I Did After the Installation of Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">IT・インターネット・ゲーム業界の【転職】ノウハウ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/infra'>Infra (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/web-development'>Web Development (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/carrier'>carrier (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

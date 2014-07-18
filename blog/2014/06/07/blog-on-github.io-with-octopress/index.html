@@ -1,0 +1,512 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Blog on Github Pages With Octopress - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="こんちには、@xengineerです。
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。
+少し前から、Github Pagesでブログをはじめました。 が、これ、いまのところ書きづらいす。
+githubなだけあって、投稿自体もレポジトリ管理だから、
+「簡単ぽん！」ではない、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Blog on Github Pages With Octopress</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-07T15:20:00+09:00" pubdate data-updated="true">Jun 7<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+<!-- more -->
+
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>まずは、前提知識から。
+今回のエントリで使うざっくり知識を下記に。</p>
+
+<ul>
+<li><a href="https://pages.github.com/">Github Pages</a>
+
+<ul>
+<li>安心<br/>
+みなさんご存知github.com提供。</li>
+<li>repositoryから直接静的ページを配信してくれる<br/>
+つまり、配信するHTMLページの作成は全然手伝ってくれない(そこが大変)</li>
+<li>サービス/プロダクトに紐づいたサイトを配信できる<br/>
+github.com上に作成している個人/組織レポジトリに対応したwebsiteを立ち上げて公開できます。</li>
+<li>たぶん高速-
+Githubのレポジトリから直接配信されることのどこが嬉しいかというと、<br/>
+恐らく、世界中どこからでも使われてるサービスなので、<br/>
+　どこからアクセスされても、かなり高速に配信できるんじゃないか？という点。</li>
+</ul>
+</li>
+<li><a href="http://jekyllrb.com/">Jekyll</a>
+
+<ul>
+<li>静的サイト生成ツール。 <a href="http://middlemanapp.com/">middleman</a>的な</li>
+<li>Github PagesでやってくれないことをやってくれるYO !</li>
+<li>特にGithub Pages専用なわけではなく、どこでも使えるぽい</li>
+<li>ただ、素で使おうとすると、細かいところまで全部手作業で、複雑らしい</li>
+<li>Jekyllについては、<a href="http://melborne.github.io/2012/05/13/first-step-of-jekyll/">koko</a>がわかりやすかったので、リンクのみで</li>
+</ul>
+</li>
+<li><a href="http://octopress.org/">Octopress</a>
+
+<ul>
+<li>Jekyllを使ってブログサイトを構築するためのフレームワーク<br/>
+便利！らしい<br/>
+他にも、<a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>なるものもあるけど、<br/>
+違いは、Octopressのほうが、楽。でも自由度が低い。そうです。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>ざっくりなイメージを図にまとめきれていないけども・・・図にすると・・・<br/>
+<img src="http://blog.branch4.pw/images/2014/06/jekyll_octopress_flow.png" alt="zakkuri flow" /></p>
+
+<p>こんな感じ。<br/>
+Octopressが、rakeで何から何まで出来るようにしてくれているので、<br/>
+rakeコマンド打ちまくって、
+&ndash; サイト生成
+&ndash; サイトプレビュー
+&ndash; サイトデプロイ（公開）
+する感じ。</p>
+
+<h3>how to setup github.io</h3>
+
+<hr />
+
+<p>まずは、github.ioでブログを公開するためのセットアップから。
+概ね、<a href="http://octopress.org/docs/setup/">koko</a>のパクリです。</p>
+
+<ol>
+<li>gitをinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li>ruby(>=1.9.3)をinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li><p>Octopressをdownloadしてsetupする</p>
+
+<pre><code> $ git clone git://github.com/imathis/octopress.git octopress  
+ $ cd octopress
+</code></pre>
+
+<p> この時点でのイメージ図。<br/>
+ <img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress1.png" alt="cloning" /></p>
+
+<p> octopress directory配下の、Gemfileをみると、octopressでやってくれる<br/>
+ 諸々の便利機能に必要なgemが列挙されている。</p>
+
+<pre><code> $ cat Gemfile
+ source ¥"https://rubygems.org  
+
+ group :development do  
+   gem 'rake', '~&gt; 0.9'  
+   gem 'jekyll', '~&gt; 0.12'  
+   gem 'rdiscount', '~&gt; 2.0.7'  
+   gem 'pygments.rb', '~&gt; 0.3.4'  
+   gem 'RedCloth', '~&gt; 4.2.9'  
+   gem 'haml', '~&gt; 3.1.7'  
+   gem 'compass', '~&gt; 0.12.2'  
+   gem 'sass', '~&gt; 3.2'  
+   gem 'sass-globbing', '~&gt; 1.0.0'  
+   gem 'rubypants', '~&gt; 0.2.0'  
+   gem 'rb-fsevent', '~&gt; 0.9'  
+   gem 'stringex', '~&gt; 1.4.0'  
+   gem 'liquid', '~&gt; 2.3.0'  
+   gem 'directory_watcher', '1.4.1'  
+ end  
+
+ gem 'sinatra', '~&gt; 1.4.2'  
+</code></pre>
+
+<p> なにはともあれinstall。</p>
+
+<pre><code> $ gem install bundler
+ $ rbenv rehash # rbenv使ってる場合のみ
+ $ bundle install
+ $ rake install # octopressのデフォルトテーマがinstallされる
+</code></pre></li>
+<li><p>githubに下記repositoryを作成する<br/>
+xxxx.github.io(xxxx:ユーザ名 or 組織名)</p></li>
+<li><p>下準備諸々<br/>
+ここがコマンド１個しか打たない割に重要。というか複雑。
+打つコマンドは、</p>
+
+<pre><code>$ rake setup_github_pages
+</code></pre>
+
+この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)<br/>
+以下、色々事前情報説明(まだ読んでも意味わからんと思いますが)
+
+<ul>
+<li>xxxx.github.ioで一般公開されるのは、master branch</li>
+<li>つまり、誰かが、<a href="http://xxxx.github.io">http://xxxx.github.io</a> にアクセスすると、master branchがみえる</li>
+<li>公開前作業はsource branchで実施する</li>
+<li>今作業してるdirectoryとrepository
+octopressのdirectoryで、更に、repositoryとしても、imathis/octopressなので、このまま記事書いても、どこにcommitするんだ？になる</li>
+</ul>
+
+
+<p>上記を踏まえた作業を、rake setup_github_pagesがやってくれている、と。</p>
+
+<p>具体的には、</p>
+
+<ul>
+<li>実際に公開したいrepositoryを確認して、設定してくれる</li>
+<li>remote(imathis/octopress)をoriginではなくoctopressに設定してくれる</li>
+<li>originは、さっき確認したrepositoryに設定してくれる</li>
+<li>active branchをmasterではなくsourceにしてくれる</li>
+<li>さっき確認したrepositoryから、ブログのURLを設定してくれる</li>
+<li>master branchを、_deploy directoryに準備してくれる</li>
+</ul>
+
+
+<p>さて、ここまで来ると、ほとんど出来たも同然。</p>
+
+<ul>
+<li>コンテンツはない</li>
+<li>Jekyllに食わせるファイルは全部そろっている</li>
+<li>本番にpushするためのdirectory(_deploy)の準備は整っている</li>
+</ul>
+
+
+<p>なので、</p>
+
+<ul>
+<li>コンテンツを作って</li>
+<li>Jekyllに食わせて</li>
+<li>本番にpushすればOK!
+です。</li>
+</ul>
+
+
+<p>この時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress2.png" alt="github.io" /></p></li>
+<li><p>ブログ生成＆本番公開<br/>
+コンテンツを作るところは別途エントリを書こうと思うので、その後から。<br/>
+まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<p>で、生成はされてるものの、本番前に確認したいので、下記でpreviewします。</p>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<p>  上記で、webrickが立ち上がるので、適当なブラウザで、<br/>
+  <a href="http://127.0.0.1:4000  ">http://127.0.0.1:4000  </a>
+  にアクセスして確認。問題なければ、下記を実行してソースをsource branchにpushしておきます。</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre>
+
+<p>  そして、下記を実行して本番にpushします。</p>
+
+<pre><code>$ rake deploy
+</code></pre></li>
+</ol>
+
+
+<p>はい、これで晴れて公開完了！<br/>
+そしてこの時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress3.png" alt="github.io" /></p>
+
+<p>要点は、こんなところでしょうかな。</p>
+
+<ol>
+<li>octopressを持ってくる</li>
+<li>githubに専用repository作る</li>
+<li>repositoryのsource branchでoctopress/jekyll用のファイル編集をする</li>
+<li>ファイル編集が終わったら、サイトを生成する</li>
+<li>repositoryのmaster branchに本番用ファイルをpushする</li>
+</ol>
+
+
+<p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-07T15:20:00+09:00" pubdate data-updated="true">Jun 7<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/misc/'>misc</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/18/misc-excelpng/" title="Previous Post: [misc] Excelの表を画像(png/jpeg/gif)で保存する方法">&laquo; [misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/06/16/rds-temp-resize/" title="Next Post: Resize Temp File of Oracle on RDS">Resize Temp File of Oracle on RDS &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/11/after-installing-octopress/">What I Did After the Installation of Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">IT・インターネット・ゲーム業界の【転職】ノウハウ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/infra'>Infra (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/web-development'>Web Development (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/carrier'>carrier (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

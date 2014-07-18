@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Git | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/git/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-18T12:49:03+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Git] Tagging in Git]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git/"/>
+    <updated>2014-03-14T12:02:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git</id>
+    <content type="html"><![CDATA[<div  class=post>
+  These are some commands I use when taggin in git.  <br> <br>
+  Or say...some commands I will be using, since I haven't really started using them.  <br> <br>
+  <h3 >
+    Work flow of git in my environment.
+  </h3>
+  <ul >
+    <li >
+      debugging in master branch
+    </li>
+    <li >
+      little bug fix in master branch
+    </li>
+    <li >
+      new branches for major fix/new features
+    </li>
+  </ul>
+  (beware that I'm developing alone) <br> <br>
+  <h3 >
+    What I want to accomplish
+  </h3>
+  <ul >
+    <li >
+      I want to tag the source before releasing
+    </li>
+    <li >
+      I want to maintain files(add/delete/change revision) in exisisting tags
+    </li>
+    <li >
+      I want to accomplish this easily
+    </li>
+    <li >
+      I want to learn git
+    </li>
+  </ul>
+  <!-- more -->
+  Maybe this is my goal for today.  <br> <br>
+  And from what I've googled so far...  <br>
+  Tag in git doesn't tag files. It tags to the commit.  <br>
+  So I'll follow that rule.  <br><br>
+  <h4 >
+    What I want to accomplish(fixed)
+  </h4>
+  <ul >
+    <li >
+      I want to tag the source before releasing
+    </li>
+    <li >
+      I want to maintain existing tags (tag different commit)
+    </li>
+    <li >
+      I want to accomplish this easily
+    </li>
+    <li >
+      I want to learn git
+    </li>
+  </ul>
+  OK, now I'll list some commands I would probably use frequently.  <br> <br>
+  <h4 >
+    <a name="checkeachtagsannotation">Check each tags' annotation</a>
+  </h4>
+  Check out what this tag's for !  <br>
+  <pre  class=prettyprint>
+    $ git tag -n </pre>
+
+  <h4 >
+    Edit annotations in existing tags
+  </h4>
+  it looks like this command will overwrite a "tagname" with a "tagname".  <br>
+  <pre  class=prettyprint>
+      $ git tag tagname tagname -f -m *annotation* </pre>
+
+  <h4 >
+    Get diff of a tag and HEAD
+  </h4>
+  <pre  class=prettyprint>
+    $ git diff tagname HEAD </pre>
+
+  <h4 >
+    <a name="takediff">Get rough diff of a tag and HEAD</a>
+  </h4>
+  <pre  class=prettyprint>
+      $ git diff --stat --color tagname HEAD </pre>
+
+  <h4 >
+    <a name="taghead">Tag HEAD</a>
+  </h4>
+  <pre  class=prettyprint>
+    $ git tag -a tagname
+    $ git tag -a tagname -m "annotation" </pre>
+
+  <h4 >
+    <a name="tagcommit">Tag commit</a>
+  </h4>
+  <pre  class=prettyprint>
+    $ git tag tagname commit </pre>
+
+  <h4 >
+    Check changes in each commit
+  </h4>
+  <pre  class=prettyprint>
+    $ git log --stat
+    $ git log --numstat
+    $ git log --numstate
+    $ git log --name-status
+    $ git log --name-only </pre>
+  <h4 >
+    Check coresponding commit to a tag
+  </h4>
+  <pre  class=prettyprint>
+    $ git show tagname </pre>
+  <br>
+
+  <h3 >
+    Overall flow to what I want to accomplish
+  </h3>
+  2patterns so far.  <br> <br>
+  <h4 >
+    Pattern1
+  </h4>
+  <fieldset >
+    <legend >
+      tag to HEAD!!!! pattern.  <br>
+      Execute the command in
+    </legend>
+    <ul >
+      <li >
+        <a href="#taghead">Tag HEAD</a>
+      </li>
+    </ul>
+  </fieldset>
+  <br>
+  <h4 >
+    Pattern2
+  </h4>
+  <fieldset >
+    <legend >
+      Maintaining the tag(changing a commit in a tag) pattern.  <br>
+    </legend>
+    <ul >
+      <li >
+        Read <a href="#checkeachtagsannotation">Check each tags annotation</a> part and decide which tag to change
+      </li>
+      <li >
+        <a href="#takediff">Take diff of the tag and the commit</a> to decide which commit to relate to tag
+      </li>
+      <li >
+        Read <a href="#tagcommit">"Tag commit"</a> part and tag a commit
+      </li>
+    </ul>
+  </fieldset>
+
+
+
+  That should do it.
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Git] タグ打ちするときーーー]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/git/"/>
+    <updated>2014-03-04T14:10:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/04/git</id>
+    <content type="html"><![CDATA[<div  class=post>
+  タグ打ちするときの便利コマンド。 <br> <br>
+  というか僕がよく使うことになる予定のコマンドのメモ。 <br> <br>
+  <h4 >
+    今のgitの運用
+  </h4>
+  <ul >
+    <li >
+      bug対はmaster
+    </li>
+    <li >
+      ちょい修正もmaster
+    </li>
+    <li >
+      大き目機能改善・機能開発は都度新しいbranch切る
+    </li>
+  </ul>
+  1人でテキトウに作ってるのでなんとなくな感じです。 <br> <br>
+  <!-- more -->
+  <h4 >
+    大体やりたいこと
+  </h4>
+  <ul >
+    <li >
+      releaseするときはtagを打ちたい
+    </li>
+    <li >
+      既存で打ってあるtagの修正、ファイル追加・削除をしたい
+    </li>
+    <li >
+      上記を便利コマンドを使ってやりたい
+    </li>
+    <li >
+      ついでにgitを覚えたい
+    </li>
+  </ul>
+  きっとこんなところ。 <br> <br>
+  そして、色々調べてみてわかったこと。 <br>
+  gitのtagは、ファイルに打つんじゃなくて、commitに対して打つ、ということ。 <br>
+  まぁそれならそれでそういう方針にしようかな。 <br> <br>
+  <h4 >
+    大体やりたいこと(修正版)
+  </h4>
+  <ul >
+    <li >
+      releaseするときはtagを打ちたい
+    </li>
+    <li >
+      既存で打ってあるtagの修正(違うcommitに対して打ちたい)
+    </li>
+    <li >
+      上記を便利コマンドを使ってやりたい
+    </li>
+    <li >
+      ついでにgitを覚えたい
+    </li>
+  </ul>
+  くらいかなぁ。 <br>
+  では、以下で実際使いそうなコマンドたちを羅列。 <br> <br>
+  <h4 >
+    <a name="checkannotation">各tagのアノテーションを確認する</a>
+  </h4>
+  このタグなんのタグ？ってときに。 <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag -n
+    </span> </pre>
+  <br>
+  <h4 >
+    既存tagのアノテーションを編集する
+  </h4>
+  tagnameをtagnameで上書きするみたい。 <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag tagname tagname -f -m *annotation*
+    </span> </pre>
+  <br>
+  <h4 >
+    任意のtagとHEADのdiffを取る
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git diff tagname HEAD
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="zakkuridiff">任意のtagとHEADのざっくりdiffを取る</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git diff --stat --color tagname HEAD
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="taghead">HEADに、任意のtagを打つ</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag -a tagname
+      $ git tag -a tagname -m "annotation"
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="tagcommit">任意のcommitに、任意のtagを打つ</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag tagname commit
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="checkchange">各commitで変更されたファイルを確認する</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git log --stat
+      $ git log --numstat
+      $ git log --numstate
+      $ git log --name-status
+      $ git log --name-only
+    </span> </pre>
+  <br>
+  <h4 >
+    各tagに対応するcommitを確認する
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git show tagname
+    </span> </pre>
+  <h4 >
+    全体的なフロー
+  </h4>
+  今のところ2パターン。 <br> <br>
+  <h4 >
+    パターン１：
+  </h4>
+  HEADにこのtag打っちゃえ～！！やっほ～！！！のパターン。 <br>
+  <ul >
+    <li >
+      <a href="#taghead">HEADに、任意のtagを打つ</a>
+    </li>
+  </ul>
+  をやればOK。 <br>
+  <h4 >
+    パターン２：
+  </h4>
+  あー、tag間違って打った・・・どのcommitに打ちなおすんだっけ・・・。のパターン。 <br>
+  <ul >
+    <li >
+      <a href="#checkannotation">各tagのアノテーションを確認</a>する、でアノテーション見て修正するtagを決める
+    </li>
+    <li >
+      <a href="#zakkuridiff">任意のtagとcommitのざっくりdiffを取る</a> ＆ <a href="#checkchange">各commitで変更されたファイルを確認</a>して、正しいcommitを探す
+    </li>
+    <li >
+      <a href="#tagcommit">任意のcommitに、任意のtagを打つ</a>
+    </li>
+  </ul>
+  これできっといけるはず。
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
