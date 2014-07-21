@@ -19,9 +19,9 @@ categories:
 ---
 知らない人はいないね。はい。  
 
-![fluentd logo](http://blog.branch4.pw/images/2014/07/fluentd-logo.png)
+[![fluentd logo](http://www.fluentd.org/)](http://blog.branch4.pw/images/2014/07/fluentd-logo.png)
 
-[tresuredata](www.treasuredata.com)で開発されたオープンソースのデータコレクタですのん。  
+[tresuredata](http://www.treasuredata.com)で開発されたオープンソースのデータコレクタですのん。  
 詳しいことは、[fluentdのwebsite](http://www.fluentd.org/)にいけば大体書いてあるね。  
 
 この前行った、AWSSummit Tokyo2014でも、どの会社も、  
