@@ -3,7 +3,7 @@ layout: post
 title: fluentdを複数起動したい
 date: 2014-07-22 22:30:00 +0900
 comments: true
-published: false
+published: true
 author: xengineer01
 categories: 
 ---
