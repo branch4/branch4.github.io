@@ -19,7 +19,7 @@ categories:
 ---
 知らない人はいないね。はい。  
 
-[![fluentd logo](http://www.fluentd.org/)](http://blog.branch4.pw/images/2014/07/fluentd-logo.png)
+[![fluentd logo](http://blog.branch4.pw/images/2014/07/fluentd-logo.png)](http://www.fluentd.org/)
 
 [tresuredata](http://www.treasuredata.com)で開発されたオープンソースのデータコレクタですのん。  
 詳しいことは、[fluentdのwebsite](http://www.fluentd.org/)にいけば大体書いてあるね。  
