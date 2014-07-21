@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Gimp | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/gimp/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-21T23:31:39+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Gimp] gimp@Mavericksで全可視レイヤを別ファイルにexportする方法]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/01/25/gimp-gimpmavericksexport/"/>
+    <updated>2014-01-25T15:12:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/01/25/gimp-gimpmavericksexport</id>
+    <content type="html"><![CDATA[<div  class=post>
+  OS : Mavericks(MacOS X10.9.1) <br>
+  Gimp version : 2.8.10 <br> <br>
+  このplugin使うと一発。 <br>
+  http://registry.gimp.org/node/28268 <br> <br>
+  <!-- more -->
+  1. 上記zipをダウンロード <br>
+  2. unzipあたりで展開 <br>
+  3. 展開したpythonファイルを下記に移動 <br>
+    ~/Library/Application Support/GIMP/2.8/plug-ins/ <br>
+  4. 3のファイルに実行権限追加 <br>
+  5. gimpを再起動 <br>
+  6. [File] -> [Export Layers to...]を選択 <br>
+  7. オプションはお好みで <br> <br>
+  以上でした。 <br> <br>
+  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
