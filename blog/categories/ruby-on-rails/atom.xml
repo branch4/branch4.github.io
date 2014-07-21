@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby on Rails | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/ruby-on-rails/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-21T23:24:45+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Rails] Couldn't Find User With Id=sign_in]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin/"/>
+    <updated>2014-04-11T10:35:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Background
+  </h3>
+  While using devise on rails3, I got the following error message.  <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      Couldn't Find User With Id=sign_in Devise on Rails 3
+    </span> </pre>
+  It was working yesterday, but not today.  <br> <br>
+  <h3 >
+    Solution
+  </h3>
+  I checked config/routes.rb, and had <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      resources :users
+      devise_for :users
+    </span> </pre>
+  which seemed to be interupting each other.  <br>
+  So I commented out resources :users, and it started to work fine.  <br>
+  I don't know why it kept working till yesterday...  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Rails] Railsサーバを80番ポートで立ち上げちゃう]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/03/rails-rails80/"/>
+    <updated>2014-04-03T10:31:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/03/rails-rails80</id>
+    <content type="html"><![CDATA[<div  class=post>
+  RVM使ってる人限定。 <br><br>
+  <pre  class=prettyprint>
+      $ rails server</pre>
+  つって起動すると、自動的に3000番であがっちゃいます。 <br><br>
+  <!-- more -->
+  <pre  class=prettyprint>
+      $ rails server -p 80 </pre>
+  つって起動すると、お前ごときに80番はやらん！ <br>
+  つって怒られます。 <br><br>
+  <pre  class=prettyprint>
+      $ sudo rails server -p 80 </pre>
+  つって起動すると、なんだか怒られる。 <br><br>
+  <pre  class=prettyprint>
+      $ rvmsudo rails server -p 80 </pre>
+  つって起動すると、rvm関連の環境変数とかもちゃんと読み込んでくれて実行できるようになるらしい。
+  やってみたらできた。 <br> <br>
+  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Infra] DNAT環境下でのrails + Devise]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/"/>
+    <updated>2014-03-04T02:19:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise</id>
+    <content type="html"><![CDATA[<div  class=post>
+  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
+  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
+  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
+  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
+  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
+  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
+  いえ、全然難しくないんだけどね。。。 <br>
+  <!-- more -->
+  <br>
+  nginx.confあたりに、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      proxy_redirect http://xxx.yyy.jp/ http://xxx.yyy.jp:10080/;
+    </span></pre>
+  って書く。するとHTTP responseで、 <br><br>
+  Location: http://xxx.yyy.jp/ <br> <br>
+  を受信したときに、 <br> <br>
+  Location: http://xxx.yyy.jp:10080/ <br> <br>
+  に書き換えてくれますよ、って話。 <br>
+  今度わかりやすいように図解もつけようかな。 <br>
+  今日は眠いからこれで終了。 <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[RoR] Asset Pipeline Precompile]]></title>
+    <link href="http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile/"/>
+    <updated>2013-10-23T19:48:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile</id>
+    <content type="html"><![CDATA[<div  class=post>
+  After the production deployment, don't forget to compile assets with following command.<br>
+  <pre  class=prettyprint>
+  $ cd &lt;app_root&gt;
+  $ bundle exec rake assets:precompile RAILS_ENV=production</pre>
+  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

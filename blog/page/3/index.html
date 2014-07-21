@@ -1,0 +1,679 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/page/3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link rel="alternate" hreflang="ja-jp" href="http://blog.branch4.pw/" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/04/infra-dnatrails-devise/">[Infra] DNAT環境下でのrails + Devise</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-04T02:19:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/04/infra-dnatrails-devise/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
+  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
+  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
+  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
+  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
+  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
+  いえ、全然難しくないんだけどね。。。 <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/04/infra-dnatrails-devise/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/02/js-in-place-editor/">[JS] in Place Editor</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-02T22:08:00+09:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/02/js-in-place-editor/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Webの画面に表示されてるテキストとかを、クリックしてその場で編集できるやつ。 <br> <br>
+  を、In place editor、というらしい。 <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/02/js-in-place-editor/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/11/android-entry-point-of-android-program/">[Android] Entry Point of Android Program</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T12:55:00+09:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/02/11/android-entry-point-of-android-program/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  There&#8217;s no main function in Android programming.  <br>
+  Many people notice that. So where&#8217;s the entry point ?  <br>
+  It&#8217;s pointed in AndroidManifest.xml file.  <br>
+  There are many things written in this file so I&#8217;ll go into the details in other articles.  <br><br>
+  For now, example below will be enough.  <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/11/android-entry-point-of-android-program/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/03/android-oncreate/">[Android] onCreateメソッドの引数の意味</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-03T00:43:00+09:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2014</time>
+        
+           | <a href="/blog/2014/02/03/android-oncreate/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/02/03/android-oncreate/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Android開発やってみてるわけですが、わからないことだらけで困ってます。 <br> <br>
+  今日は、<br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+    onCreate(Bundle savedInstanceState)
+    </span></pre>
+  の、引数のところって何？ という疑問でございます。<br><br>
+  まぁググれば沢山出てくるんですが。
+    </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/03/android-oncreate/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/29/mutt-finding-corresponding-keycode-by/">[Mutt] Finding Corresponding Keycode by Typing Keys</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-29T19:26:00+09:00" pubdate data-updated="true">Jan 29<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/01/29/mutt-finding-corresponding-keycode-by/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/01/29/mutt-finding-corresponding-keycode-by/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  I always fail to set the correct keycode when setting key bind for mutt.  <br> <br>
+  So some tips I&#8217;ll leave here.  <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/01/29/mutt-finding-corresponding-keycode-by/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/25/gimp-gimpmavericksexport/">[Gimp] gimp@Mavericksで全可視レイヤを別ファイルにexportする方法</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-25T15:12:00+09:00" pubdate data-updated="true">Jan 25<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/01/25/gimp-gimpmavericksexport/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/01/25/gimp-gimpmavericksexport/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  OS : Mavericks(MacOS X10.9.1) <br>
+  Gimp version : 2.8.10 <br> <br>
+  このplugin使うと一発。 <br>
+  http://registry.gimp.org/node/28268 <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/01/25/gimp-gimpmavericksexport/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/27/android-hacking-apk-file-1/">[Android] Hacking Apk File 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-27T11:32:00+09:00" pubdate data-updated="true">Nov 27<span>th</span>, 2013</time>
+        
+           | <a href="/blog/2013/11/27/android-hacking-apk-file-1/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2013/11/27/android-hacking-apk-file-1/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  I wanted to look into apk file for it&#8217;s resource.  <br> <br>
+  What I did below.  <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/11/27/android-hacking-apk-file-1/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/28/xml-unicode-unicode/">[XML] Unicode バイト順マークがないため、Unicode に切り替えられません。</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-28T12:22:00+09:00" pubdate data-updated="true">Oct 28<span>th</span>, 2013</time>
+        
+           | <a href="/blog/2013/10/28/xml-unicode-unicode/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2013/10/28/xml-unicode-unicode/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  XMLEDITOR.NETで、xmlファイルを開いたら、こんなエラーが。 <br> <br>
+  「Unicode バイト順マークがないため、Unicode に切り替えられません。」 <br> <br>
+  ファイル開いてみたら、なぜかutf-16になってたので、utf-8に修正しました。 <br> <br>
+  修正前 <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-16"?&gt;</pre>
+  修正後 <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-8"?&gt;</pre>
+  あとはちゃんと開けました。ちゃんちゃん。
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/">[XML] There Is No Unicode Byte Order Mark. Cannot Switch to Unicode.</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-28T12:20:00+09:00" pubdate data-updated="true">Oct 28<span>th</span>, 2013</time>
+        
+           | <a href="/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Tried to open a xml file with XMLEDITOR.NET.  <br> <br>
+  And the following error occured.  <br>
+  <pre  class=prettyprint>
+  There is no Unicode byte order mark. Cannot switch to Unicode.</pre>
+  I checked the xml file, and fixed the line which said, <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-16"?&gt;</pre>
+  to <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-8"?&gt;</pre>
+  wrong  : utf-16 <br>
+  correct: utf-8 <br>
+  <br>
+  And now I could open it.<br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/23/ror-asset-pipeline-precompile/">[RoR] Asset Pipeline Precompile</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-23T19:48:00+09:00" pubdate data-updated="true">Oct 23<span>rd</span>, 2013</time>
+        
+           | <a href="/blog/2013/10/23/ror-asset-pipeline-precompile/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2013/10/23/ror-asset-pipeline-precompile/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  After the production deployment, don&#8217;t forget to compile assets with following command.<br>
+  <pre  class=prettyprint>
+  $ cd &lt;app_root&gt;
+  $ bundle exec rake assets:precompile RAILS_ENV=production</pre>
+  <br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/2/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/11/after-installing-octopress/">What I Did After the Installation of Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">IT・インターネット・ゲーム業界の【転職】ノウハウ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/infra'>Infra (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/web-development'>Web Development (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/carrier'>carrier (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

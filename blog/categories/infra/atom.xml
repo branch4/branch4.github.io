@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Infra | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/infra/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-21T23:24:45+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Infra] Geo Directive in Nginx]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx/"/>
+    <updated>2014-03-06T23:46:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx</id>
+    <content type="html"><![CDATA[<div  class=post>
+  送信元IPによって色々挙動変えたりしたいなー、 <br>
+  と思って検索してたら、geo directiveがいい！！！ <br>
+  的な記事があったので、読み進めてみた。 <br><br>
+  が、結論、if directive使わないといけないので没案。 <br>
+  nginxさんのif directiveは鬼門。 <br>
+  挙動怪しいし、ifの中で使えるdirectiveもめっちゃ少なくて、あんまり意味なし。 <br>
+  そんな意味のないエントリでした・・・ <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Infra] DNAT環境下でのrails + Devise]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/"/>
+    <updated>2014-03-04T02:19:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise</id>
+    <content type="html"><![CDATA[<div  class=post>
+  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
+  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
+  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
+  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
+  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
+  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
+  いえ、全然難しくないんだけどね。。。 <br>
+  <!-- more -->
+  <br>
+  nginx.confあたりに、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      proxy_redirect http://xxx.yyy.jp/ http://xxx.yyy.jp:10080/;
+    </span></pre>
+  って書く。するとHTTP responseで、 <br><br>
+  Location: http://xxx.yyy.jp/ <br> <br>
+  を受信したときに、 <br> <br>
+  Location: http://xxx.yyy.jp:10080/ <br> <br>
+  に書き換えてくれますよ、って話。 <br>
+  今度わかりやすいように図解もつけようかな。 <br>
+  今日は眠いからこれで終了。 <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
