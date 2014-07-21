@@ -31,6 +31,10 @@ categories:
 ちなみに僕はインストールするの今回初です(笑)  
 弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。  
 
+なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！  
+
+![multiprocess with fluentd](http://branch4.blog.pw/images/2014/07/multiprocess.png)
+
 ### 前提
 ---
 multiprocessといっても、  
