@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Infra | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/infra/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-07-21T23:49:15+09:00</updated>
+  <updated>2014-07-22T00:38:52+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -42,6 +42,10 @@
 
 <p>ちなみに僕はインストールするの今回初です(笑)<br/>
 弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
+<p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
+
+<p><img src="http://branch4.blog.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
 
 <h3>前提</h3>
 
