@@ -33,7 +33,7 @@ categories:
 
 なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！  
 
-![multiprocess with fluentd](http://branch4.blog.pw/images/2014/07/multiprocess.png)
+![multiprocess with fluentd](http://blog.branch4.pw/images/2014/07/multiprocess.png)
 
 ### 前提
 ---
