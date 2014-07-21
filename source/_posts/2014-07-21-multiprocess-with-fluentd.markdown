@@ -1,7 +1,7 @@
 ---
 layout: post
 title: fluentdを複数起動したい
-date: 2014-07-21 01:36:47 +0900
+date: 2014-07-22 22:30:00 +0900
 comments: true
 published: false
 author: xengineer01
@@ -114,6 +114,8 @@ START_STOP_DAEMON_ARGS=""
 
 #### /etc/td-agent/td-agent_nginx.conf
 
+インストール直後のconfigっす。コメントは邪魔なのでとっぱらってます。  
+
 ```
 ####
 ## Output descriptions:
@@ -154,7 +156,10 @@ START_STOP_DAEMON_ARGS=""
   port 25235 ★ここも明示的に変更しておく
 </source>
 ```
-#### /etc/default/td-agent
+#### /etc/default/td-agent_nginx
+
+起動時につけるオプションね。  
+ここで読み込むconfig変更しますゆえお忘れなく。  
 
 ```
 # This file is sourced by /bin/sh from /etc/init.d/td-agent
@@ -162,7 +167,128 @@ START_STOP_DAEMON_ARGS=""
 DAEMON_ARGS="--config /etc/td-agent/td-agent_nginx.conf" ★これ追記。違う設定ファイル読み込むように
 ```
 
-だめだわ。stopがうまくうごかん。
+このくらい修正をかけると、だ、下記コマンドで動くはず、だ。  
+```
+% sudo /etc/init.d/td-agent start
+% sudo /etc/init.d/td-agent_nginx start
+% ps aux|grep td-agent
+td-agent 11314  0.0  3.5  98888 17912 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+td-agent 11317  2.4  5.2 125704 26260 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+td-agent 11348  0.0  3.5  98888 17908 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
+td-agent 11351  5.5  5.2 125704 26224 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
+```
+
+ぱちぱちぱちぱちーーー。いやまぁそらそーだ。  
+で、ここまでは結構すぐいきましたわい。ところが、、、、  
+
+```
+% sudo /etc/init.d/td-agent stop
+```
+
+つって、止めようとすると、、、なんと！両方のプロセスが止まる！  
+ひぎぃ・・・・/etc/init.d/td-agentの中身としばらくにらめっこ。  
+
+debian系のinit scriptの中では、start-stop-daemonってのがdaemonの起動・停止に  
+まつわるetc をやっていて、そのあたりをちょっと調べてみることに。  
+
+- fluentdのdo_stopでは、２回start-stop-daemonが呼ばれている
+  - 1回目: start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name ruby
+  - 2回目: start-stop-daemon --stop --quiet --oknodo --retry=TERM/30/KILL/5 --exec $DAEMON
+
+と、いうのと、man start-stop-daemonの中身をみると。。。
+
+```
+Note: unless --pidfile is specified, start-stop-daemon behaves similar to killall(1).
+start-stop-daemon will scan the process table looking for any processes which match
+the process name, uid, and/or gid (if specified).
+
+Any matching process will prevent --start from starting the daemon. All matching processes
+will be sent the TERM signal (or the one specified via --signal or --retry)
+if --stop is specified.
+
+For  daemons  which  have  long-lived children which need to live through a --stop,
+you must specify a pidfile.
+```
+
+つまり・・・--pidfileオプションが指定されてなければ、killallと同じように動く、と・・・  
+おお・・・そりゃ両方のプロセス殺されるわけだ・・・  
+逆に言えば、--pidfileを指定しとけばkillの動作なのかな・・・  
+
+で、straceかけて、2パターン検証してみたYO。
+
+#### 1回目: start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name ruby
+
+やってることは、
+
+1. $PIDFILEの中のprocessidをとってくる(ここでは、$PIDとしよう)
+2. /proc/$PID/statが存在するか確認する
+  - 存在しない場合は、終わり
+  - 存在する場合は、3へ
+3. killする
+4. 2に戻る
+
+をひたすら繰り返しております。  
+なんで、基本的にはkillと同じ動きなのかな。retry付きで。  
+
+#### 2回目: start-stop-daemon --stop --quiet --oknodo --retry=TERM/30/KILL/5 --exec $DAEMON
+
+こっちは、まじkillallだったわ。  
+
+1. /proc/<全ProcessのPID>/exe のsymbolic link先 == $DAEMON か確認
+2. 同じだったprocessにkillでsignal送信
+3. 同じのがなくなるまで1と2を繰り返す
+
+killall。  
+で、問題は、なんでこれを使う必要があるか・・・。  
+きっと、本体殺しても、まだ生き残ってるプロセスがいる可能性があるから、  
+なんだろうな・・・  
+
+そこまでプロセスわけた上でやろうとすると、ちょいと今今時間がないので、  
+一旦、各プロセスの本体を殺すinit scriptを書いてみたです。  
+普通にkillコマンドで書いてます。start-stop-daemon、まだ使いこなせまてん。  
+
+送るsignalは、[ここ](http://docs.fluentd.org/articles/signals)に書いてあったので、INT/TERM。  
+今回はINTでお送りいたします。  
+
+/etc/init.d/td-agentの、do_stopを下記に書き換えてもらって、それコピーして、  
+/etc/init.d/td-agent_nginxつくってもらえれば、それぞれに殺すことができまっせ。  
+
+```
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+    # Return
+    #   0 if daemon has been stopped
+    #   1 if daemon was already stopped
+    #   2 if daemon could not be stopped
+    #   other if a failure occurred
+    PID=`cat $PIDFILE`
+    kill -INT $PID
+    RETVAL="$?"
+    if [ $RETVAL -ne 0 ]; then
+        RETVAL="2"
+    fi
+
+    ps aux | grep $PIDFILE >/dev/null 2>&1
+    RETVAL="$?"
+    if [ $RETVAL -eq 0 ]; then
+        rm -f $PIDFILE
+        return "$RETVAL"
+    fi
+
+    return "2"
+}
+```
+
+これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。  
+(ご利用は各自の責任においてお願いします。Use at your own risk.)  
+
+たぶん、改変自体は、ループ回して、待つ作戦＋ps 結果をgrepしてプロセス毎の  
+PID取得する作戦かなー。  
+
+ま、一旦はこれである程度まではいけるので、ブログはここまでで。  
 
   
 <a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;">
