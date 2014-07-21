@@ -6,6 +6,8 @@ comments: true
 published: true
 author: xengineer01
 categories: 
+  - Infra
+  - Web Development
 ---
 
 ## 概要
@@ -14,6 +16,7 @@ categories:
 って、質問いただいたので、簡単に手順を書いておきまっせ。  
 
 ### fluentdとは？
+---
 知らない人はいないね。はい。  
 
 ![fluentd logo](http://blog.branch4.pw/images/2014/07/fluentd-logo.png)
@@ -21,7 +24,15 @@ categories:
 [tresuredata](www.treasuredata.com)で開発されたオープンソースのデータコレクタですのん。  
 詳しいことは、[fluentdのwebsite](http://www.fluentd.org/)にいけば大体書いてあるね。  
 
+この前行った、AWSSummit Tokyo2014でも、どの会社も、  
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。  
+使うのが普通ですね、はい。  
+
+ちなみに僕はインストールするの今回初です(笑)  
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。  
+
 ### 前提
+---
 multiprocessといっても、  
 
 [こういうの](https://github.com/frsyuki/fluent-plugin-multiprocess)  
@@ -41,6 +52,7 @@ multiprocessといっても、
 binaryで入れたい方は対応osお使いください。  
 
 ### fluentdに限らず
+---
 fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、  
 ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。  
 
@@ -54,6 +66,7 @@ fluentdに限らずな話ではあるんですが、なにかしらのアプリ�
 configをいじったりすれば概ね同時に起動して問題なす。  
 
 ### fluentdの場合
+---
 で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。  
 
 まず、インストール後、今回触るファイルたちのリストは以下。  
@@ -88,6 +101,7 @@ suffinxにnginxっていれてるのは、特に意味はないす。
 ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。  
 
 ### 各ファイルの詳細
+---
 #### /etc/init.d/td-agent_nginx
 
 ```
@@ -282,6 +296,8 @@ do_stop()
 }
 ```
 
+### 終わりに
+---
 これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。  
 (ご利用は各自の責任においてお願いします。Use at your own risk.)  
 
