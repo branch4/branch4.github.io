@@ -4,7 +4,7 @@
   <title><![CDATA[branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-07-21T23:43:56+09:00</updated>
+  <updated>2014-07-21T23:49:15+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -31,9 +31,9 @@
 
 <p>知らない人はいないね。はい。</p>
 
-<p><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></p>
+<p><a href="http://www.fluentd.org/"><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></a></p>
 
-<p><a href="www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+<p><a href="http://www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
 詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
 
 <p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
