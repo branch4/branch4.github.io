@@ -4,7 +4,7 @@
   <title><![CDATA[branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-07-21T23:33:13+09:00</updated>
+  <updated>2014-07-21T23:43:56+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -27,6 +27,8 @@
 
 <h3>fluentdとは？</h3>
 
+<hr />
+
 <p>知らない人はいないね。はい。</p>
 
 <p><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></p>
@@ -34,7 +36,16 @@
 <p><a href="www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
 詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
 
+<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
+使うのが普通ですね、はい。</p>
+
+<p>ちなみに僕はインストールするの今回初です(笑)<br/>
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
 <h3>前提</h3>
+
+<hr />
 
 <p>multiprocessといっても、</p>
 
@@ -60,6 +71,8 @@ binaryで入れたい方は対応osお使いください。</p>
 
 <h3>fluentdに限らず</h3>
 
+<hr />
+
 <p>fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、<br/>
 ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。</p>
 
@@ -76,6 +89,8 @@ binaryで入れたい方は対応osお使いください。</p>
 configをいじったりすれば概ね同時に起動して問題なす。</p>
 
 <h3>fluentdの場合</h3>
+
+<hr />
 
 <p>で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。</p>
 
@@ -131,6 +146,8 @@ configをいじったりすれば概ね同時に起動して問題なす。</p>
 ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。</p>
 
 <h3>各ファイルの詳細</h3>
+
+<hr />
 
 <h4>/etc/init.d/td-agent_nginx</h4>
 
@@ -437,6 +454,10 @@ configをいじったりすれば概ね同時に起動して問題なす。</p>
 </span><span class='line'>    return "2"
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
+
+<h3>終わりに</h3>
+
+<hr />
 
 <p>これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。<br/>
 (ご利用は各自の責任においてお願いします。Use at your own risk.)</p>

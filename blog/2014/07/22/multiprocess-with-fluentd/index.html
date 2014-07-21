@@ -119,6 +119,8 @@
 
 <h3>fluentdとは？</h3>
 
+<hr />
+
 <p>知らない人はいないね。はい。</p>
 
 <p><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></p>
@@ -126,7 +128,16 @@
 <p><a href="www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
 詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
 
+<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
+使うのが普通ですね、はい。</p>
+
+<p>ちなみに僕はインストールするの今回初です(笑)<br/>
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
 <h3>前提</h3>
+
+<hr />
 
 <p>multiprocessといっても、</p>
 
@@ -152,6 +163,8 @@ binaryで入れたい方は対応osお使いください。</p>
 
 <h3>fluentdに限らず</h3>
 
+<hr />
+
 <p>fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、<br/>
 ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。</p>
 
@@ -168,6 +181,8 @@ binaryで入れたい方は対応osお使いください。</p>
 configをいじったりすれば概ね同時に起動して問題なす。</p>
 
 <h3>fluentdの場合</h3>
+
+<hr />
 
 <p>で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。</p>
 
@@ -223,6 +238,8 @@ configをいじったりすれば概ね同時に起動して問題なす。</p>
 ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。</p>
 
 <h3>各ファイルの詳細</h3>
+
+<hr />
 
 <h4>/etc/init.d/td-agent_nginx</h4>
 
@@ -530,6 +547,10 @@ configをいじったりすれば概ね同時に起動して問題なす。</p>
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
+<h3>終わりに</h3>
+
+<hr />
+
 <p>これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。<br/>
 (ご利用は各自の責任においてお願いします。Use at your own risk.)</p>
 
@@ -563,6 +584,12 @@ PID取得する作戦かなー。</p>
 
 <time datetime="2014-07-22T22:30:00+09:00" pubdate data-updated="true">Jul 22<span>nd</span>, 2014</time>
       
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/infra/'>Infra</a>, <a class='category' href='/blog/categories/web-development/'>Web Development</a>
+  
+</span>
 
 
     </p>
@@ -651,7 +678,7 @@ PID取得する作戦かなー。</p>
 </section>
 <section>
   <h1>Top Categories</h1>
-  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/infra'>Infra (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/web-development'>Web Development (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/carrier'>carrier (1)</a></li></ul>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/infra'>Infra (3)</a></li><li><a href='/blog/categories/web-development'>Web Development (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/carrier'>carrier (1)</a></li></ul>
 </section>
 
   
