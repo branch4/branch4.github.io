@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Web Development | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/web-development/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-07-22T00:38:52+09:00</updated>
+  <updated>2014-07-22T00:41:38+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -45,7 +45,7 @@
 
 <p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
 
-<p><img src="http://branch4.blog.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
+<p><img src="http://blog.branch4.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
 
 <h3>前提</h3>
 
