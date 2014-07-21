@@ -4,7 +4,7 @@
   <title><![CDATA[branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-07-21T23:31:39+09:00</updated>
+  <updated>2014-07-21T23:33:13+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,443 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdを複数起動したい]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/"/>
+    <updated>2014-07-22T22:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd</id>
+    <content type="html"><![CDATA[<h2>概要</h2>
+
+<hr />
+
+<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
+って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
+
+<h3>fluentdとは？</h3>
+
+<p>知らない人はいないね。はい。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></p>
+
+<p><a href="www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
+
+<h3>前提</h3>
+
+<p>multiprocessといっても、</p>
+
+<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
+とか<br/>
+<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
+とは違う意味で。</p>
+
+<p>本当に、プロセスを別で起動したいんです！という話。<br/>
+ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>詳細</h2>
+
+<hr />
+
+<p>まず、fluentd自体、ubuntuだとprecise/lucidしかサポートしていないので、<br/>
+binaryで入れたい方は対応osお使いください。</p>
+
+<h3>fluentdに限らず</h3>
+
+<p>fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、<br/>
+ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。</p>
+
+<p>気をつけるのは、以下。</p>
+
+<ul>
+<li>IP address</li>
+<li>port</li>
+<li>other sharable resources(files/sockets)</li>
+</ul>
+
+
+<p>大体のアプリは、上記を専有して起動しちゃうので、それが被らないように<br/>
+configをいじったりすれば概ね同時に起動して問題なす。</p>
+
+<h3>fluentdの場合</h3>
+
+<p>で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。</p>
+
+<p>まず、インストール後、今回触るファイルたちのリストは以下。</p>
+
+<ul>
+<li>/etc/init.d/td-agent</li>
+<li>/etc/td-agent/td-agent.conf</li>
+<li>/etc/default/td-agent</li>
+</ul>
+
+
+<p>それぞれ軽く解説をつけると・・・</p>
+
+<ul>
+<li>/etc/init.d/td-agent
+
+<ul>
+<li>fluentdの起動スクリプト</li>
+<li>このファイルいじって、PIDファイルが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/td-agent/td-agent.conf
+
+<ul>
+<li>fluentdのconfigファイル</li>
+<li>これの設定をいじって、portが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/default/td-agent
+
+<ul>
+<li>fluentdの起動オプション設定ファイル</li>
+<li>これの設定をいじって、起動時に読み込むconfigを切り替える</li>
+</ul>
+</li>
+</ul>
+
+
+<p>こんな感じ。実際のところは上記の３ファイルをコピって、二つずつ作るのだ。がっはっは。</p>
+
+<p>と、いうわけで、まずは各ファイルのコピーだけ作っておきましょ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo cp /etc/init.d/td-agent /etc/init.d/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/default/td-agent /etc/default/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/td-agent/td-agent_nginx.conf /etc/td-agent/td-agent_nginx.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>suffinxにnginxっていれてるのは、特に意味はないす。<br/>
+ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。</p>
+
+<h3>各ファイルの詳細</h3>
+
+<h4>/etc/init.d/td-agent_nginx</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Introduce the short server's name here
+</span><span class='line'>NAME=td-agent_nginx ★ここ修正
+</span><span class='line'>
+</span><span class='line'># Read configuration variable file if it is present
+</span><span class='line'>[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+</span><span class='line'>
+</span><span class='line'># PATH should only include /usr/* if it runs after the mountnfs.sh script
+</span><span class='line'>PATH=/sbin:/usr/sbin:/bin:/usr/bin
+</span><span class='line'>USER=td-agent                   # Running user
+</span><span class='line'>GROUP=td-agent                  # Running group
+</span><span class='line'>DESC=td-agent_nginx             # Introduce a short description here★ここ修正
+</span><span class='line'>PIDFILE=/var/run/$NAME/$NAME.pid
+</span><span class='line'>DAEMON=/usr/lib/fluent/ruby/bin/ruby # Introduce the server's location here
+</span><span class='line'># Arguments to run the daemon with
+</span><span class='line'>#DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS --daemon $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>echo $DAEMON_ARGS
+</span><span class='line'>SCRIPTNAME=/etc/init.d/$NAME
+</span><span class='line'>START_STOP_DAEMON_ARGS=""</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/td-agent/td-agent_nginx.conf</h4>
+
+<p>インストール直後のconfigっす。コメントは邪魔なのでとっぱらってます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>####
+</span><span class='line'>## Output descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;match td.*.*&gt;
+</span><span class='line'>  type tdlog
+</span><span class='line'>  apikey YOUR_API_KEY
+</span><span class='line'>
+</span><span class='line'>  auto_create_table
+</span><span class='line'>  buffer_type file
+</span><span class='line'>  buffer_path /var/log/td-agent_nginx/buffer/td ★ここ修正(同じログファイル握らないように)
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;match debug.**&gt;
+</span><span class='line'>  type stdout
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>####
+</span><span class='line'>## Source descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type forward
+</span><span class='line'>  port 25224 ★defaultだと24224になってるので、明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'># HTTP input
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type http
+</span><span class='line'>  port 18888 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'>## live debugging agent
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type debug_agent
+</span><span class='line'>  bind 127.0.0.1
+</span><span class='line'>  port 25235 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/default/td-agent_nginx</h4>
+
+<p>起動時につけるオプションね。<br/>
+ここで読み込むconfig変更しますゆえお忘れなく。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># This file is sourced by /bin/sh from /etc/init.d/td-agent
+</span><span class='line'># Options to pass to td-agent
+</span><span class='line'>DAEMON_ARGS="--config /etc/td-agent/td-agent_nginx.conf" ★これ追記。違う設定ファイル読み込むように</span></code></pre></td></tr></table></div></figure>
+
+
+<p>このくらい修正をかけると、だ、下記コマンドで動くはず、だ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent start
+</span><span class='line'>% sudo /etc/init.d/td-agent_nginx start
+</span><span class='line'>% ps aux|grep td-agent
+</span><span class='line'>td-agent 11314  0.0  3.5  98888 17912 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11317  2.4  5.2 125704 26260 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11348  0.0  3.5  98888 17908 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
+</span><span class='line'>td-agent 11351  5.5  5.2 125704 26224 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぱちぱちぱちぱちーーー。いやまぁそらそーだ。<br/>
+で、ここまでは結構すぐいきましたわい。ところが、、、、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つって、止めようとすると、、、なんと！両方のプロセスが止まる！<br/>
+ひぎぃ・・・・/etc/init.d/td-agentの中身としばらくにらめっこ。</p>
+
+<p>debian系のinit scriptの中では、start-stop-daemonってのがdaemonの起動・停止に<br/>
+まつわるetc をやっていて、そのあたりをちょっと調べてみることに。</p>
+
+<ul>
+<li>fluentdのdo_stopでは、２回start-stop-daemonが呼ばれている
+
+<ul>
+<li>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</li>
+<li>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</li>
+</ul>
+</li>
+</ul>
+
+
+<p>と、いうのと、man start-stop-daemonの中身をみると。。。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Note: unless --pidfile is specified, start-stop-daemon behaves similar to killall(1).
+</span><span class='line'>start-stop-daemon will scan the process table looking for any processes which match
+</span><span class='line'>the process name, uid, and/or gid (if specified).
+</span><span class='line'>
+</span><span class='line'>Any matching process will prevent --start from starting the daemon. All matching processes
+</span><span class='line'>will be sent the TERM signal (or the one specified via --signal or --retry)
+</span><span class='line'>if --stop is specified.
+</span><span class='line'>
+</span><span class='line'>For  daemons  which  have  long-lived children which need to live through a --stop,
+</span><span class='line'>you must specify a pidfile.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つまり・・・&mdash;pidfileオプションが指定されてなければ、killallと同じように動く、と・・・<br/>
+おお・・・そりゃ両方のプロセス殺されるわけだ・・・<br/>
+逆に言えば、&mdash;pidfileを指定しとけばkillの動作なのかな・・・</p>
+
+<p>で、straceかけて、2パターン検証してみたYO。</p>
+
+<h4>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</h4>
+
+<p>やってることは、</p>
+
+<ol>
+<li>$PIDFILEの中のprocessidをとってくる(ここでは、$PIDとしよう)</li>
+<li>/proc/$PID/statが存在するか確認する</li>
+<li>存在しない場合は、終わり</li>
+<li>存在する場合は、3へ</li>
+<li>killする</li>
+<li>2に戻る</li>
+</ol>
+
+
+<p>をひたすら繰り返しております。<br/>
+なんで、基本的にはkillと同じ動きなのかな。retry付きで。</p>
+
+<h4>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</h4>
+
+<p>こっちは、まじkillallだったわ。</p>
+
+<ol>
+<li>/proc/&lt;全ProcessのPID>/exe のsymbolic link先 == $DAEMON か確認</li>
+<li>同じだったprocessにkillでsignal送信</li>
+<li>同じのがなくなるまで1と2を繰り返す</li>
+</ol>
+
+
+<p>killall。<br/>
+で、問題は、なんでこれを使う必要があるか・・・。<br/>
+きっと、本体殺しても、まだ生き残ってるプロセスがいる可能性があるから、<br/>
+なんだろうな・・・</p>
+
+<p>そこまでプロセスわけた上でやろうとすると、ちょいと今今時間がないので、<br/>
+一旦、各プロセスの本体を殺すinit scriptを書いてみたです。<br/>
+普通にkillコマンドで書いてます。start-stop-daemon、まだ使いこなせまてん。</p>
+
+<p>送るsignalは、<a href="http://docs.fluentd.org/articles/signals">ここ</a>に書いてあったので、INT/TERM。<br/>
+今回はINTでお送りいたします。</p>
+
+<p>/etc/init.d/td-agentの、do_stopを下記に書き換えてもらって、それコピーして、<br/>
+/etc/init.d/td-agent_nginxつくってもらえれば、それぞれに殺すことができまっせ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#
+</span><span class='line'># Function that stops the daemon/service
+</span><span class='line'>#
+</span><span class='line'>do_stop()
+</span><span class='line'>{
+</span><span class='line'>    # Return
+</span><span class='line'>    #   0 if daemon has been stopped
+</span><span class='line'>    #   1 if daemon was already stopped
+</span><span class='line'>    #   2 if daemon could not be stopped
+</span><span class='line'>    #   other if a failure occurred
+</span><span class='line'>    PID=`cat $PIDFILE`
+</span><span class='line'>    kill -INT $PID
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -ne 0 ]; then
+</span><span class='line'>        RETVAL="2"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    ps aux | grep $PIDFILE &gt;/dev/null 2&gt;&1
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -eq 0 ]; then
+</span><span class='line'>        rm -f $PIDFILE
+</span><span class='line'>        return "$RETVAL"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    return "2"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。<br/>
+(ご利用は各自の責任においてお願いします。Use at your own risk.)</p>
+
+<p>たぶん、改変自体は、ループ回して、待つ作戦＋ps 結果をgrepしてプロセス毎の<br/>
+PID取得する作戦かなー。</p>
+
+<p>ま、一旦はこれである程度まではいけるので、ブログはここまでで。</p>
+
+<p><a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;"></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~]]></title>
@@ -2158,26 +2595,6 @@ git push origin source
     </li>
   </ul>
   これできっといけるはず。
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Something That Might Help You Keep Working]]></title>
-    <link href="http://blog.branch4.pw/blog/2014/03/04/if-you-cant-keep-working/"/>
-    <updated>2014-03-04T02:34:00+09:00</updated>
-    <id>http://blog.branch4.pw/blog/2014/03/04/if-you-cant-keep-working</id>
-    <content type="html"><![CDATA[<div  class=post>
-  Its not so easy to keep working on something for long time.　 <br>
-  I&#8217;m not good at it either.  <br>
-  But I always try to keep one thing in mind.  <br>
-  If I work on one thing for 30min everyday, <br>
-  I&#8217;ll be ahead of guys that didnt work on it.  <br>
-  If I keep on working for a year, <br>
-  It will become 180hrs/yr, almost a week ahead.  <br>
-  A week/yr might not be enough advantage for many people, <br>
-  and if so, stop working. It&#8217;s a good reason for me.  <br>
-  Just a little tips to keep working.  <br>
 </div>
 ]]></content>
   </entry>

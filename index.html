@@ -9,8 +9,9 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content="はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア@risterlabです。 来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！
-晴れますように。 今回はちょっとした小ネタを。 AWSのEC2のAmazon &hellip;">
+  <meta name="description" content="概要 タイトル通りなんだけど、「fluentdを複数起動したいなー」
+って、質問いただいたので、簡単に手順を書いておきまっせ。 fluentdとは？ 知らない人はいないね。はい。 tresuredataで開発されたオープンソースのデータコレクタですのん。
+詳しいことは、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +81,76 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/22/multiprocess-with-fluentd/">Fluentdを複数起動したい</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-22T22:30:00+09:00" pubdate data-updated="true">Jul 22<span>nd</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/22/multiprocess-with-fluentd/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>概要</h2>
+
+<hr />
+
+<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
+って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
+
+<h3>fluentdとは？</h3>
+
+<p>知らない人はいないね。はい。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></p>
+
+<p><a href="www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
+
+<h3>前提</h3>
+
+<p>multiprocessといっても、</p>
+
+<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
+とか<br/>
+<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
+とは違う意味で。</p>
+
+<p>本当に、プロセスを別で起動したいんです！という話。<br/>
+ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/22/multiprocess-with-fluentd/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -627,55 +698,6 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/10/web-development-sending-post-request/">[Web Development] Sending Post Request With Google Chrome</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-04-10T15:01:00+09:00" pubdate data-updated="true">Apr 10<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/04/10/web-development-sending-post-request/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><div  class=post>
-  <h3 >
-    Purpose of the entry
-  </h3>
-  It&#8217;s just an introduction of the tool I use for debugging purpose.  <br> 
-  I use it to check my APIs.  <br>
-  It can POST/GET/PUT/DELETE&#8230;send data in various HTTP method to any API.  <br><br>
-  </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/04/10/web-development-sending-post-request/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -695,6 +717,10 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/22/multiprocess-with-fluentd/">Fluentdを複数起動したい</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
       </li>
     
@@ -708,10 +734,6 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
     
       <li class="post">
         <a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a>
       </li>
     
   </ul>
