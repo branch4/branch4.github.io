@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Javascript | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/javascript/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-27T15:04:09+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[JS] in Place Editor]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor/"/>
+    <updated>2014-03-02T22:08:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/02/js-in-place-editor</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Webの画面に表示されてるテキストとかを、クリックしてその場で編集できるやつ。 <br> <br>
+  を、In place editor、というらしい。 <br> <br>
+  <!-- more -->
+  http://d.hatena.ne.jp/cyokodog/20100628/exinplaceeditor01 <br>
+  http://www.hakkaku.net/articles/20100221-595 <br>
+  http://shimz.me/blog/jquery/1505 <br>
+  http://www.ideaxidea.com/archives/2009/06/jquery_edit_in_place.html <br>
+  http://cappee.net/coding/in-place-editor-ui <br> <br>
+  なんか色々plugin的なものがあるみたいなんだけど、 <br>
+  一旦x-editableっていうのを使ってみようかな。 <br> <br>
+  http://vitalets.github.io/x-editable/ <br> <br>
+  ちなみに、自分でもそれっぽく作ってみたものの、 <br>
+  思い通りに動かないので、冷静に先達のライブラリを探してみたのです(笑) <br> <br>
+  使い方は、、、使ってみてから書こうかな。そらそーだ。 <br> <br>
+  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,2607 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-07-27T15:04:09+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[First RSpec With Rails]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails/"/>
+    <updated>2014-07-27T14:29:18+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails</id>
+    <content type="html"><![CDATA[<p>こんにちは。adorechicです。
+まわりでRailsデビューした人が何人かいるのですが、
+「テストどうすりゃいいんだ」「RSpecわからん」
+といった歓喜の声があがっているため、はじめてそのへんを触る人がざっくり雰囲気がつかめるようなエントリを書いてみます。
+RSpecのセットアップとかそういうのは書きません。</p>
+
+<h1>specの種類</h1>
+
+<p>specと一口に言ってもいろいろな種類があります。</p>
+
+<ul>
+<li>controller spec</li>
+<li>model spec</li>
+<li>view spec</li>
+<li>routing spec</li>
+<li>helper spec</li>
+<li>request spec</li>
+<li>feature spec</li>
+</ul>
+
+
+<p>まずこれどういう違いがあるのかーとかわからないですね。
+モデルとかのテストは良いとしても、controller specとrequest specってどっちも「あるアクション」に「GETリクエスト」みたいなリクエストがとんで「どうなる」というのをテストしているように見えて、何が違うねんとかあると思います。</p>
+
+<p>それぞれどういう違いがあるのかざっくり解説。
+の前に。</p>
+
+<h1>テストって何をテストするのか</h1>
+
+<p>原則として、</p>
+
+<ul>
+<li>テストの対象（主題）に対して</li>
+<li>ある「入力」を与えたとき</li>
+<li>どういった「出力」が得られるか</li>
+</ul>
+
+
+<p>これが基本です。これが全てです。
+といいたいところですがステートレスにはなりきれないところもあるわけで。
+必要に応じて、</p>
+
+<ul>
+<li>どういった「内部変化」があるか</li>
+</ul>
+
+
+<p>も見ます。
+ただしこの内部変化はいたずらにチェックすればよいわけではないです。
+ありがちなのが、テスト対象の実装に依存したテストを書いてしまうこと。</p>
+
+<p>例えば最終的に「このレコードが保存されること」が確認できればよいのに、別の「このメソッドが呼び出されていること」とかを無闇にテストしてしまったりします。
+そういうテストは実装が変わったときに大量にfailして、テスト書き直すはめになるという壊れやすいテストになってしまいます。これでは本末転倒です。</p>
+
+<p>あくまでテストは対象のインターフェイスに対して行います。</p>
+
+<p>この辺の話に興味ある場合は<a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">これ</a>とかオススメ。</p>
+
+<p>ということで何が「入力」で何が「出力」なのかをおさえると、それぞれのspecの役割がとりやすいと思います。</p>
+
+<h1>specの種類</h1>
+
+<p>本題。</p>
+
+<h2>controller spec</h2>
+
+<p>対象はコントローラー、と特定のアクション。</p>
+
+<p>勘違いしやすいところですが、「入力」はHTTPリクエストまんまではありません。
+paramsなどを入力としてactionメソッドが呼び出されているととらえた方がやりやすいと思います。</p>
+
+<p>同様に「出力」もHTTPレスポンスではありません。
+よくあるのが、response bodyのhtmlとかをチェックしてしまうこと。
+単体テストとして考えるとそれはviewの責務なので、controllerの責務ではないのです。</p>
+
+<p>対象のactionに、あるパラメータがわたされて、その結果200が返る、404が返る、リダイレクトされる・・・とか、その処理であるレコードが作成されるとかそういうのを見ます。</p>
+
+<h2>model spec</h2>
+
+<p>モデルに対するspec。なんかデータ作って保存したり検索したりするようなメソッドをテストします。
+いわゆるよくある単体テストっぽいのでわりとわかりやすいんですが、やりがちなのはrailsの機能までテストしてしまうこと。validate presenceのような、デフォルトで用意されているrailsのvalidatorの機能までテストする必要はないです。
+たとえばcontextによって発動するvalidatorが違うとか、そういう複雑なことをするときだけ。</p>
+
+<h2>view spec</h2>
+
+<p>ビューをテストするもの。コントローラーの処理後、必要な変数がアサインされた前提で、どういったものがレンダリングされるか、という観点。</p>
+
+<h2>routing spec</h2>
+
+<p>railsのroutingをテストするもの。結構複雑なrouting書いたりすると、このURLできたときどのアクションにふられるのかとかぱっと見わからないときとかも便利。</p>
+
+<h2>helper spec</h2>
+
+<p>実は一番わかりやすいかもしれない。railsのhelperに対するテスト。helperって基本入力とか条件に対してタグだったり文字列を整形して出すようなユースケースが多いので、一番入力と出力がわかりやすい。</p>
+
+<h2>request spec</h2>
+
+<p>request specとfeature specは一応Integration testと呼ばれるものに属します。ただIntegration testってコンテキストによってちょっと意味合いが違ってくるのですが、ここではrailsアプリケーションとして通してるというぐらい。request specの入出力はHTTPリクエスト・レスポンス。REST APIに対するテストに向いている。一方でfeature specは画面操作。普通にブラウザでアクセスして、何かボタンをクリックするとどうなる、というのをテストする。</p>
+
+<p>feature specでは、controller specなどと違いDBの状態がどうなった、とかリダイレクト先のURLがどうだというようなことはあまりみません。だってブラウザで操作してて見えないから。登録ボタンおしたら、画面の要素が増えたねーみたいにチェックしていきます。</p>
+
+<h1>どの種類のテストをどこまで書くのか</h1>
+
+<p>まずmodel specでいろいろテスト書いたんだけれども、それを呼び出すcontroller specでも同じようなテスト書いてくとすごい重複してないか、という疑問。
+これも、入出力がどう違うのかという意識で書いていくとやりやすいと思います。</p>
+
+<p>例えばmodelのメソッドは、そのときのレコードの状態や、わたされるパラメータによっていろいろなコンテキストがあって、それごとにテストを書いたとしましょう。
+しかしその結果の出力としてのケースはそれほど多くないのではないでしょうか。成功してレコードが保存される、失敗してエラーが返るぐらい。
+であれば結果として呼び出し側としては2ケースしかない。であればcontroller specではその2ケースのテストを書く、というイメージです。</p>
+
+<h1>specいろいろ種類あったけど、全部書くの？</h1>
+
+<p>全部書く必要はないです。必要なものだけ書けば良い。</p>
+
+<p>これはそのアプリケーションで必要とする要件であったり、チームの開発スタイルとかにかなり依存してくるところなので一概にいえないところですが、
+たとえば基本的なresourcesとかによるroutingしかないのであれば、頑張ってrouting spec書かなくてもよいと思います。</p>
+
+<p>viewにすごいこだわりを持っていたり、複雑なviewを持っているアプリケーションであれば、view specしっかり書くとよいし、
+そこまでではなく普通に操作できればよいやーぐらいであればfeature specがあればよさそう。</p>
+
+<p>逆にそういう前提にこだわらず、不安なところは普段書かないやつでも書いた方がよいです。</p>
+
+<p>よく書かれるのはmodel, controller, feature/request specあたりでしょうか。</p>
+
+<h1>まとめ</h1>
+
+<p>テストに正解はありません。</p>
+
+<p>テストはそのアプリケーションが価値を生み出す手助けをするものです。
+新しく追加したコードが既存の機能を壊していないことを確かめるために用いられることもあるし、開発者が開発を進める上での手助けをするために用いられることもあります。</p>
+
+<p>どういった目的で、どんな場面でテストを書くのかによって書き方はもちろん、ツール自体使い分けた方がよい場合もあります。</p>
+
+<p>また開発スタイルや対象とするアプリケーションの性質によっても異なります。ぶっちゃけ好みです。
+RailsプロジェクトではRSpecが多いような感じがしますが、お膝元のBasecampではtest/unitらしい。</p>
+
+<p>複雑な機能を作るときに、contextを分けながら考えを整理してから実装入るとやりやすかったりするし、
+逆にインターフェイスレベルでいろいろ試行錯誤しながら開発するときは最初からきっちり書いてると開発効率を落としてしまったりします。</p>
+
+<p>とはいえ慣れないうちはたくさん書くのが良いと思います。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdを複数起動したい]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/"/>
+    <updated>2014-07-22T22:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd</id>
+    <content type="html"><![CDATA[<h2>概要</h2>
+
+<hr />
+
+<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
+って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
+
+<h3>fluentdとは？</h3>
+
+<hr />
+
+<p>知らない人はいないね。はい。</p>
+
+<p><a href="http://www.fluentd.org/"><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></a></p>
+
+<p><a href="http://www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
+
+<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
+使うのが普通ですね、はい。</p>
+
+<p>ちなみに僕はインストールするの今回初です(笑)<br/>
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
+<p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
+
+<h3>前提</h3>
+
+<hr />
+
+<p>multiprocessといっても、</p>
+
+<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
+とか<br/>
+<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
+とは違う意味で。</p>
+
+<p>本当に、プロセスを別で起動したいんです！という話。<br/>
+ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>詳細</h2>
+
+<hr />
+
+<p>まず、fluentd自体、ubuntuだとprecise/lucidしかサポートしていないので、<br/>
+binaryで入れたい方は対応osお使いください。</p>
+
+<h3>fluentdに限らず</h3>
+
+<hr />
+
+<p>fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、<br/>
+ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。</p>
+
+<p>気をつけるのは、以下。</p>
+
+<ul>
+<li>IP address</li>
+<li>port</li>
+<li>other sharable resources(files/sockets)</li>
+</ul>
+
+
+<p>大体のアプリは、上記を専有して起動しちゃうので、それが被らないように<br/>
+configをいじったりすれば概ね同時に起動して問題なす。</p>
+
+<h3>fluentdの場合</h3>
+
+<hr />
+
+<p>で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。</p>
+
+<p>まず、インストール後、今回触るファイルたちのリストは以下。</p>
+
+<ul>
+<li>/etc/init.d/td-agent</li>
+<li>/etc/td-agent/td-agent.conf</li>
+<li>/etc/default/td-agent</li>
+</ul>
+
+
+<p>それぞれ軽く解説をつけると・・・</p>
+
+<ul>
+<li>/etc/init.d/td-agent
+
+<ul>
+<li>fluentdの起動スクリプト</li>
+<li>このファイルいじって、PIDファイルが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/td-agent/td-agent.conf
+
+<ul>
+<li>fluentdのconfigファイル</li>
+<li>これの設定をいじって、portが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/default/td-agent
+
+<ul>
+<li>fluentdの起動オプション設定ファイル</li>
+<li>これの設定をいじって、起動時に読み込むconfigを切り替える</li>
+</ul>
+</li>
+</ul>
+
+
+<p>こんな感じ。実際のところは上記の３ファイルをコピって、二つずつ作るのだ。がっはっは。</p>
+
+<p>と、いうわけで、まずは各ファイルのコピーだけ作っておきましょ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo cp /etc/init.d/td-agent /etc/init.d/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/default/td-agent /etc/default/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/td-agent/td-agent_nginx.conf /etc/td-agent/td-agent_nginx.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>suffinxにnginxっていれてるのは、特に意味はないす。<br/>
+ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。</p>
+
+<h3>各ファイルの詳細</h3>
+
+<hr />
+
+<h4>/etc/init.d/td-agent_nginx</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Introduce the short server's name here
+</span><span class='line'>NAME=td-agent_nginx ★ここ修正
+</span><span class='line'>
+</span><span class='line'># Read configuration variable file if it is present
+</span><span class='line'>[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+</span><span class='line'>
+</span><span class='line'># PATH should only include /usr/* if it runs after the mountnfs.sh script
+</span><span class='line'>PATH=/sbin:/usr/sbin:/bin:/usr/bin
+</span><span class='line'>USER=td-agent                   # Running user
+</span><span class='line'>GROUP=td-agent                  # Running group
+</span><span class='line'>DESC=td-agent_nginx             # Introduce a short description here★ここ修正
+</span><span class='line'>PIDFILE=/var/run/$NAME/$NAME.pid
+</span><span class='line'>DAEMON=/usr/lib/fluent/ruby/bin/ruby # Introduce the server's location here
+</span><span class='line'># Arguments to run the daemon with
+</span><span class='line'>#DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS --daemon $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>echo $DAEMON_ARGS
+</span><span class='line'>SCRIPTNAME=/etc/init.d/$NAME
+</span><span class='line'>START_STOP_DAEMON_ARGS=""</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/td-agent/td-agent_nginx.conf</h4>
+
+<p>インストール直後のconfigっす。コメントは邪魔なのでとっぱらってます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>####
+</span><span class='line'>## Output descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;match td.*.*&gt;
+</span><span class='line'>  type tdlog
+</span><span class='line'>  apikey YOUR_API_KEY
+</span><span class='line'>
+</span><span class='line'>  auto_create_table
+</span><span class='line'>  buffer_type file
+</span><span class='line'>  buffer_path /var/log/td-agent_nginx/buffer/td ★ここ修正(同じログファイル握らないように)
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;match debug.**&gt;
+</span><span class='line'>  type stdout
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>####
+</span><span class='line'>## Source descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type forward
+</span><span class='line'>  port 25224 ★defaultだと24224になってるので、明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'># HTTP input
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type http
+</span><span class='line'>  port 18888 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'>## live debugging agent
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type debug_agent
+</span><span class='line'>  bind 127.0.0.1
+</span><span class='line'>  port 25235 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/default/td-agent_nginx</h4>
+
+<p>起動時につけるオプションね。<br/>
+ここで読み込むconfig変更しますゆえお忘れなく。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># This file is sourced by /bin/sh from /etc/init.d/td-agent
+</span><span class='line'># Options to pass to td-agent
+</span><span class='line'>DAEMON_ARGS="--config /etc/td-agent/td-agent_nginx.conf" ★これ追記。違う設定ファイル読み込むように</span></code></pre></td></tr></table></div></figure>
+
+
+<p>このくらい修正をかけると、だ、下記コマンドで動くはず、だ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent start
+</span><span class='line'>% sudo /etc/init.d/td-agent_nginx start
+</span><span class='line'>% ps aux|grep td-agent
+</span><span class='line'>td-agent 11314  0.0  3.5  98888 17912 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11317  2.4  5.2 125704 26260 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11348  0.0  3.5  98888 17908 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
+</span><span class='line'>td-agent 11351  5.5  5.2 125704 26224 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぱちぱちぱちぱちーーー。いやまぁそらそーだ。<br/>
+で、ここまでは結構すぐいきましたわい。ところが、、、、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つって、止めようとすると、、、なんと！両方のプロセスが止まる！<br/>
+ひぎぃ・・・・/etc/init.d/td-agentの中身としばらくにらめっこ。</p>
+
+<p>debian系のinit scriptの中では、start-stop-daemonってのがdaemonの起動・停止に<br/>
+まつわるetc をやっていて、そのあたりをちょっと調べてみることに。</p>
+
+<ul>
+<li>fluentdのdo_stopでは、２回start-stop-daemonが呼ばれている
+
+<ul>
+<li>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</li>
+<li>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</li>
+</ul>
+</li>
+</ul>
+
+
+<p>と、いうのと、man start-stop-daemonの中身をみると。。。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Note: unless --pidfile is specified, start-stop-daemon behaves similar to killall(1).
+</span><span class='line'>start-stop-daemon will scan the process table looking for any processes which match
+</span><span class='line'>the process name, uid, and/or gid (if specified).
+</span><span class='line'>
+</span><span class='line'>Any matching process will prevent --start from starting the daemon. All matching processes
+</span><span class='line'>will be sent the TERM signal (or the one specified via --signal or --retry)
+</span><span class='line'>if --stop is specified.
+</span><span class='line'>
+</span><span class='line'>For  daemons  which  have  long-lived children which need to live through a --stop,
+</span><span class='line'>you must specify a pidfile.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つまり・・・&mdash;pidfileオプションが指定されてなければ、killallと同じように動く、と・・・<br/>
+おお・・・そりゃ両方のプロセス殺されるわけだ・・・<br/>
+逆に言えば、&mdash;pidfileを指定しとけばkillの動作なのかな・・・</p>
+
+<p>で、straceかけて、2パターン検証してみたYO。</p>
+
+<h4>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</h4>
+
+<p>やってることは、</p>
+
+<ol>
+<li>$PIDFILEの中のprocessidをとってくる(ここでは、$PIDとしよう)</li>
+<li>/proc/$PID/statが存在するか確認する</li>
+<li>存在しない場合は、終わり</li>
+<li>存在する場合は、3へ</li>
+<li>killする</li>
+<li>2に戻る</li>
+</ol>
+
+
+<p>をひたすら繰り返しております。<br/>
+なんで、基本的にはkillと同じ動きなのかな。retry付きで。</p>
+
+<h4>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</h4>
+
+<p>こっちは、まじkillallだったわ。</p>
+
+<ol>
+<li>/proc/&lt;全ProcessのPID>/exe のsymbolic link先 == $DAEMON か確認</li>
+<li>同じだったprocessにkillでsignal送信</li>
+<li>同じのがなくなるまで1と2を繰り返す</li>
+</ol>
+
+
+<p>killall。<br/>
+で、問題は、なんでこれを使う必要があるか・・・。<br/>
+きっと、本体殺しても、まだ生き残ってるプロセスがいる可能性があるから、<br/>
+なんだろうな・・・</p>
+
+<p>そこまでプロセスわけた上でやろうとすると、ちょいと今今時間がないので、<br/>
+一旦、各プロセスの本体を殺すinit scriptを書いてみたです。<br/>
+普通にkillコマンドで書いてます。start-stop-daemon、まだ使いこなせまてん。</p>
+
+<p>送るsignalは、<a href="http://docs.fluentd.org/articles/signals">ここ</a>に書いてあったので、INT/TERM。<br/>
+今回はINTでお送りいたします。</p>
+
+<p>/etc/init.d/td-agentの、do_stopを下記に書き換えてもらって、それコピーして、<br/>
+/etc/init.d/td-agent_nginxつくってもらえれば、それぞれに殺すことができまっせ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#
+</span><span class='line'># Function that stops the daemon/service
+</span><span class='line'>#
+</span><span class='line'>do_stop()
+</span><span class='line'>{
+</span><span class='line'>    # Return
+</span><span class='line'>    #   0 if daemon has been stopped
+</span><span class='line'>    #   1 if daemon was already stopped
+</span><span class='line'>    #   2 if daemon could not be stopped
+</span><span class='line'>    #   other if a failure occurred
+</span><span class='line'>    PID=`cat $PIDFILE`
+</span><span class='line'>    kill -INT $PID
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -ne 0 ]; then
+</span><span class='line'>        RETVAL="2"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    ps aux | grep $PIDFILE &gt;/dev/null 2&gt;&1
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -eq 0 ]; then
+</span><span class='line'>        rm -f $PIDFILE
+</span><span class='line'>        return "$RETVAL"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    return "2"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>終わりに</h3>
+
+<hr />
+
+<p>これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。<br/>
+(ご利用は各自の責任においてお願いします。Use at your own risk.)</p>
+
+<p>たぶん、改変自体は、ループ回して、待つ作戦＋ps 結果をgrepしてプロセス毎の<br/>
+PID取得する作戦かなー。</p>
+
+<p>ま、一旦はこれである程度まではいけるので、ブログはここまでで。</p>
+
+<p><a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/"/>
+    <updated>2014-07-12T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2</id>
+    <content type="html"><![CDATA[<p>はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア<a href="http://diary.risterlab.com">@risterlab</a>です。 <br/>
+来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！<br/>
+晴れますように。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="時計" /></p>
+
+<p>今回はちょっとした小ネタを。</p>
+
+<p>AWSのEC2のAmazon Linuxを立ち上げた人はまずUTCから日本時間に合わせるでしょう。<br/>
+しかし、大抵検索すると出てくる方法で合わせてしまうと、 <br/>
+再起動したときにたまに時間がUTCに戻っちゃって、困ってる人向けに。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>よくネットで出てくるEC2の時間の合わせ方</h3>
+
+<hr />
+
+<p><code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code></p>
+
+<p>だいたい、これがでてきますね。<br/>
+これをやるとすぐに日本時間になりますよ。じゃんじゃん。<br/>
+って。<br/>
+でもこれだとたまーに時間UTCに戻っちゃうので注意です。<br/>
+しかもたまーに戻るからこれがまた困るのです。<br/>
+私の場合実際にリリース前は何度再起動しても戻らなかったものが<br/>
+リリース後半年以上経ってから、再起動を機にしれっと戻っていました。</p>
+
+<p>cronとかアプリが時間見ていろいろやるから、大変でした。</p>
+
+<h3>時間がUTCに戻ってしまう理由</h3>
+
+<hr />
+
+<p>実は/etc/localtime はglibcパッケージが更新されると、<br/>
+パッケージ更新に含まれるスクリプトによりUTCに設定されます。<br/>
+Amazon Linuxの場合、cloud_initがインスタンスの起動時にセキュリティの更新を実行するので、<br/>
+そのタイミングで設定が初期化されてしまいます。</p>
+
+<p>なのでglibcパッケージが更新された後、インスタンスを再起動すると、<br/>
+glibcパッケージが更新され、/etc/localtimeが初期化されてしまう、<br/>
+というカラクリ。</p>
+
+<h3>時間が初期化されないようにするには</h3>
+
+<hr />
+
+<p>上記の防止策は２つ。</p>
+
+<ol>
+<li>/etc/localtimeではなく、/etc/sysconfig/clockを編集する</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ZONE="Asia/Tokyo"
+</span><span class='line'>UTC=False</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.cloud_initの設定ファイル（/etc/cloud/cloud.cfg）でセキュリティの更新を無効にする</p>
+
+<p>セキュリティの更新はしたいけど、<br/>
+時間は勝手に戻ってしまっては困る、っていうのが大抵の場合だと思いますし、<br/>
+セキュリティの更新を無効にするのはオススメできません。</p>
+
+<h3>まとめ</h3>
+
+<hr />
+
+<p>いろんなサイトに書いてる<br/>
+<code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code><br/>
+は今すぐ時間を合わせたいときには有効だけど<br/>
+そのインスタンスの時間の設定をFIXすることにはならないので注意。<br/>
+うっかりUTCに戻ってしまわないようにするには<br/>
+/etc/localtimeではなく、/etc/sysconfig/clockを編集すること。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ZONE="Asia/Tokyo"
+</span><span class='line'>UTC=False</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[What I Did After the Installation of Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/"/>
+    <updated>2014-07-11T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、おフランス帰りの<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+ほっほっほ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/seine.png" alt="セーヌ川" /></p>
+
+<p>パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、<br/>
+珍しく海外におりました。<br/>
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。<br/>
+セーヌ川と聞くと、いつも、セーム革ね、と思っているのは内緒です。</p>
+
+<p>さてさてまたしてもOctopress関連です。</p>
+
+<p>Octopressは、インストールしてすぐ公開できるけど、その状態はほんとに真っ新なわけで。<br/>
+サイドバーモジュール出したり、コメントつけられるようにしたり、と多少手をかけないと<br/>
+いけなかったりしたので、インストール後にやったことの作業メモ。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+インストール後にいまのところやったのは、</p>
+
+<ul>
+<li>記事にコメントをつけられるようにした</li>
+<li>google plusの+1モジュールを出した</li>
+<li>サイドバーにGoogle Adsense/Affiliateを出した</li>
+<li>github repositoryを出した、そして引っ込めた</li>
+<li>category generator/category listモジュールを導入した</li>
+<li>Google Analyticsで色々みれるようにした
+こんなもんだったかな？</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>今後やりたいなー、と思ってるのは、</p>
+
+<ul>
+<li>英語のブログと日本語のブログを分けて表示できるようにしたい</li>
+<li>code blockいけてない表示を変更したい<br/>
+くらいかな。</li>
+</ul>
+
+
+<h3>記事にコメントをつけるには</h3>
+
+<hr />
+
+<p>Octopress自体は、以前も紹介した通り、静的サイトGenerator Jekyllのラッパー的な<br/>
+存在なので、当然、コメントなんつー動的コンテンツ管理機能はないっす。</p>
+
+<p>そこは、<a href="https://disqus.com/">disqus</a>っつー外部サービスに依存してるので、disqusアカウントを作りましょう。<br/>
+disqusアカウントの作り方は、ぐぐればいいよ。</p>
+
+<p>作ったら、下図的な感じで、&#8221;Add Disqus to Site&#8221;を選択。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/add_disqus_to_site.png" alt="add disqus to site" /></p>
+
+<p>そんで、Site name入れたりする。例は適当にいれてみた。<br/>
+これでも問題ない。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/site_profile.png" alt="site profile" /></p>
+
+<p>次は、この画面の、&#8221;Install&#8221;タブが選択された状態で出てくるので、<br/>
+下図みたいに、&#8221;General&#8221;を選択する。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus1.png" alt="configure disqus1" /></p>
+
+<p>下の方にいくと、Your website&rsquo;s shortname is ikmenblog と出てくるので、<br/>
+これを覚えておく。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus2.png" alt="configure disqus2" /></p>
+
+<p>そして、_config.ymlを下記のように編集してちょ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>...
+</span><span class='line'>中略
+</span><span class='line'>...
+</span><span class='line'>disqus_short_name: 'ikemenblog'
+</span><span class='line'>disqus_show_comment_count: true
+</span><span class='line'>...
+</span><span class='line'>中略
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>short nameは、さっき覚えた名前ね。<br/>
+あとは、各postのmetadataに、下記を追記しておけばOK。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>comments: true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで投稿すれば漏れなくコメントがつけられるようになりますわ。Tre bien。</p>
+
+<h3>google plusの+1モジュールを出すには</h3>
+
+<hr />
+
+<p>ブログのPVを増やすには内容が面白くないと何やってもだめなんだろうけどね。<br/>
+このモジュール、簡単に出せるので出してみようかな、と。<br/>
+もうちょい記事が増えて、Fanpageにも投稿できるようになったらFacebookモジュールも<br/>
+出しますかね。</p>
+
+<p>まずは、_config.ymlにこんな行があるので探しましょう。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Google +1
+</span><span class='line'>google_plus_one: false
+</span><span class='line'>google_plus_one_size: medium
+</span><span class='line'>
+</span><span class='line'># Google Plus Profile
+</span><span class='line'># Hidden: No visible button, just add author information to search results
+</span><span class='line'>googleplus_user: 
+</span><span class='line'>googleplus_hidden: false</span></code></pre></td></tr></table></div></figure>
+
+
+<p>そんで、googleplus_userのところを埋めればOK。<br/>
+googleplus_userって何？という方は、<a href="http://gphangouts.com/googleplusurl.html">こちら</a>。<br/>
+ちなみに僕もなんのことかわからなかった。</p>
+
+<p>あとは、どういう仕組みで表示されるかというと、これをみると少しわかるかね。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls -l source/_includes/asides
+</span><span class='line'>-rw-r--r--  1 user  group  406  6 15 08:32 delicious.html
+</span><span class='line'>-rw-r--r--  1 user  group 1005  6 15 08:32 github.html
+</span><span class='line'>-rw-r--r--  1 user  group  360  6 15 08:32 googleplus.html
+</span><span class='line'>-rw-r--r--  1 user  group  799  6 15 08:32 pinboard.html
+</span><span class='line'>-rw-r--r--  1 user  group  329  6 15 08:32 recent_posts.html
+</span><span class='line'>
+</span><span class='line'>$ cat source/_includes/asides/googleplus.html
+</span><span class='line'>
+</span><span class='line'>&lt;section class="googleplus"&gt;
+</span><span class='line'>  &lt;h1&gt;
+</span><span class='line'>    &lt;a href="https://plus.google.com/106189997190821430505?rel=author"&gt;
+</span><span class='line'>      &lt;img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32"&gt;
+</span><span class='line'>        Google+
+</span><span class='line'>    &lt;/a&gt;
+</span><span class='line'>  &lt;/h1&gt;
+</span><span class='line'>&lt;/section&gt;
+</span><span class='line'></span></code></pre></td></tr></table></div></figure>
+
+
+<p>source/_includes/asidesにhtmlファイルがあって、それを読み込んで生成するというわけで。<br/>
+同じディレクトリに他にもファイルがあるけど、どれを表示するかは、_config.ymlに記載してありんす。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな感じで。<br/>
+これでgoogle plus +1モジュールは表示されるはず。</p>
+
+<h3>github repositoryを出して、そして引っ込めるには</h3>
+
+<hr />
+
+<p>これもgoogle plusモジュールと似たようなもん。<br/>
+さっきのlsの結果をみると、source/_includes/asides配下に、github.htmlがあったわけで。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls -l source/_includes/asides
+</span><span class='line'>cat source/_includes/asides/github.html
+</span><span class='line'>
+</span><span class='line'>&lt;section&gt;
+</span><span class='line'>  &lt;h1&gt;GitHub Repos&lt;/h1&gt;
+</span><span class='line'>  &lt;ul id="gh_repos"&gt;
+</span><span class='line'>    &lt;li class="loading"&gt;Status updating...&lt;/li&gt;
+</span><span class='line'>  &lt;/ul&gt;
+</span><span class='line'>  
+</span><span class='line'>    &lt;a href="https://github.com/root04"&gt;@root04&lt;/a&gt; on GitHub
+</span><span class='line'>  
+</span><span class='line'>  &lt;script type="text/javascript"&gt;
+</span><span class='line'>    $(document).ready(function(){
+</span><span class='line'>      if (!window.jXHR){
+</span><span class='line'>        var jxhr = document.createElement('script');
+</span><span class='line'>        jxhr.type = 'text/javascript';
+</span><span class='line'>        jxhr.src = '/javascripts/libs/jXHR.js';
+</span><span class='line'>        var s = document.getElementsByTagName('script')[0];
+</span><span class='line'>        s.parentNode.insertBefore(jxhr, s);
+</span><span class='line'>      }
+</span><span class='line'>
+</span><span class='line'>      github.showRepos({
+</span><span class='line'>        user: 'root04',
+</span><span class='line'>        count: 0,
+</span><span class='line'>        skip_forks: true,
+</span><span class='line'>        target: '#gh_repos'
+</span><span class='line'>      });
+</span><span class='line'>    });
+</span><span class='line'>  &lt;/script&gt;
+</span><span class='line'>  &lt;script src="http://blog.branch4.pw/javascripts/github.js" type="text/javascript"&gt; &lt;/script&gt;
+</span><span class='line'>&lt;/section&gt;
+</span><span class='line'></span></code></pre></td></tr></table></div></figure>
+
+
+<p>で、またどれを表示するかは、_config.ymlに記載してあります。<br/>
+(github.htmlを追加した)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>更に、_config.yml、下記箇所をあわせて編集。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Github repositories
+</span><span class='line'>github_user: xxxxxxxx
+</span><span class='line'>github_repo_count: 0
+</span><span class='line'>github_show_profile_link: true
+</span><span class='line'>github_skip_forks: true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで表示される、と。非表示にしたい場合は、default_asidesから抜いてしまえばOK。</p>
+
+<h3>サイドバーにGoogle Adsense/Affiliateを出すには</h3>
+
+<hr />
+
+<p>せっかくブログ書くので、Adsense貼ったり、affiliate出したりして億万長者になろう！<br/>
+というわけで、こんな感じにすると貼れまっせ。<br/>
+ただ貼るだけだとaffiliateを貼ろうとすると、広告だらけの酷いサイトになっちゃうので、<br/>
+affiliate枠は一つにして、そこにランダムに複数affiliateを表示するようにしよう。<br/>
+そうすればABテストも兼ねられるし、一石二鳥。</p>
+
+<p>まずは、affiliateから。</p>
+
+<p>ざっくりやること。<br/>
+1. sidebarに読み込むhtmlの設定と設置
+2. 1のhtmlから読み込んで実行するjsファイルの設置
+3. jsファイルのinclude
+4. sidebarのwidth変更
+かな。</p>
+
+<p><a href="http://lblevery.com/sfn/aff/course/aff-banner-randomview/">ここ</a>参考にしましたね、私。</p>
+
+<h4>sidebarに読み込むhtmlの設定と設置</h4>
+
+<p>_config.ymlのいつもの行探しと追記。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
+</span><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html, custom/asides/affiliate.html] &lt;- 追記後</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上記で、custom/asides配下に、affiliate.htmlを設置することにしてるので、<br/>
+source/_include/custom/asides/affiliate.htmlを下記内容で設置。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat source/_includes/custom/asides/affiliate.html
+</span><span class='line'>&lt;script type="text/javascript" language="javascript"&gt;
+</span><span class='line'>  num = Math.floor( Math.random() * 6 );
+</span><span class='line'>  document.write( aff[ num ]);
+</span><span class='line'>&lt;/script&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Math.random() * 6 の、&#8221;6&#8221;は、何個のaffiliateバナーを回すかを書く。</p>
+
+<h4>1のhtmlから読み込んで実行するjsファイルの設置</h4>
+
+<p>次は、実行するjsファイルを設置。<br/>
+source/javascripts/affiliate.jsを、下記内容で設置。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>var aff = new Array();
+</span><span class='line'>aff[0] = 'affiliate tag1'
+</span><span class='line'>aff[1] = 'affiliate tag2'
+</span><span class='line'>aff[2] = 'affiliate tag3'
+</span><span class='line'>aff[3] = 'affiliate tag4'
+</span><span class='line'>aff[4] = 'affiliate tag5'
+</span><span class='line'>aff[5] = 'affiliate tag6'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>affiliate tagXのところに、表示したいaffiliateのtagを突っ込む。<br/>
+(ダブルクオーテーションは、backslashでエスケープ)</p>
+
+<h4>jsファイルのinclude</h4>
+
+<p>次は、html &lt;head&gt; &ndash; &lt;/head&gt;の中に、上記で設置したjsファイルをincludeするように、下記を追記する。<br/>
+僕は、source/_includes/head.html中に追記したです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;script type="text/javascript" src="http://xxx.yyy.zzz/javascripts/affiliate.js" charset="utf-8"&gt;&lt;/script&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>sidebarのwidth変更</h4>
+
+<p>最後に、affiliateのサイズに合わせて、sidebar widthの調整。<br/>
+僕は、全部 300 x 250 でそろえたので、sidebar widthを、310pxにしたですよ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi sass/base/_layout.scss
+</span><span class='line'>
+</span><span class='line'>...
+</span><span class='line'>略
+</span><span class='line'>...
+</span><span class='line'>// Sidebar widths used in media queries
+</span><span class='line'>$sidebar-width-medium: 310px !default;
+</span><span class='line'>$sidebar-pad-medium: 5px !default;
+</span><span class='line'>$sidebar-pad-wide: 5px !default;
+</span><span class='line'>$sidebar-width-wide: 310px !default;
+</span><span class='line'>...
+</span><span class='line'>略
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでいける、はず。</p>
+
+<h3>category generator/category listモジュールを導入するには</h3>
+
+<hr />
+
+<p>category generatorは、install直後から使えるpluginなので、_config.ymlを設定するだけで、<br/>
+category分けしたアーカイブページ作ってくれます。
+設定は簡単に<a href="http://octopress.org/docs/plugins/category-generator/">公式サイト</a>に説明あり。</p>
+
+<p>category generatorは、このブログでいうと、例えば、<br/>
+<a href="http://blog.branch4.pw/blog/categories/misc">こんな感じ</a>のアーカイブページを作ってくれますよ。</p>
+
+<p>category listは、<a href="http://qiita.com/amay077/items/3296fdf1ea11c7c9ace4">こっち</a>を参照。</p>
+
+<p>こんな感じのリストを作れますよ。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/category_list.png" alt="category list" /></p>
+
+<h3>Google Analyticsで色々みれるようにするには</h3>
+
+<hr />
+
+<p>最後に、Google Analytics導入。</p>
+
+<p>これもあんまり書くことないんだけど、Analyticsアカウント登録して、<br/>
+tracking_id を、_config.ymlの下記箇所に書けばOK。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Google Analytics
+</span><span class='line'>google_analytics_tracking_id: UA-XXXXXX-Y</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Analyticsに数字が反映されるまで結構（24hr以上かかった）時間かかるけど、<br/>
+それを除けば、特に難しいことはないっす。</p>
+
+<p>と、いうわけで、いまのところ僕がoctopressインストール後にやったことをまとめてみましたです。</p>
+
+<p>色々間違ってメモってそうなので、その時はこっそり教えていただけるとうれしいです。<br/>
+Au revoir !</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[IT・インターネット・ゲーム業界の【転職】ノウハウ]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/30/changing-jobs-in-internet-gaming-business/"/>
+    <updated>2014-06-30T19:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/30/changing-jobs-in-internet-gaming-business</id>
+    <content type="html"><![CDATA[<p><img src="http://blog.branch4.pw/images/2014/06/ajisai.jpg" alt="紫陽花" /></p>
+
+<p>こんにちは、<a href="https://github.com/maringerz">@maringerz</a>です。<br/>
+紫陽花にはなんの意味もありません。</p>
+
+<p>この度、私もブログを書かせてもらうことになりましたぁ！！！<br/>
+私はIT・ネット・ゲーム業界の転職エージェントを数年やって、<br/>
+今は、ゲーム会社の人事（採用担当）してます。</p>
+
+<p>IT・ネット・ゲーム業界の細かい転職とか実態情報とか、<br/>
+あまりネット上に見当たらないので、思いつくままにのっけていきますね☆</p>
+
+<p>プライベートは、
+お酒とギャンブルと世界旅行に溺れている『自由で』『楽しい』ことのみを
+追求して生きたいと願う超堕落人間ですゆえ、
+大げさなテーマを掲げてみてるけど↓どうなるかわからん。</p>
+
+<h3>ブログを読んでもらえたらなぁーと思う希望読者層</h3>
+
+<hr />
+
+<p>IT・インターネット・ゲーム業界で</p>
+
+<ul>
+<li>転職したい方（職種不問）</li>
+<li>事業会社の採用担当の方</li>
+<li>IT・インターネット・ゲーム業界専門の転職エージェントの方</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>今回は、第1回目ということで、まずは今後のブログのテーマ出してみた！</p>
+
+<h3>こんなテーマはどうかね～</h3>
+
+<hr />
+
+<h4>&lt;IT・インターネット・ゲーム業界で転職したい方向け></h4>
+
+<h5>転職市場の特徴</h5>
+
+<p>IT・インターネット・ゲーム業界と言ってもとっても広いから<br/>
+ざっと並べても下記の分類があって、それぞれ、転職市場の動向も人材の大きく違うから、<br/>
+それぞれ細かく書いていこかな。</p>
+
+<ul>
+<li>ＷＥＢ/モバイルサービス提供会社（広告含む）</li>
+<li>ＷＥＢインテグレーター</li>
+<li>ゲーム会社（コンシューマ、ネットワーク、ソーシャル）</li>
+<li>ＩＴコンサルティングファーム</li>
+<li>システムインテグレータ（一次請け、二次請け）</li>
+<li>事業会社の社内ＳＥ</li>
+<li>ベンダー（ハードウェアベンダー、ミドルウェアベンダー、ソフトウェア）</li>
+</ul>
+
+
+<h5>職種ごとのキャリアの積み方</h5>
+
+<h5>転職活動の進め方（戦略的転職活動の計画の立て方）</h5>
+
+<h5>転職エージェントの活用方法と選び方</h5>
+
+<h5>自己分析</h5>
+
+<h5>履歴書・職務経歴書の書き方（書類選考通過率を上げる方法）</h5>
+
+<p>※ 業界、職種別</p>
+
+<h5>面接対策（この項目準備しておけばＯＫ！）※業界、職種別</h5>
+
+<h5>内定、最終的な転職先の選び方</h5>
+
+<h5>退職交渉と円満退職</h5>
+
+<p>↑この辺はネットを検索すれば、いくらでもノウハウは出て来るので、<br/>
+大して有益な情報を提供できる自信は無いけど、私なりの視点で書けたら書く。</p>
+
+<h4>&lt;IT・インターネット・ゲーム業界を専門の転職エージェント向け></h4>
+
+<p>エンジニア出身の転職エージェント、人事じゃないと、<br/>
+書類選考、面接で技術者のスキルレベルを把握することは非常に難しい。<br/>
+このキーワードはこんなことっていうのは何となくわかるけど、<br/>
+正直概念の理解とかちんぷんかんぷん。</p>
+
+<p>私もよくわかってないから、エンジニアのお友達に教わって書けたらいいな。</p>
+
+<h5>エンジニアの種類とその仕事内容</h5>
+
+<h5>エンジニアの技術力の見極め方</h5>
+
+<h5>志向性・人物タイプによる転職先の適正</h5>
+
+<h4>&lt;IT・インターネット・ゲーム業界で事業会社の採用担当向け></h4>
+
+<p>私も目下、事業会社での採用については鋭意（鈍意かも）勉強中。<br/>
+エージェントで感じてた色んなことが、人事で採用してみると全然違うことも多くてびっくり。<br/>
+事業会社での採用はとっても難しい。ただ採用すればよいってわけじゃないから、、<br/>
+会社の事業拡大に貢献してくれて、その人も転職してきてよかった採用って。</p>
+
+<ul>
+<li>採用手法とその選択</li>
+<li>転職エージェントとの付き合い方</li>
+<li>書類選考の見極めポイント</li>
+<li>面接での人材の見極め方（質問のポイントと質問集）</li>
+<li>スカウトメールの送り方</li>
+<li>エグゼクティブサーチ（ヘッドハンティング）での採用</li>
+<li>入社後の現場導入と人材の活用</li>
+<li>事業計画実現のための人材採用</li>
+<li>面接官の育成</li>
+</ul>
+
+
+<p>まずは来週から1個ずつ書いてみまーす☆ <br/>
+それから、それからこのブログ読んでくれた人で、一緒に書いてみてもええよという人募集してます！</p>
+
+<p><a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Posting a Blog With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/"/>
+    <updated>2014-06-19T16:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress</id>
+    <content type="html"><![CDATA[<p>※  内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。</p>
+
+<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+前回に引き続きOctopress関連です。</p>
+
+<p>今回は、実際投稿するときどうするか、という点を。<br/>
+投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、少しかぶり気味。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+そこまできてたらこのblogは読まなくても書け・・・ます、はい。<br/>
+強いて言えば、準備はできてるけど、なんかよくわからんうちに準備できた人用。<br/>
+それか、このブログみたいに、複数で更新してるので、セットアップした人と、<br/>
+書く人が違う場合用。</p>
+
+<!-- more -->
+
+
+<h3>Cloning</h3>
+
+<hr />
+
+<p>では、setupしたrepositoryを、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://github.com/xxxxxx/xxxxxx.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p>とした場合。まずは、repositoryをlocalにcloneします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/xxxxxx/xxxxxx.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p><del>この時点で、active branchは、source branchに設定されております。</del><br/>
+これは、うそでしたｗｗ<br/>
+clone直後は、master branchでした。<br/>
+cloneしたディレクトリに、cdして、下記を実行するとsource branchに変わるです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この時点で、active branchは、source branchに設定されております。<br/>
+が、正解であります！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git status</span></code></pre></td></tr></table></div></figure>
+
+
+<p>でみるとわかるよん。<br/>
+前回の記事でも書いたけど、記事書くときの実作業は、このままsource branchでやって、<br/>
+本番投稿は、master branchにする、てな手口。</p>
+
+<h3>deploy用設定</h3>
+
+<hr />
+
+<p>次はdeploy用の設定しときます。<br/>
+cloneしたdirectoryにcdして、下記コマンドを実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle exec rake setup_github_pages</span></code></pre></td></tr></table></div></figure>
+
+
+<p>前回の記事でも出てきたんだけど、簡単にいうと、<br/>
+<em>deploy directoryを作ってくれる。<br/>
+で、本番deployのときは、この </em>deploy directoryにあるmaster branchにpushするので、<br/>
+_deploy に、master branchをpullしとく、と。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd _deploy
+</span><span class='line'>$ git pull origin master</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでdeploy用の設定は完了。</p>
+
+<h3>しっぴつ！</h3>
+
+<hr />
+
+<p>ここでは２点紹介。</p>
+
+<ul>
+<li>どこに書く？</li>
+<li>画像はどうする？</li>
+</ul>
+
+
+<h4>どこに書くか。</h4>
+
+<p>例えば、この記事のファイルは下記に格納されておる。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls source/_post/2014-06-08-blog-on-github.io-with-octopress.markdown</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ポイントはファイル名。</p>
+
+<p>&lt;year&gt;&ndash;&lt;month&gt;&ndash;&lt;day&gt;-title.&lt;markdown/html&gt;</p>
+
+<p>的な。これ以外にすると静的ファイルが生成されまてん。<br/>
+内容は、こんな感じ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>---
+</span><span class='line'>layout: post
+</span><span class='line'>title: "Blog on Github Pages with Octopress"
+</span><span class='line'>date: 2014-06-06T23:20:00-07:00
+</span><span class='line'>comments: true
+</span><span class='line'>published: true
+</span><span class='line'>categories:
+</span><span class='line'> - misc
+</span><span class='line'>---
+</span><span class='line'>
+</span><span class='line'>ここから下に本文を書く</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上のほうに、meta-dataを突っ込んで、その下にコンテンツを書く感じでござい。<br/>
+meta-dataの意味は・・・みればすぐわかるような内容しか設定してないので解説なしで。<br/>
+他にも色々あるので使いたい人は調べてみてちょ。</p>
+
+<h4>画像はどうするか</h4>
+
+<p>はい、画像は、source/images配下にcommitします。<br/>
+で、commit/pushすると、</p>
+
+<p><a href="http://github.com/xxxxxx/images/yyyyyy.png">http://github.com/xxxxxx/images/yyyyyy.png</a></p>
+
+<p>でみれるようになります。<br/>
+markdownの場合は、以下な感じで書いとけば、deployしたときに見えるようになります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[test](http://github.com/xxxxxx/images/yyyyyy.png)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然のようにpreviewのときは見えないので、previewでみたい場合は、画像だけ<br/>
+先にpushしとかないとだめかと。(面倒なので僕は一発本番チェック派)</p>
+
+<p>たぶん、この２つがわかればコンテンツ作るとこまではできるはず。<br/>
+コンテンツ書いたら、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle exec rake generate; bundle exec rake preview</span></code></pre></td></tr></table></div></figure>
+
+
+<p>を実行すると、<a href="http://127.0.0.1:4000">http://127.0.0.1:4000</a> に、Webrickがあがるので、<br/>
+ブラウザで見た目チェックと修正を繰り返して、完成までがんばりましょう。</p>
+
+<h3>投稿！</h3>
+
+<hr />
+
+<p>そんな工程を経て記事が無事完成したら、本番公開と、作業ファイルのcommitをしましょう。<br/>
+Octopressは、Jekyllに作業ファイルを食わせて本番用ファイルを生成するので、作業ファイルを<br/>
+commitしとかないと、次回本番生成時に記事がなくなっちゃうので要注意。</p>
+
+<p>そんなわけで、下記で作業ファイルのcommitと本番deploy。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
+</span><span class='line'>$ git commit -m 'nanka message'
+</span><span class='line'>$ git push origin source
+</span><span class='line'>$ bundle exec rake deploy</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あとは無事投稿されてるかを本番で確認したら、完了！<br/>
+おつかれちゃん。</p>
+
+<h3>rake task for generatign new posts</h3>
+
+<hr />
+
+<p>はい、もう終わりなんだけど、新規投稿するときに、いちいちファイルを0から作るのは<br/>
+めんどくさいので、専用raketaskが用意されております。一応その共有。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post['title']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>を実行すると、下記ファイルができあがります、と。<br/>
+source/_posts/2014-06-19-title.markdown</p>
+
+<p>正直、そんなに重要じゃなさげにみえるんだけど、例えば、</p>
+
+<ul>
+<li>テンプレを用意しておきたい</li>
+<li>adsenseを毎回貼るのがめんどくさい</li>
+<li>&lt;!&mdash; more &mdash;&gt;を忘れないようにしたい</li>
+</ul>
+
+
+<p>などなどある人は、Rakefileのtaskに加筆するとスーパー便利になったり。<br/>
+そんな使い方もありますよ。</p>
+
+<p>今日はこの辺で。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Resize Temp File of Oracle on RDS]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/"/>
+    <updated>2014-06-16T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize</id>
+    <content type="html"><![CDATA[<p>どもども。<a href="http://portfolio.risterlab.com">saorister</a>です。<br/>
+野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。<br/>
+(統一性なさすぎw)</p>
+
+<p>今回は私がブログ記事担当！<br/>
+ということで、<br/>
+この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。</p>
+
+<h3>DBのディスク空き容量が!!!</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/figure_graph_down.png" alt="DBのディスク空き容量が!!!" /></p>
+
+<p>RDSのOracleさんでTEMP表領域サイズがめっちゃでっかくなっちゃって<br/>
+空き容量がほとんどなくなっちゃったよぉぉぉぉ！！！</p>
+
+<p>パニック！！！</p>
+
+<p>って時の対処法を。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>起きたこと</h3>
+
+<hr />
+
+<ol>
+<li>どこかのおばかさんがとんでもSQLを投げた</li>
+<li>コアDB(RDS)のディスク容量があと10%以下よーというアラートがCloudWatchから飛んできて異常に気づく</li>
+<li>怪しいセッションを発見。すぐにkill!KILL!!キル！！！</li>
+<li>とりあえずぐんぐん下がっていくディスクの空き容量のグラフはもうほぼ０のところでぎりぎり止まった。  はぁ。</li>
+<li>ひとまずディスク容量増やそうぜ！このためのRDSじゃないか！ってことでディスク容量を10%増量。(10%以上じゃないとあげられないのよ)</li>
+</ol>
+
+
+<p>退屈な毎日だとは思っていたけどこんなスリルは求めてない。</p>
+
+<h3>増えたTemp領域を小さくする</h3>
+
+<hr />
+
+<p>とんでもSQLってのはselect文だったわけだけど<br/>
+むちゃくちゃなjoinをしてTEMP表領域(一時領域)が膨れ上がっちゃったわけですね。<br/>
+こわいねー。<br/>
+で、慌ててセッションkillしたから、その一時領域は開放されずそのまま残っちゃった。<br/>
+ので、これを小さくしてあげないといけない。<br/>
+「oracle temp領域 resize」「oracle 一時領域 縮小」<br/>
+とかで検索するとやりかたはいっぱいでてきます。<br/>
+だけどそこに書いてあるこのコマンド</p>
+
+<p><code>SQL&gt; alter database tempfile ~</code></p>
+
+<p>ってのはRDSじゃ権限がなくてできないんですよ。<br/>
+はい、困った。</p>
+
+<p>ってわけで先に結論。</p>
+
+<h4>RDSのoracleのtemp領域(一時領域)を縮小する方法</h4>
+
+<p>1.TEMP表領域を新規作成します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; CREATE TEMPORARY TABLESPACE TEMP02;
+</span><span class='line'>Tablespace created.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.デフォルトのTEMP表領域を1.で作成したものに変更します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.元のTEMP表領域を削除します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>実際にやったこと Try &amp; Error編</h2>
+
+<p>上で書いた結論はたった３つだけど、そこにたどり着くまでの試行錯誤も書いちゃうよ。<br/>
+まず膨れ上がったのがTEMP表領域だったことの確認はこのSQLで。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT dt.file_name, dt.tablespace_name,
+</span><span class='line'>to_char(dt.bytes / 1024, '99999990.000') file_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / 1024, '99999990.000') used_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / dt.bytes * 100, '990.00') || '%' capacity
+</span><span class='line'>FROM sys.dba_temp_files dt, v$temp_extent_pool t, v$tempfile v
+</span><span class='line'>WHERE t.file_id(+)= dt.file_id AND dt.file_id = v.file#;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな状態でした。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/temp_30GB_masking.png" alt="temp30GB" /></p>
+
+<p>で、単純に縮小しようとしてもできません。</p>
+
+<p><code>SQL&gt; alter tablespace temp resize 100M</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQLエラー: ORA-03297: ファイルには、リクエストしたRESIZE値を超える使用中のデータが含まれています。
+</span><span class='line'>03297. 00000 -  "file contains used data beyond requested RESIZE value"
+</span><span class='line'>*Cause:    Some portion of the file in the region to be trimmed is
+</span><span class='line'>           currently in use by a database object
+</span><span class='line'>*Action:   Drop or move segments containing extents in this region prior to
+</span><span class='line'>           resizing the file, or choose a resize value such that only free
+</span><span class='line'>           space is in the trimmed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こう言われちゃいますね。使ってるのよって。<br/>
+じゃあ、ってことでオンプレのoracleで普通やる縮小方法を試してみると。</p>
+
+<p><code>SQL&gt; alter database tempfile '/path/to/temp/file1.tmp' resize 10M;</code><br/>
+&ndash;> はいalter databaseはRDSでうてませーん。権限ありませーん。</p>
+
+<p>じゃあお決まりの、新しくTEMP表領域を小さいのつくって、置き換える作成へ。</p>
+
+<p><code>SQL&gt; create temporary tablespace TEMP02 size 10M;</code><br/>
+&ndash;> だめ。これも権限ないって怒られる。<br/>
+でもこれはファイルサイズを決める権限がないってことらしく、これなら<br/>
+通った。<br/>
+<code>SQL&gt; create temporary tablespace TEMP02;</code></p>
+
+<p>さっきのSQLで確認するとtmpファイルが２つでてきて、<br/>
+新しいものは100MBでできていることがわかるはず。</p>
+
+<p>よし、ここでデフォルトのTEMP表領域を置き換える。<br/>
+そうalter databaseじゃなくてexec rdsadminを使ってね！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>よーしこれで用無しになったおデブちゃんを削除だ！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぐっばい、おでぶちゃん。<br/>
+勝利の美酒に浸りながらCloudWatchで空き容量が一気にもどってるのを見ようとしたら<br/>
+なんと！<br/>
+グラフ微動だにせず、、、、<br/>
+むしろ追加したTEMP表領域の分の100MB分減っとるやないかーい！<br/>
+くそ、結局再起動しないと消えへんオチかい。<br/>
+と調べてたら、こっちにするべきだったみたい。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; drop tablespace &lt;tablespace_name&gt; including contents and datafiles;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これじゃないとファイルも一緒に削除してくれないとな。<br/>
+もー先に教えてよー。時既に遅しじゃーん。まぁ今日は寝よ。<br/>
+ってことで次の日CloudWatchのグラフ見たらびっくり。<br/>
+半日遅れでディスクの空き増えてるよ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/CloudWatch_storagefreespace_edit.png" alt="CloudWatch ディスク空きグラフ" /></p>
+
+<p>なんでやねん！</p>
+
+<p>答えは単純でOracleのマイナーバージョンアップをONにしてると<br/>
+指定した時間にパッチをあててアップデートしてくれてるんですな。<br/>
+そのときに再起動がかかってると。<br/>
+そのマイナーバージョンアップの指定してる時間を見ると、</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/minorvirsionup_widdow.png" alt="Minor VersionUP Widdow" /></p>
+
+<p>UTCでAM1:00-1:30だから+9時間で朝の10時半ごろ、、、<br/>
+グラフみるとビンゴ！！<br/>
+そうゆうことですか、、、</p>
+
+<p>なんだかなぁ。すっきりせんなぁ。</p>
+
+<h2>あとがき</h2>
+
+<p>ちなみに上で書いてるのはテストDBでやったこと。  <br/>
+事情があってなかなかこの作業させてもらえなくてねぇ。<br/>
+だから本番でやるときはちゃんとincluding contents and datafilesもつけて<br/>
+ファイル削除してやろうと思うんです。<br/>
+その結果はまた続きとして書く予定です。</p>
+
+<p>ではでは、今日はこんなところで。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Blog on Github Pages With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/"/>
+    <updated>2014-06-07T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+<!-- more -->
+
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>まずは、前提知識から。
+今回のエントリで使うざっくり知識を下記に。</p>
+
+<ul>
+<li><a href="https://pages.github.com/">Github Pages</a>
+
+<ul>
+<li>安心<br/>
+みなさんご存知github.com提供。</li>
+<li>repositoryから直接静的ページを配信してくれる<br/>
+つまり、配信するHTMLページの作成は全然手伝ってくれない(そこが大変)</li>
+<li>サービス/プロダクトに紐づいたサイトを配信できる<br/>
+github.com上に作成している個人/組織レポジトリに対応したwebsiteを立ち上げて公開できます。</li>
+<li>たぶん高速-
+Githubのレポジトリから直接配信されることのどこが嬉しいかというと、<br/>
+恐らく、世界中どこからでも使われてるサービスなので、<br/>
+　どこからアクセスされても、かなり高速に配信できるんじゃないか？という点。</li>
+</ul>
+</li>
+<li><a href="http://jekyllrb.com/">Jekyll</a>
+
+<ul>
+<li>静的サイト生成ツール。 <a href="http://middlemanapp.com/">middleman</a>的な</li>
+<li>Github PagesでやってくれないことをやってくれるYO !</li>
+<li>特にGithub Pages専用なわけではなく、どこでも使えるぽい</li>
+<li>ただ、素で使おうとすると、細かいところまで全部手作業で、複雑らしい</li>
+<li>Jekyllについては、<a href="http://melborne.github.io/2012/05/13/first-step-of-jekyll/">koko</a>がわかりやすかったので、リンクのみで</li>
+</ul>
+</li>
+<li><a href="http://octopress.org/">Octopress</a>
+
+<ul>
+<li>Jekyllを使ってブログサイトを構築するためのフレームワーク<br/>
+便利！らしい<br/>
+他にも、<a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>なるものもあるけど、<br/>
+違いは、Octopressのほうが、楽。でも自由度が低い。そうです。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>ざっくりなイメージを図にまとめきれていないけども・・・図にすると・・・<br/>
+<img src="http://blog.branch4.pw/images/2014/06/jekyll_octopress_flow.png" alt="zakkuri flow" /></p>
+
+<p>こんな感じ。<br/>
+Octopressが、rakeで何から何まで出来るようにしてくれているので、<br/>
+rakeコマンド打ちまくって、
+&ndash; サイト生成
+&ndash; サイトプレビュー
+&ndash; サイトデプロイ（公開）
+する感じ。</p>
+
+<h3>how to setup github.io</h3>
+
+<hr />
+
+<p>まずは、github.ioでブログを公開するためのセットアップから。
+概ね、<a href="http://octopress.org/docs/setup/">koko</a>のパクリです。</p>
+
+<ol>
+<li>gitをinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li>ruby(>=1.9.3)をinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li><p>Octopressをdownloadしてsetupする</p>
+
+<pre><code> $ git clone git://github.com/imathis/octopress.git octopress  
+ $ cd octopress
+</code></pre>
+
+<p> この時点でのイメージ図。<br/>
+ <img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress1.png" alt="cloning" /></p>
+
+<p> octopress directory配下の、Gemfileをみると、octopressでやってくれる<br/>
+ 諸々の便利機能に必要なgemが列挙されている。</p>
+
+<pre><code> $ cat Gemfile
+ source ¥"https://rubygems.org  
+
+ group :development do  
+   gem 'rake', '~&gt; 0.9'  
+   gem 'jekyll', '~&gt; 0.12'  
+   gem 'rdiscount', '~&gt; 2.0.7'  
+   gem 'pygments.rb', '~&gt; 0.3.4'  
+   gem 'RedCloth', '~&gt; 4.2.9'  
+   gem 'haml', '~&gt; 3.1.7'  
+   gem 'compass', '~&gt; 0.12.2'  
+   gem 'sass', '~&gt; 3.2'  
+   gem 'sass-globbing', '~&gt; 1.0.0'  
+   gem 'rubypants', '~&gt; 0.2.0'  
+   gem 'rb-fsevent', '~&gt; 0.9'  
+   gem 'stringex', '~&gt; 1.4.0'  
+   gem 'liquid', '~&gt; 2.3.0'  
+   gem 'directory_watcher', '1.4.1'  
+ end  
+
+ gem 'sinatra', '~&gt; 1.4.2'  
+</code></pre>
+
+<p> なにはともあれinstall。</p>
+
+<pre><code> $ gem install bundler
+ $ rbenv rehash # rbenv使ってる場合のみ
+ $ bundle install
+ $ rake install # octopressのデフォルトテーマがinstallされる
+</code></pre></li>
+<li><p>githubに下記repositoryを作成する<br/>
+xxxx.github.io(xxxx:ユーザ名 or 組織名)</p></li>
+<li><p>下準備諸々<br/>
+ここがコマンド１個しか打たない割に重要。というか複雑。
+打つコマンドは、</p>
+
+<pre><code>$ rake setup_github_pages
+</code></pre>
+
+この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)<br/>
+以下、色々事前情報説明(まだ読んでも意味わからんと思いますが)
+
+<ul>
+<li>xxxx.github.ioで一般公開されるのは、master branch</li>
+<li>つまり、誰かが、<a href="http://xxxx.github.io">http://xxxx.github.io</a> にアクセスすると、master branchがみえる</li>
+<li>公開前作業はsource branchで実施する</li>
+<li>今作業してるdirectoryとrepository
+octopressのdirectoryで、更に、repositoryとしても、imathis/octopressなので、このまま記事書いても、どこにcommitするんだ？になる</li>
+</ul>
+
+
+<p>上記を踏まえた作業を、rake setup_github_pagesがやってくれている、と。</p>
+
+<p>具体的には、</p>
+
+<ul>
+<li>実際に公開したいrepositoryを確認して、設定してくれる</li>
+<li>remote(imathis/octopress)をoriginではなくoctopressに設定してくれる</li>
+<li>originは、さっき確認したrepositoryに設定してくれる</li>
+<li>active branchをmasterではなくsourceにしてくれる</li>
+<li>さっき確認したrepositoryから、ブログのURLを設定してくれる</li>
+<li>master branchを、_deploy directoryに準備してくれる</li>
+</ul>
+
+
+<p>さて、ここまで来ると、ほとんど出来たも同然。</p>
+
+<ul>
+<li>コンテンツはない</li>
+<li>Jekyllに食わせるファイルは全部そろっている</li>
+<li>本番にpushするためのdirectory(_deploy)の準備は整っている</li>
+</ul>
+
+
+<p>なので、</p>
+
+<ul>
+<li>コンテンツを作って</li>
+<li>Jekyllに食わせて</li>
+<li>本番にpushすればOK!
+です。</li>
+</ul>
+
+
+<p>この時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress2.png" alt="github.io" /></p></li>
+<li><p>ブログ生成＆本番公開<br/>
+コンテンツを作るところは別途エントリを書こうと思うので、その後から。<br/>
+まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<p>で、生成はされてるものの、本番前に確認したいので、下記でpreviewします。</p>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<p>  上記で、webrickが立ち上がるので、適当なブラウザで、<br/>
+  <a href="http://127.0.0.1:4000  ">http://127.0.0.1:4000  </a>
+  にアクセスして確認。問題なければ、下記を実行してソースをsource branchにpushしておきます。</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre>
+
+<p>  そして、下記を実行して本番にpushします。</p>
+
+<pre><code>$ rake deploy
+</code></pre></li>
+</ol>
+
+
+<p>はい、これで晴れて公開完了！<br/>
+そしてこの時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress3.png" alt="github.io" /></p>
+
+<p>要点は、こんなところでしょうかな。</p>
+
+<ol>
+<li>octopressを持ってくる</li>
+<li>githubに専用repository作る</li>
+<li>repositoryのsource branchでoctopress/jekyll用のファイル編集をする</li>
+<li>ファイル編集が終わったら、サイトを生成する</li>
+<li>repositoryのmaster branchに本番用ファイルをpushする</li>
+</ol>
+
+
+<p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/misc-excelpng</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    PDFでしかexportできない・・・
+  </div>
+  さっきExcelの表をpngでexportしようと思ったら・・・なんと！PDFでしかexportできないではありませんか。 <br> <br>
+  <!-- more -->
+  うーん、、、と悩んだ結果、 <br> <br>
+  表をコピーして、偉大なるマイクロソフトの「ペイント」に貼り付けたら、、、、できた！！！ <br> <br>
+  やほーい。 <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://blog.branch4.pw/images/onlyredis.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://blog.branch4.pw/images/onlyredis.png"></a>
+  </div>
+  <br>
+  表は、Elasticacheで使える設定項目のリスト。次の記事用に作ってたのね。 <br> <br>
+  一件落着。 <br> <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Sluggish Google Chrome With Ubuntu]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/"/>
+    <updated>2014-04-16T23:39:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Slow chrome
+  </div>
+  I&#8217;ve been suffering from quite sluggish response of google chrome installed on ubuntu for quite a while.  <br> <br>
+  Today, I&#8217;ve finally got that solved ! Maybe for a while &#8230;  <br> <br>
+  <!-- more -->
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Solution !!
+  </div>
+  Re intall !!!  <br>
+  That&#8217;s it.  <br> <br>
+  I didnt really take a note about the version info, but the former chrome definitely had major version of 34.  <br>
+  And so does the current one.  <br>
+  Before re installation, I&#8217;ve cleared the cache, deleted many bookmarks, which didn&#8217;t seem to have any effect.  <br> <br>
+  But reinstallation worked for me.  <br> <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Rails] Couldn't Find User With Id=sign_in]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin/"/>
+    <updated>2014-04-11T10:35:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Background
+  </h3>
+  While using devise on rails3, I got the following error message.  <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      Couldn't Find User With Id=sign_in Devise on Rails 3
+    </span> </pre>
+  It was working yesterday, but not today.  <br> <br>
+  <h3 >
+    Solution
+  </h3>
+  I checked config/routes.rb, and had <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      resources :users
+      devise_for :users
+    </span> </pre>
+  which seemed to be interupting each other.  <br>
+  So I commented out resources :users, and it started to work fine.  <br>
+  I don&#8217;t know why it kept working till yesterday&#8230;  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Web Development] Sending Post Request With Google Chrome]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/"/>
+    <updated>2014-04-10T15:01:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose of the entry
+  </h3>
+  It&#8217;s just an introduction of the tool I use for debugging purpose.  <br> 
+  I use it to check my APIs.  <br>
+  It can POST/GET/PUT/DELETE&#8230;send data in various HTTP method to any API.  <br><br>
+  <!-- more -->
+  <h3 >
+    Introduction
+  </h3>
+  Debugging APIs ?  <br>
+  It&#8217;s easy to debug using 
+  <a  href=https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm>Postman REST client</a>.  <br> <br>
+  Screenshot below.  <br>
+  You need to set required HTTP method/parameters/URL etc&#8230;  <br>
+  Then press send.  <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png"></a>
+  </div>
+  <br> <br>
+  The response will be output below the settings part.  <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png"></a>
+  </div>
+  <br> <br>
+  Easy.  <br> <br>
+  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[1 Liner] Easily Replacing a Domain in Multiple Files]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/"/>
+    <updated>2014-04-07T16:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will&#8230;  <br> <br>
+  <ol>
+    <li>
+      find files that contains &#8220;xxxxx.yyyyy.jp:1080&#8221; <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] onClick Event With ImageView]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/"/>
+    <updated>2014-04-06T22:42:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose
+  </h3>
+  As said in the title.  <br>
+  It was my first shot using onClick event with ImageView, so just for memo.  <br>
+  (in fact it&#8217;s my first Android development) <br>
+  Keep in mind that this seem just to be one way of implementing onClick event with a view.  <br> <br>
+  <!-- more -->
+  <h3 >
+    Details
+  </h3>
+  <fieldset >
+    <legend >
+      Follow these 2steps
+    </legend>
+    <ol >
+      <li >
+        set a function name that should be called on onClick event in XML file(say it&#8217;s onClickEvent in this entry)
+      </li>
+      <li >
+        declare the onClickEvent in java file(Let&#8217;s say we just pop a toast)
+      </li>
+    </ol>
+  </fieldset>
+  This is part of the XML file.
+  <br>
+  <pre  class=prettyprint>
+    &lt;ImageView
+    android:id="@+id/imageview01"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/image"
+    android:layout_gravity="bottom"
+    android:scaleType="fitEnd"
+    android:onClick="onClickEvent" />***** <- this Line !!!!  </pre>
+  Now, declare onClickEvent in the activity.  <br>
+  I use SherlockActivity, and SlidingMenu so it&#8217;s a little messy, but it&#8217;s ok to remove those.  <br>
+  <br>
+  <pre  class=prettyprint>
+    public class MainActivity extends SherlockActivity {
+      @Override
+      protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_Sherlock);
+        setTitle(R.string.attach);
+        // set the content view
+        setContentView(R.layout.activity_main);
+        // configure the SlidingMenu
+        SlidingMenu menu = new SlidingMenu(this);
+        menu.setMode(SlidingMenu.LEFT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        menu.setShadowWidthRes(R.dimen.shadow_width);
+        menu.setShadowDrawable(R.drawable.shadow);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setFadeDegree(0.35f);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        menu.setMenu(R.layout.list);
+      }
+      public void onClickEntry(View v) {
+        Toast.makeText(MainActivity.this, "test", Toast.LENGTH_LONG).show();
+      }
+    }</pre>
+  And you should see the toast after the tap.
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Rails] Railsサーバを80番ポートで立ち上げちゃう]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/03/rails-rails80/"/>
+    <updated>2014-04-03T10:31:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/03/rails-rails80</id>
+    <content type="html"><![CDATA[<div  class=post>
+  RVM使ってる人限定。 <br><br>
+  <pre  class=prettyprint>
+      $ rails server</pre>
+  つって起動すると、自動的に3000番であがっちゃいます。 <br><br>
+  <!-- more -->
+  <pre  class=prettyprint>
+      $ rails server -p 80 </pre>
+  つって起動すると、お前ごときに80番はやらん！ <br>
+  つって怒られます。 <br><br>
+  <pre  class=prettyprint>
+      $ sudo rails server -p 80 </pre>
+  つって起動すると、なんだか怒られる。 <br><br>
+  <pre  class=prettyprint>
+      $ rvmsudo rails server -p 80 </pre>
+  つって起動すると、rvm関連の環境変数とかもちゃんと読み込んでくれて実行できるようになるらしい。
+  やってみたらできた。 <br> <br>
+  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[KVS] Redis入門]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/01/kvs-redis/"/>
+    <updated>2014-04-01T11:38:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/01/kvs-redis</id>
+    <content type="html"><![CDATA[<div  class=post>
+  業務で少しRedisの勉強をしたので、そのメモ。 <br> <br>
+  <br>
+  <h3 >
+    Redisとは
+  </h3>
+  Redisは、KVS(Key-Value Store)の一種。 <br>
+  Web-site : http://redis.io/ <br>
+  Current stable : 2.8.8 <br>
+  License : BSD <br> <br>
+  <!-- more -->
+  <h3 >
+    特徴
+  </h3>
+  <ul >
+    <li >
+      In-memoryなのでスーパー速い
+    </li>
+    <li >
+      5つのデータ型をValueとして格納可能
+      <ul >
+        <li >
+          Strings : 基本データ。バイナリでも可。512MBまで格納可能
+        </li>
+        <li >
+          Lists : リスト構造のデータ。2^32 - 1個のデータを格納可能
+        </li>
+        <li >
+          Sets : Stringsの集合。データが重複しないことが保証される。2^32 - 1個のデータを格納可能
+        </li>
+        <li >
+          Hashes : keyに対応するvalueとして、複数のkey-valueのペアを格納可能
+        </li>
+        <li >
+          Sorted sets : Setsと似てる集合。各データがScoreという値に紐づけられている
+        </li>
+      </ul>
+    </li>
+    <li >
+      Atomic処理可能
+    </li>
+    <li >
+      replicationを作成できる(master-slave構成)
+    </li>
+    <ul >
+      <li >
+        一度レプリが切れると、最初から全部レプリし直す(2.8で改善された)
+      </li>
+      <li >
+        slaveからmasterにリクエストがいくと、masterはプロセスをforkしてデータをファイルに出力して、slaveに転送する
+      </li>
+      <li >
+        sentinel(2.8以降に同梱)を利用して、自動フェイルオーバ機能が使える(かも)
+      </li>
+    </ul>
+    <li >
+      永続化も可能 ２種類の方法がある。
+      <ol >
+        <li >
+          RDB Persistence
+          <dt >
+          </dt>
+          <dd >
+            要はスナップショット
+          </dd>
+          <dd >
+            バックアップに最適
+          </dd>
+          <dd >
+            ファイルサイズも小さい
+          </dd>
+          <dd >
+            データ復旧も速い
+          </dd>
+          <dd >
+            データロストしやすい
+          </dd>
+          <dd >
+            バックアップには最悪、データ量の倍のメモリが必要になる
+          </dd>
+        </li>
+        <li >
+          AOF Persistence
+          <dt >
+          </dt>
+          <dd >
+            Logファイルに全更新を記録する方法
+          </dd>
+          <dd >
+            データロストが少ない
+          </dd>
+          <dd >
+            append-onlyのファイルなので、ファイルが壊れることも少ない
+          </dd>
+          <dd >
+            データ復旧は、Logファイル記載のコマンドを逐次実行するため時間がかかる
+          </dd>
+          <dd >
+            ファイルサイズが肥大しやすいが、過去のコマンドを上書きする機能を利用することでコンパクトにできる
+          </dd>
+          <dd >
+            書き込みが多い場合、AOFが足を引っ張ることもある
+          </dd>
+        </li>
+      </ol>
+    </li>
+    <li >
+      online backupも取れる
+      <dt >
+      </dt>
+      <dd >
+        RDB/AOFのどちらか
+      </dd>
+    </li>
+  </ul>
+  <br>
+  <h4 >
+    運用Tips
+  </h4>
+  <ul >
+    <li >
+      maxclientsのhardlimitはkernel設定次第
+    </li>
+    <li >
+      apサーバがautoscale設定の場合、timeoutは適正値を模索する必要あり
+    </li>
+    <li >
+      single processなので、CPU使い切りたい場合は複数プロセスあげる。メモリ領域のオーバーヘッドはでかくなりそう
+    </li>
+  </ul>
+  <br>
+  な、感じ。まとまってないけど。 どんな技術も使ってみないとほんとのとこはわからんねー。
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Git] Tagging in Git]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git/"/>
+    <updated>2014-03-14T12:02:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/14/git-tagging-in-git</id>
+    <content type="html"><![CDATA[<div  class=post>
+  These are some commands I use when taggin in git.  <br> <br>
+  Or say&#8230;some commands I will be using, since I haven&#8217;t really started using them.  <br> <br>
+  <h3 >
+    Work flow of git in my environment.
+  </h3>
+  <ul >
+    <li >
+      debugging in master branch
+    </li>
+    <li >
+      little bug fix in master branch
+    </li>
+    <li >
+      new branches for major fix/new features
+    </li>
+  </ul>
+  (beware that I&#8217;m developing alone) <br> <br>
+  <h3 >
+    What I want to accomplish
+  </h3>
+  <ul >
+    <li >
+      I want to tag the source before releasing
+    </li>
+    <li >
+      I want to maintain files(add/delete/change revision) in exisisting tags
+    </li>
+    <li >
+      I want to accomplish this easily
+    </li>
+    <li >
+      I want to learn git
+    </li>
+  </ul>
+  <!-- more -->
+  Maybe this is my goal for today.  <br> <br>
+  And from what I&#8217;ve googled so far&#8230;  <br>
+  Tag in git doesn&#8217;t tag files. It tags to the commit.  <br>
+  So I&#8217;ll follow that rule.  <br><br>
+  <h4 >
+    What I want to accomplish(fixed)
+  </h4>
+  <ul >
+    <li >
+      I want to tag the source before releasing
+    </li>
+    <li >
+      I want to maintain existing tags (tag different commit)
+    </li>
+    <li >
+      I want to accomplish this easily
+    </li>
+    <li >
+      I want to learn git
+    </li>
+  </ul>
+  OK, now I&#8217;ll list some commands I would probably use frequently.  <br> <br>
+  <h4 >
+    <a name="checkeachtagsannotation">Check each tags&#8217; annotation</a>
+  </h4>
+  Check out what this tag&#8217;s for !  <br>
+  <pre  class=prettyprint>
+    $ git tag -n </pre>
+
+  <h4 >
+    Edit annotations in existing tags
+  </h4>
+  it looks like this command will overwrite a &#8220;tagname&#8221; with a &#8220;tagname&#8221;.  <br>
+  <pre  class=prettyprint>
+      $ git tag tagname tagname -f -m *annotation* </pre>
+
+  <h4 >
+    Get diff of a tag and HEAD
+  </h4>
+  <pre  class=prettyprint>
+    $ git diff tagname HEAD </pre>
+
+  <h4 >
+    <a name="takediff">Get rough diff of a tag and HEAD</a>
+  </h4>
+  <pre  class=prettyprint>
+      $ git diff --stat --color tagname HEAD </pre>
+
+  <h4 >
+    <a name="taghead">Tag HEAD</a>
+  </h4>
+  <pre  class=prettyprint>
+    $ git tag -a tagname
+    $ git tag -a tagname -m "annotation" </pre>
+
+  <h4 >
+    <a name="tagcommit">Tag commit</a>
+  </h4>
+  <pre  class=prettyprint>
+    $ git tag tagname commit </pre>
+
+  <h4 >
+    Check changes in each commit
+  </h4>
+  <pre  class=prettyprint>
+    $ git log --stat
+    $ git log --numstat
+    $ git log --numstate
+    $ git log --name-status
+    $ git log --name-only </pre>
+  <h4 >
+    Check coresponding commit to a tag
+  </h4>
+  <pre  class=prettyprint>
+    $ git show tagname </pre>
+  <br>
+
+  <h3 >
+    Overall flow to what I want to accomplish
+  </h3>
+  2patterns so far.  <br> <br>
+  <h4 >
+    Pattern1
+  </h4>
+  <fieldset >
+    <legend >
+      tag to HEAD!!!! pattern.  <br>
+      Execute the command in
+    </legend>
+    <ul >
+      <li >
+        <a href="#taghead">Tag HEAD</a>
+      </li>
+    </ul>
+  </fieldset>
+  <br>
+  <h4 >
+    Pattern2
+  </h4>
+  <fieldset >
+    <legend >
+      Maintaining the tag(changing a commit in a tag) pattern.  <br>
+    </legend>
+    <ul >
+      <li >
+        Read <a href="#checkeachtagsannotation">Check each tags annotation</a> part and decide which tag to change
+      </li>
+      <li >
+        <a href="#takediff">Take diff of the tag and the commit</a> to decide which commit to relate to tag
+      </li>
+      <li >
+        Read <a href="#tagcommit">&#8220;Tag commit&#8221;</a> part and tag a commit
+      </li>
+    </ul>
+  </fieldset>
+
+
+
+  That should do it.
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] Android Studioでdebugする方法その１]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug/"/>
+    <updated>2014-03-10T03:18:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug</id>
+    <content type="html"><![CDATA[<div  class=post>
+  とりあえずEcllipseのプロジェクトをimportしてつまずいたこと。 <br> <br>
+  <h4 >
+    1. Gradleのversionが高杉なんだよ！と怒られた。
+  </h4>
+  ので、versionをさげた。 <br> <br>
+  brew でversion下げるのはこんな感じ。 <br>
+  <!-- more -->
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ brew unlink gradle
+      $ brew versions gradle
+      $ cd /usr/local/Library/Formula/
+      $ git checkout
+      &lt;commit&gt;
+        /usr/local/Library/Formula/gradle.rb
+        $ brew info gradle
+        $ brew install gradle
+      &lt;/commit&gt;
+    </span> </pre>
+  <br>
+  # &lt;commit&gt;は、brew versions gradleで表示されるのをコピペ <br> <br>
+  <h4 >
+    ビルドしたらエラー
+  </h4>
+  Run with stacktrace option to get the stack trace. Run with &#8211;info or &#8211;debug option to get more log output.  <br>
+  こんなエラーがでた。 <br> <br>
+  まず、どうやってdebugモードで実行すんの？からぐぐった。 <br>
+  どうやら、プロジェクトのrootにterminalでいって、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ gradle compileDebugAidl --stacktrace --debug
+    </span> </pre>
+  <br>
+  こんなん打てばおっけー。 <br>
+  これでやっと原因がわかる。 <br> <br>
+  <h4 >
+    libararyと、applicationの、minSdk/targetSdkをそろえる
+  </h4>
+  揃えないと怒られるので揃える。 <br> <br>
+  <h4 >
+    ビルドしたらまたエラー
+  </h4>
+  Could not find element /manifest/application.<br>
+  このエラー。意味不明なんだけど、検索したら、manifest mergerのbugらしい。 <br> <br>
+  <a  href=http://stackoverflow.com/questions/16987512/building-android-studio-project-with-holoeverywhere-fails>ここ</a>
+  に書いてあった。   全部の、AndroidManifest.xmlに、application要素が入ってないと出るらしいので、入ってなかったslidingmenuに
+  <application></application>
+  って入れこんで無事ビルド完了。 <br> <br>
+  明日は開発に入れるのだろうか・・・ <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] Android Studio]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9/"/>
+    <updated>2014-03-10T00:51:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9</id>
+    <content type="html"><![CDATA[<div  class=post>
+  まぁ・・・Ecllipse使うよりは使い勝手はよさそうなんだけど・・・<br>
+  なにかにつけて、  あれのバージョンがあわないー だの、<br>
+  これのバージョンが古いー  だの言われるのがすごい面倒・・・<br>
+  開発させろよ・・・
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Infra] Geo Directive in Nginx]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx/"/>
+    <updated>2014-03-06T23:46:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/06/infra-geo-directive-in-nginx</id>
+    <content type="html"><![CDATA[<div  class=post>
+  送信元IPによって色々挙動変えたりしたいなー、 <br>
+  と思って検索してたら、geo directiveがいい！！！ <br>
+  的な記事があったので、読み進めてみた。 <br><br>
+  が、結論、if directive使わないといけないので没案。 <br>
+  nginxさんのif directiveは鬼門。 <br>
+  挙動怪しいし、ifの中で使えるdirectiveもめっちゃ少なくて、あんまり意味なし。 <br>
+  そんな意味のないエントリでした・・・ <br>
+</div>
+]]></content>
+  </entry>
+  
+</feed>

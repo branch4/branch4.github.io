@@ -1,1 +1,950 @@
-My Octopress Page is coming soon &hellip;
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="こんにちは。adorechicです。
+まわりでRailsデビューした人が何人かいるのですが、
+「テストどうすりゃいいんだ」「RSpecわからん」
+といった歓喜の声があがっているため、はじめてそのへんを触る人がざっくり雰囲気がつかめるようなエントリを書いてみます。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link rel="alternate" hreflang="ja-jp" href="http://blog.branch4.pw/" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/27/first-rspec-with-rails/">First RSpec With Rails</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-27T14:29:18+09:00" pubdate data-updated="true">Jul 27<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/27/first-rspec-with-rails/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>こんにちは。adorechicです。
+まわりでRailsデビューした人が何人かいるのですが、
+「テストどうすりゃいいんだ」「RSpecわからん」
+といった歓喜の声があがっているため、はじめてそのへんを触る人がざっくり雰囲気がつかめるようなエントリを書いてみます。
+RSpecのセットアップとかそういうのは書きません。</p>
+
+<h1>specの種類</h1>
+
+<p>specと一口に言ってもいろいろな種類があります。</p>
+
+<ul>
+<li>controller spec</li>
+<li>model spec</li>
+<li>view spec</li>
+<li>routing spec</li>
+<li>helper spec</li>
+<li>request spec</li>
+<li>feature spec</li>
+</ul>
+
+
+<p>まずこれどういう違いがあるのかーとかわからないですね。
+モデルとかのテストは良いとしても、controller specとrequest specってどっちも「あるアクション」に「GETリクエスト」みたいなリクエストがとんで「どうなる」というのをテストしているように見えて、何が違うねんとかあると思います。</p>
+
+<p>それぞれどういう違いがあるのかざっくり解説。
+の前に。</p>
+
+<h1>テストって何をテストするのか</h1>
+
+<p>原則として、</p>
+
+<ul>
+<li>テストの対象（主題）に対して</li>
+<li>ある「入力」を与えたとき</li>
+<li>どういった「出力」が得られるか</li>
+</ul>
+
+
+<p>これが基本です。これが全てです。
+といいたいところですがステートレスにはなりきれないところもあるわけで。
+必要に応じて、</p>
+
+<ul>
+<li>どういった「内部変化」があるか</li>
+</ul>
+
+
+<p>も見ます。
+ただしこの内部変化はいたずらにチェックすればよいわけではないです。
+ありがちなのが、テスト対象の実装に依存したテストを書いてしまうこと。</p>
+
+<p>例えば最終的に「このレコードが保存されること」が確認できればよいのに、別の「このメソッドが呼び出されていること」とかを無闇にテストしてしまったりします。
+そういうテストは実装が変わったときに大量にfailして、テスト書き直すはめになるという壊れやすいテストになってしまいます。これでは本末転倒です。</p>
+
+<p>あくまでテストは対象のインターフェイスに対して行います。</p>
+
+<p>この辺の話に興味ある場合は<a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">これ</a>とかオススメ。</p>
+
+<p>ということで何が「入力」で何が「出力」なのかをおさえると、それぞれのspecの役割がとりやすいと思います。</p>
+
+<h1>specの種類</h1>
+
+<p>本題。</p>
+
+<h2>controller spec</h2>
+
+<p>対象はコントローラー、と特定のアクション。</p>
+
+<p>勘違いしやすいところですが、「入力」はHTTPリクエストまんまではありません。
+paramsなどを入力としてactionメソッドが呼び出されているととらえた方がやりやすいと思います。</p>
+
+<p>同様に「出力」もHTTPレスポンスではありません。
+よくあるのが、response bodyのhtmlとかをチェックしてしまうこと。
+単体テストとして考えるとそれはviewの責務なので、controllerの責務ではないのです。</p>
+
+<p>対象のactionに、あるパラメータがわたされて、その結果200が返る、404が返る、リダイレクトされる・・・とか、その処理であるレコードが作成されるとかそういうのを見ます。</p>
+
+<h2>model spec</h2>
+
+<p>モデルに対するspec。なんかデータ作って保存したり検索したりするようなメソッドをテストします。
+いわゆるよくある単体テストっぽいのでわりとわかりやすいんですが、やりがちなのはrailsの機能までテストしてしまうこと。validate presenceのような、デフォルトで用意されているrailsのvalidatorの機能までテストする必要はないです。
+たとえばcontextによって発動するvalidatorが違うとか、そういう複雑なことをするときだけ。</p>
+
+<h2>view spec</h2>
+
+<p>ビューをテストするもの。コントローラーの処理後、必要な変数がアサインされた前提で、どういったものがレンダリングされるか、という観点。</p>
+
+<h2>routing spec</h2>
+
+<p>railsのroutingをテストするもの。結構複雑なrouting書いたりすると、このURLできたときどのアクションにふられるのかとかぱっと見わからないときとかも便利。</p>
+
+<h2>helper spec</h2>
+
+<p>実は一番わかりやすいかもしれない。railsのhelperに対するテスト。helperって基本入力とか条件に対してタグだったり文字列を整形して出すようなユースケースが多いので、一番入力と出力がわかりやすい。</p>
+
+<h2>request spec</h2>
+
+<p>request specとfeature specは一応Integration testと呼ばれるものに属します。ただIntegration testってコンテキストによってちょっと意味合いが違ってくるのですが、ここではrailsアプリケーションとして通してるというぐらい。request specの入出力はHTTPリクエスト・レスポンス。REST APIに対するテストに向いている。一方でfeature specは画面操作。普通にブラウザでアクセスして、何かボタンをクリックするとどうなる、というのをテストする。</p>
+
+<p>feature specでは、controller specなどと違いDBの状態がどうなった、とかリダイレクト先のURLがどうだというようなことはあまりみません。だってブラウザで操作してて見えないから。登録ボタンおしたら、画面の要素が増えたねーみたいにチェックしていきます。</p>
+
+<h1>どの種類のテストをどこまで書くのか</h1>
+
+<p>まずmodel specでいろいろテスト書いたんだけれども、それを呼び出すcontroller specでも同じようなテスト書いてくとすごい重複してないか、という疑問。
+これも、入出力がどう違うのかという意識で書いていくとやりやすいと思います。</p>
+
+<p>例えばmodelのメソッドは、そのときのレコードの状態や、わたされるパラメータによっていろいろなコンテキストがあって、それごとにテストを書いたとしましょう。
+しかしその結果の出力としてのケースはそれほど多くないのではないでしょうか。成功してレコードが保存される、失敗してエラーが返るぐらい。
+であれば結果として呼び出し側としては2ケースしかない。であればcontroller specではその2ケースのテストを書く、というイメージです。</p>
+
+<h1>specいろいろ種類あったけど、全部書くの？</h1>
+
+<p>全部書く必要はないです。必要なものだけ書けば良い。</p>
+
+<p>これはそのアプリケーションで必要とする要件であったり、チームの開発スタイルとかにかなり依存してくるところなので一概にいえないところですが、
+たとえば基本的なresourcesとかによるroutingしかないのであれば、頑張ってrouting spec書かなくてもよいと思います。</p>
+
+<p>viewにすごいこだわりを持っていたり、複雑なviewを持っているアプリケーションであれば、view specしっかり書くとよいし、
+そこまでではなく普通に操作できればよいやーぐらいであればfeature specがあればよさそう。</p>
+
+<p>逆にそういう前提にこだわらず、不安なところは普段書かないやつでも書いた方がよいです。</p>
+
+<p>よく書かれるのはmodel, controller, feature/request specあたりでしょうか。</p>
+
+<h1>まとめ</h1>
+
+<p>テストに正解はありません。</p>
+
+<p>テストはそのアプリケーションが価値を生み出す手助けをするものです。
+新しく追加したコードが既存の機能を壊していないことを確かめるために用いられることもあるし、開発者が開発を進める上での手助けをするために用いられることもあります。</p>
+
+<p>どういった目的で、どんな場面でテストを書くのかによって書き方はもちろん、ツール自体使い分けた方がよい場合もあります。</p>
+
+<p>また開発スタイルや対象とするアプリケーションの性質によっても異なります。ぶっちゃけ好みです。
+RailsプロジェクトではRSpecが多いような感じがしますが、お膝元のBasecampではtest/unitらしい。</p>
+
+<p>複雑な機能を作るときに、contextを分けながら考えを整理してから実装入るとやりやすかったりするし、
+逆にインターフェイスレベルでいろいろ試行錯誤しながら開発するときは最初からきっちり書いてると開発効率を落としてしまったりします。</p>
+
+<p>とはいえ慣れないうちはたくさん書くのが良いと思います。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/22/multiprocess-with-fluentd/">Fluentdを複数起動したい</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-22T22:30:00+09:00" pubdate data-updated="true">Jul 22<span>nd</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/22/multiprocess-with-fluentd/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>概要</h2>
+
+<hr />
+
+<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
+って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
+
+<h3>fluentdとは？</h3>
+
+<hr />
+
+<p>知らない人はいないね。はい。</p>
+
+<p><a href="http://www.fluentd.org/"><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></a></p>
+
+<p><a href="http://www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
+
+<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
+使うのが普通ですね、はい。</p>
+
+<p>ちなみに僕はインストールするの今回初です(笑)<br/>
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
+<p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
+
+<h3>前提</h3>
+
+<hr />
+
+<p>multiprocessといっても、</p>
+
+<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
+とか<br/>
+<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
+とは違う意味で。</p>
+
+<p>本当に、プロセスを別で起動したいんです！という話。<br/>
+ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/22/multiprocess-with-fluentd/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-12T01:30:00+09:00" pubdate data-updated="true">Jul 12<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/12/fix-the-time-on-ec2/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア<a href="http://diary.risterlab.com">@risterlab</a>です。 <br/>
+来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！<br/>
+晴れますように。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="時計" /></p>
+
+<p>今回はちょっとした小ネタを。</p>
+
+<p>AWSのEC2のAmazon Linuxを立ち上げた人はまずUTCから日本時間に合わせるでしょう。<br/>
+しかし、大抵検索すると出てくる方法で合わせてしまうと、 <br/>
+再起動したときにたまに時間がUTCに戻っちゃって、困ってる人向けに。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/12/fix-the-time-on-ec2/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/11/after-installing-octopress/">What I Did After the Installation of Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-11T01:30:00+09:00" pubdate data-updated="true">Jul 11<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/11/after-installing-octopress/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>こんちには、おフランス帰りの<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+ほっほっほ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/seine.png" alt="セーヌ川" /></p>
+
+<p>パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、<br/>
+珍しく海外におりました。<br/>
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。<br/>
+セーヌ川と聞くと、いつも、セーム革ね、と思っているのは内緒です。</p>
+
+<p>さてさてまたしてもOctopress関連です。</p>
+
+<p>Octopressは、インストールしてすぐ公開できるけど、その状態はほんとに真っ新なわけで。<br/>
+サイドバーモジュール出したり、コメントつけられるようにしたり、と多少手をかけないと<br/>
+いけなかったりしたので、インストール後にやったことの作業メモ。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+インストール後にいまのところやったのは、</p>
+
+<ul>
+<li>記事にコメントをつけられるようにした</li>
+<li>google plusの+1モジュールを出した</li>
+<li>サイドバーにGoogle Adsense/Affiliateを出した</li>
+<li>github repositoryを出した、そして引っ込めた</li>
+<li>category generator/category listモジュールを導入した</li>
+<li>Google Analyticsで色々みれるようにした
+こんなもんだったかな？</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/11/after-installing-octopress/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">IT・インターネット・ゲーム業界の【転職】ノウハウ</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-30T19:00:00+09:00" pubdate data-updated="true">Jun 30<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="http://blog.branch4.pw/images/2014/06/ajisai.jpg" alt="紫陽花" /></p>
+
+<p>こんにちは、<a href="https://github.com/maringerz">@maringerz</a>です。<br/>
+紫陽花にはなんの意味もありません。</p>
+
+<p>この度、私もブログを書かせてもらうことになりましたぁ！！！<br/>
+私はIT・ネット・ゲーム業界の転職エージェントを数年やって、<br/>
+今は、ゲーム会社の人事（採用担当）してます。</p>
+
+<p>IT・ネット・ゲーム業界の細かい転職とか実態情報とか、<br/>
+あまりネット上に見当たらないので、思いつくままにのっけていきますね☆</p>
+
+<p>プライベートは、
+お酒とギャンブルと世界旅行に溺れている『自由で』『楽しい』ことのみを
+追求して生きたいと願う超堕落人間ですゆえ、
+大げさなテーマを掲げてみてるけど↓どうなるかわからん。</p>
+
+<h3>ブログを読んでもらえたらなぁーと思う希望読者層</h3>
+
+<hr />
+
+<p>IT・インターネット・ゲーム業界で</p>
+
+<ul>
+<li>転職したい方（職種不問）</li>
+<li>事業会社の採用担当の方</li>
+<li>IT・インターネット・ゲーム業界専門の転職エージェントの方</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T16:20:00+09:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/06/19/posting-blog-with-octopress/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>※  内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。</p>
+
+<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+前回に引き続きOctopress関連です。</p>
+
+<p>今回は、実際投稿するときどうするか、という点を。<br/>
+投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、少しかぶり気味。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+そこまできてたらこのblogは読まなくても書け・・・ます、はい。<br/>
+強いて言えば、準備はできてるけど、なんかよくわからんうちに準備できた人用。<br/>
+それか、このブログみたいに、複数で更新してるので、セットアップした人と、<br/>
+書く人が違う場合用。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/06/19/posting-blog-with-octopress/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-16T15:20:00+09:00" pubdate data-updated="true">Jun 16<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/06/16/rds-temp-resize/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>どもども。<a href="http://portfolio.risterlab.com">saorister</a>です。<br/>
+野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。<br/>
+(統一性なさすぎw)</p>
+
+<p>今回は私がブログ記事担当！<br/>
+ということで、<br/>
+この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。</p>
+
+<h3>DBのディスク空き容量が!!!</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/figure_graph_down.png" alt="DBのディスク空き容量が!!!" /></p>
+
+<p>RDSのOracleさんでTEMP表領域サイズがめっちゃでっかくなっちゃって<br/>
+空き容量がほとんどなくなっちゃったよぉぉぉぉ！！！</p>
+
+<p>パニック！！！</p>
+
+<p>って時の対処法を。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/06/16/rds-temp-resize/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/07/blog-on-github.io-with-octopress/">Blog on Github Pages With Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-07T15:20:00+09:00" pubdate data-updated="true">Jun 7<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/06/07/blog-on-github.io-with-octopress/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/06/07/blog-on-github.io-with-octopress/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/18/misc-excelpng/">[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-18T15:20:00+09:00" pubdate data-updated="true">Apr 18<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/04/18/misc-excelpng/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    PDFでしかexportできない・・・
+  </div>
+  さっきExcelの表をpngでexportしようと思ったら・・・なんと！PDFでしかexportできないではありませんか。 <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/18/misc-excelpng/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/">[Misc] Sluggish Google Chrome With Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-16T23:39:00+09:00" pubdate data-updated="true">Apr 16<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Slow chrome
+  </div>
+  I&#8217;ve been suffering from quite sluggish response of google chrome installed on ubuntu for quite a while.  <br> <br>
+  Today, I&#8217;ve finally got that solved ! Maybe for a while &#8230;  <br> <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/27/first-rspec-with-rails/">First RSpec With Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/22/multiprocess-with-fluentd/">Fluentdを複数起動したい</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/11/after-installing-octopress/">What I Did After the Installation of Octopress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/">IT・インターネット・ゲーム業界の【転職】ノウハウ</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/infra'>Infra (3)</a></li><li><a href='/blog/categories/web-development'>Web Development (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/carrier'>carrier (1)</a></li><li><a href='/blog/categories/ruby'>Ruby (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
