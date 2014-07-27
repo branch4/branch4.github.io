@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rails | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/rails/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-07-27T15:04:09+09:00</updated>
+  <updated>2014-07-27T15:08:49+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -23,6 +23,9 @@
 「テストどうすりゃいいんだ」「RSpecわからん」
 といった歓喜の声があがっているため、はじめてそのへんを触る人がざっくり雰囲気がつかめるようなエントリを書いてみます。
 RSpecのセットアップとかそういうのは書きません。</p>
+
+<!-- more -->
+
 
 <h1>specの種類</h1>
 
