@@ -1,0 +1,729 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>What I Did After the Installation of Octopress - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="こんちには、おフランス帰りの@xengineer01です。
+ほっほっほ。 パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、
+珍しく海外におりました。
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。
+セーヌ川と聞くと、いつも、セーム革ね &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link rel="alternate" hreflang="ja" href="http://blog.branch4.pw">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">What I Did After the Installation of Octopress</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-11T01:30:00+09:00" pubdate data-updated="true">Jul 11<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>こんちには、おフランス帰りの<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+ほっほっほ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/seine.png" alt="セーヌ川" /></p>
+
+<p>パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、<br/>
+珍しく海外におりました。<br/>
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。<br/>
+セーヌ川と聞くと、いつも、セーム革ね、と思っているのは内緒です。</p>
+
+<p>さてさてまたしてもOctopress関連です。</p>
+
+<p>Octopressは、インストールしてすぐ公開できるけど、その状態はほんとに真っ新なわけで。<br/>
+サイドバーモジュール出したり、コメントつけられるようにしたり、と多少手をかけないと<br/>
+いけなかったりしたので、インストール後にやったことの作業メモ。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+インストール後にいまのところやったのは、</p>
+
+<ul>
+<li>記事にコメントをつけられるようにした</li>
+<li>google plusの+1モジュールを出した</li>
+<li>サイドバーにGoogle Adsense/Affiliateを出した</li>
+<li>github repositoryを出した、そして引っ込めた</li>
+<li>category generator/category listモジュールを導入した</li>
+<li>Google Analyticsで色々みれるようにした
+こんなもんだったかな？</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>今後やりたいなー、と思ってるのは、</p>
+
+<ul>
+<li>英語のブログと日本語のブログを分けて表示できるようにしたい</li>
+<li>code blockいけてない表示を変更したい<br/>
+くらいかな。</li>
+</ul>
+
+
+<h3>記事にコメントをつけるには</h3>
+
+<hr />
+
+<p>Octopress自体は、以前も紹介した通り、静的サイトGenerator Jekyllのラッパー的な<br/>
+存在なので、当然、コメントなんつー動的コンテンツ管理機能はないっす。</p>
+
+<p>そこは、<a href="https://disqus.com/">disqus</a>っつー外部サービスに依存してるので、disqusアカウントを作りましょう。<br/>
+disqusアカウントの作り方は、ぐぐればいいよ。</p>
+
+<p>作ったら、下図的な感じで、&#8221;Add Disqus to Site&#8221;を選択。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/add_disqus_to_site.png" alt="add disqus to site" /></p>
+
+<p>そんで、Site name入れたりする。例は適当にいれてみた。<br/>
+これでも問題ない。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/site_profile.png" alt="site profile" /></p>
+
+<p>次は、この画面の、&#8221;Install&#8221;タブが選択された状態で出てくるので、<br/>
+下図みたいに、&#8221;General&#8221;を選択する。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus1.png" alt="configure disqus1" /></p>
+
+<p>下の方にいくと、Your website&rsquo;s shortname is ikmenblog と出てくるので、<br/>
+これを覚えておく。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus2.png" alt="configure disqus2" /></p>
+
+<p>そして、_config.ymlを下記のように編集してちょ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>...
+</span><span class='line'>中略
+</span><span class='line'>...
+</span><span class='line'>disqus_short_name: 'ikemenblog'
+</span><span class='line'>disqus_show_comment_count: true
+</span><span class='line'>...
+</span><span class='line'>中略
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>short nameは、さっき覚えた名前ね。<br/>
+あとは、各postのmetadataに、下記を追記しておけばOK。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>comments: true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで投稿すれば漏れなくコメントがつけられるようになりますわ。Tre bien。</p>
+
+<h3>google plusの+1モジュールを出すには</h3>
+
+<hr />
+
+<p>ブログのPVを増やすには内容が面白くないと何やってもだめなんだろうけどね。<br/>
+このモジュール、簡単に出せるので出してみようかな、と。<br/>
+もうちょい記事が増えて、Fanpageにも投稿できるようになったらFacebookモジュールも<br/>
+出しますかね。</p>
+
+<p>まずは、_config.ymlにこんな行があるので探しましょう。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Google +1
+</span><span class='line'>google_plus_one: false
+</span><span class='line'>google_plus_one_size: medium
+</span><span class='line'>
+</span><span class='line'># Google Plus Profile
+</span><span class='line'># Hidden: No visible button, just add author information to search results
+</span><span class='line'>googleplus_user: 
+</span><span class='line'>googleplus_hidden: false</span></code></pre></td></tr></table></div></figure>
+
+
+<p>そんで、googleplus_userのところを埋めればOK。<br/>
+googleplus_userって何？という方は、<a href="http://gphangouts.com/googleplusurl.html">こちら</a>。<br/>
+ちなみに僕もなんのことかわからなかった。</p>
+
+<p>あとは、どういう仕組みで表示されるかというと、これをみると少しわかるかね。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls -l source/_includes/asides
+</span><span class='line'>-rw-r--r--  1 user  group  406  6 15 08:32 delicious.html
+</span><span class='line'>-rw-r--r--  1 user  group 1005  6 15 08:32 github.html
+</span><span class='line'>-rw-r--r--  1 user  group  360  6 15 08:32 googleplus.html
+</span><span class='line'>-rw-r--r--  1 user  group  799  6 15 08:32 pinboard.html
+</span><span class='line'>-rw-r--r--  1 user  group  329  6 15 08:32 recent_posts.html
+</span><span class='line'>
+</span><span class='line'>$ cat source/_includes/asides/googleplus.html
+</span><span class='line'>
+</span><span class='line'>&lt;section class="googleplus"&gt;
+</span><span class='line'>  &lt;h1&gt;
+</span><span class='line'>    &lt;a href="https://plus.google.com/106189997190821430505?rel=author"&gt;
+</span><span class='line'>      &lt;img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32"&gt;
+</span><span class='line'>        Google+
+</span><span class='line'>    &lt;/a&gt;
+</span><span class='line'>  &lt;/h1&gt;
+</span><span class='line'>&lt;/section&gt;
+</span><span class='line'></span></code></pre></td></tr></table></div></figure>
+
+
+<p>source/_includes/asidesにhtmlファイルがあって、それを読み込んで生成するというわけで。<br/>
+同じディレクトリに他にもファイルがあるけど、どれを表示するかは、_config.ymlに記載してありんす。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな感じで。<br/>
+これでgoogle plus +1モジュールは表示されるはず。</p>
+
+<h3>github repositoryを出して、そして引っ込めるには</h3>
+
+<hr />
+
+<p>これもgoogle plusモジュールと似たようなもん。<br/>
+さっきのlsの結果をみると、source/_includes/asides配下に、github.htmlがあったわけで。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls -l source/_includes/asides
+</span><span class='line'>cat source/_includes/asides/github.html
+</span><span class='line'>
+</span><span class='line'>&lt;section&gt;
+</span><span class='line'>  &lt;h1&gt;GitHub Repos&lt;/h1&gt;
+</span><span class='line'>  &lt;ul id="gh_repos"&gt;
+</span><span class='line'>    &lt;li class="loading"&gt;Status updating...&lt;/li&gt;
+</span><span class='line'>  &lt;/ul&gt;
+</span><span class='line'>  
+</span><span class='line'>    &lt;a href="https://github.com/root04"&gt;@root04&lt;/a&gt; on GitHub
+</span><span class='line'>  
+</span><span class='line'>  &lt;script type="text/javascript"&gt;
+</span><span class='line'>    $(document).ready(function(){
+</span><span class='line'>      if (!window.jXHR){
+</span><span class='line'>        var jxhr = document.createElement('script');
+</span><span class='line'>        jxhr.type = 'text/javascript';
+</span><span class='line'>        jxhr.src = '/javascripts/libs/jXHR.js';
+</span><span class='line'>        var s = document.getElementsByTagName('script')[0];
+</span><span class='line'>        s.parentNode.insertBefore(jxhr, s);
+</span><span class='line'>      }
+</span><span class='line'>
+</span><span class='line'>      github.showRepos({
+</span><span class='line'>        user: 'root04',
+</span><span class='line'>        count: 0,
+</span><span class='line'>        skip_forks: true,
+</span><span class='line'>        target: '#gh_repos'
+</span><span class='line'>      });
+</span><span class='line'>    });
+</span><span class='line'>  &lt;/script&gt;
+</span><span class='line'>  &lt;script src="/javascripts/github.js" type="text/javascript"&gt; &lt;/script&gt;
+</span><span class='line'>&lt;/section&gt;
+</span><span class='line'></span></code></pre></td></tr></table></div></figure>
+
+
+<p>で、またどれを表示するかは、_config.ymlに記載してあります。<br/>
+(github.htmlを追加した)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>更に、_config.yml、下記箇所をあわせて編集。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Github repositories
+</span><span class='line'>github_user: xxxxxxxx
+</span><span class='line'>github_repo_count: 0
+</span><span class='line'>github_show_profile_link: true
+</span><span class='line'>github_skip_forks: true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで表示される、と。非表示にしたい場合は、default_asidesから抜いてしまえばOK。</p>
+
+<h3>サイドバーにGoogle Adsense/Affiliateを出すには</h3>
+
+<hr />
+
+<p>せっかくブログ書くので、Adsense貼ったり、affiliate出したりして億万長者になろう！<br/>
+というわけで、こんな感じにすると貼れまっせ。<br/>
+ただ貼るだけだとaffiliateを貼ろうとすると、広告だらけの酷いサイトになっちゃうので、<br/>
+affiliate枠は一つにして、そこにランダムに複数affiliateを表示するようにしよう。<br/>
+そうすればABテストも兼ねられるし、一石二鳥。</p>
+
+<p>まずは、affiliateから。</p>
+
+<p>ざっくりやること。<br/>
+1. sidebarに読み込むhtmlの設定と設置
+2. 1のhtmlから読み込んで実行するjsファイルの設置
+3. jsファイルのinclude
+4. sidebarのwidth変更
+かな。</p>
+
+<p><a href="http://lblevery.com/sfn/aff/course/aff-banner-randomview/">ここ</a>参考にしましたね、私。</p>
+
+<h4>sidebarに読み込むhtmlの設定と設置</h4>
+
+<p>_config.ymlのいつもの行探しと追記。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
+</span><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html, custom/asides/affiliate.html] &lt;- 追記後</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上記で、custom/asides配下に、affiliate.htmlを設置することにしてるので、<br/>
+source/_include/custom/asides/affiliate.htmlを下記内容で設置。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat source/_includes/custom/asides/affiliate.html
+</span><span class='line'>&lt;script type="text/javascript" language="javascript"&gt;
+</span><span class='line'>  num = Math.floor( Math.random() * 6 );
+</span><span class='line'>  document.write( aff[ num ]);
+</span><span class='line'>&lt;/script&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Math.random() * 6 の、&#8221;6&#8221;は、何個のaffiliateバナーを回すかを書く。</p>
+
+<h4>1のhtmlから読み込んで実行するjsファイルの設置</h4>
+
+<p>次は、実行するjsファイルを設置。<br/>
+source/javascripts/affiliate.jsを、下記内容で設置。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>var aff = new Array();
+</span><span class='line'>aff[0] = 'affiliate tag1'
+</span><span class='line'>aff[1] = 'affiliate tag2'
+</span><span class='line'>aff[2] = 'affiliate tag3'
+</span><span class='line'>aff[3] = 'affiliate tag4'
+</span><span class='line'>aff[4] = 'affiliate tag5'
+</span><span class='line'>aff[5] = 'affiliate tag6'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>affiliate tagXのところに、表示したいaffiliateのtagを突っ込む。<br/>
+(ダブルクオーテーションは、backslashでエスケープ)</p>
+
+<h4>jsファイルのinclude</h4>
+
+<p>次は、html &lt;head&gt; &ndash; &lt;/head&gt;の中に、上記で設置したjsファイルをincludeするように、下記を追記する。<br/>
+僕は、source/_includes/head.html中に追記したです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;script type="text/javascript" src="http://xxx.yyy.zzz/javascripts/affiliate.js" charset="utf-8"&gt;&lt;/script&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>sidebarのwidth変更</h4>
+
+<p>最後に、affiliateのサイズに合わせて、sidebar widthの調整。<br/>
+僕は、全部 300 x 250 でそろえたので、sidebar widthを、310pxにしたですよ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi sass/base/_layout.scss
+</span><span class='line'>
+</span><span class='line'>...
+</span><span class='line'>略
+</span><span class='line'>...
+</span><span class='line'>// Sidebar widths used in media queries
+</span><span class='line'>$sidebar-width-medium: 310px !default;
+</span><span class='line'>$sidebar-pad-medium: 5px !default;
+</span><span class='line'>$sidebar-pad-wide: 5px !default;
+</span><span class='line'>$sidebar-width-wide: 310px !default;
+</span><span class='line'>...
+</span><span class='line'>略
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでいける、はず。</p>
+
+<h3>category generator/category listモジュールを導入するには</h3>
+
+<hr />
+
+<p>category generatorは、install直後から使えるpluginなので、_config.ymlを設定するだけで、<br/>
+category分けしたアーカイブページ作ってくれます。
+設定は簡単に<a href="http://octopress.org/docs/plugins/category-generator/">公式サイト</a>に説明あり。</p>
+
+<p>category generatorは、このブログでいうと、例えば、<br/>
+<a href="http://blog.branch4.pw/blog/categories/misc">こんな感じ</a>のアーカイブページを作ってくれますよ。</p>
+
+<p>category listは、<a href="http://qiita.com/amay077/items/3296fdf1ea11c7c9ace4">こっち</a>を参照。</p>
+
+<p>こんな感じのリストを作れますよ。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/category_list.png" alt="category list" /></p>
+
+<h3>Google Analyticsで色々みれるようにするには</h3>
+
+<hr />
+
+<p>最後に、Google Analytics導入。</p>
+
+<p>これもあんまり書くことないんだけど、Analyticsアカウント登録して、<br/>
+tracking_id を、_config.ymlの下記箇所に書けばOK。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Google Analytics
+</span><span class='line'>google_analytics_tracking_id: UA-XXXXXX-Y</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Analyticsに数字が反映されるまで結構（24hr以上かかった）時間かかるけど、<br/>
+それを除けば、特に難しいことはないっす。</p>
+
+<p>と、いうわけで、いまのところ僕がoctopressインストール後にやったことをまとめてみましたです。</p>
+
+<p>色々間違ってメモってそうなので、その時はこっそり教えていただけるとうれしいです。<br/>
+Au revoir !</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">xengineer01</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-11T01:30:00+09:00" pubdate data-updated="true">Jul 11<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/misc/'>misc</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/" title="Previous Post: IT・インターネット・ゲーム業界の【転職】ノウハウ">&laquo; IT・インターネット・ゲーム業界の【転職】ノウハウ</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/07/12/fix-the-time-on-ec2/" title="Next Post: EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~ &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/30/basic-test-with-rspec/">RSpecでの基本的な書き方（前編）</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/27/first-rspec-with-rails/">First RSpec With Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/22/multiprocess-with-fluentd/">Fluentdを複数起動したい</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/11/after-installing-octopress/">What I Did After the Installation of Octopress</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/infra'>Infra (3)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/web-development'>Web Development (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/recruit'>recruit (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li><li><a href='/blog/categories/gimp'>Gimp (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
