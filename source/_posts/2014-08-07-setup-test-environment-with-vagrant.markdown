@@ -1,20 +1,27 @@
 ---
 layout: post
 title: fluentdのテスト環境をvagrantでセットアップしてみるべ
-date: 2014-08-07 14:17:39 +0900
+date: 2014-08-07 22:00:00 +0900
 comments: true
 published: false
 author: xengineer01
 categories: 
+  - Infra
+  - Web Development
+  - Virtualization
 ---
 
 こんにちは。Vagrant使ってみよ。と思った[@xengineer01](https://twitter.com/xengineer01)です。  
 
-# 概要
+![vagrant logo](http://blog.branch4.pw/images/2014/08/logo_vagrant.png)
+
+## 概要
 ---
-まぁ使ってみたかっただけですわ。  
+まぁ使ってみたかっただけです。  
 fluentdの検証するし、今後も環境構築は何回もするし、ついでだから vagrant使ってみよ、  
 なノリです。
+
+実際は、今回のエントリーでは fluentd の環境構築までいかなかったので、何回かに分けて書きますわ。
 
 ## vagrantって？
 ---
@@ -23,20 +30,49 @@ boxつくって、設定ファイル書いとけば、どこに持ってって�
 問題の再現とかもしやすい、ということです。便利だわー。  
 今回は、数年ぶりに環境構築する用事があったので、使おうと思ったり。
 
+<!-- more -->
+
 ## インストール
 ----------
 [こちら](http://www.vagrantup.com/downloads)からダウンロードしてインストール。  
-簡単だから。ただし、ツール自体にGUIはないのでCLIに抵抗がある人はここで脱落です。  
+簡単だから。ただし、ツール自体にGUIはないのでCLIに抵抗がある人はここでおかえりいただきます。  
 
 ## セットアップ
 ----------
-まずは、[公式サイト](http://www.vagrantup.com/)のドキュメンツを辿ってみるべし。
+まずは、[公式サイト](http://www.vagrantup.com/)のドキュメンツを辿ってみるべし。  
+Getting Startedを一通りやれば結構わかる。  
+
+## 諸情報
+今回使ったのは、
+
+- vagrant version 1.6.3
+- Windows PC + VirtualBox 4.3.8r92456
+- MintLinux17 + VirtualBox 4.3 ?
+- MacOSX(Mavericks) + VirtualBox 4.3 ?
+
+でございます。作った Vagrantfile 含めた設定は、全環境でちゃんと動いてるぽかったです。
 
 ### Vagrantfile なる設定ファイルが肝
+設定ファイルのこと。  
+
+- 1つのプロジェクトあたり、1つ存在する。
+- プロジェクト内に、どんなサーバが何台存在しているか
+- ネットワーク構成どんな感じか
+- 各サーバに何インストールしとくか、設定どうなってるか
+
+などなど定義します。たぶん、流れ的には、
+
+- Vagrantfileの書き方覚える
+- Provisioningツールの使い方覚える or 既に覚えてれば不要
+- Provider(VirtualBox/KVM/Docker etc...)の使い分け的なものを覚える
+- Boxの作り方覚える
+
+この辺を覚えていくんでしょう。
+
 ### Projectディレクトリと、Vagrantfile を作る！
 
 下記コマンドを実行してね。  
-(本Entryでは、以降Projectディレクトリのルートは、PROJECT_ROOT)
+(本Entryでは、以降Projectのルートディレクトリは、PROJECT_ROOTとします)
 ```
 $ mkdir <PROJECT_ROOT>
 $ cd <PROJECT_ROOT>
@@ -49,11 +85,13 @@ the comments in the Vagrantfile as well as documentation on
 ```
 
 やってることは、
+
 1. Projectディレクトリを作成
 2. Projectディレクトリに移動
-3. Projectを初期化
-でございます。
-コマンドで生成された Vagrantfileから、コメントの行を消すと、、、
+3. Projectを初期化(Vagrantfileが生成される)
+
+でございます。コマンドで生成された Vagrantfileから、コメントの行を消すと、、、
+
 ```
 $ cat Vagrantfile
 
@@ -63,18 +101,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "base"
 end
 ```
-ちっさ！(コメントがすげー多い)
-書いてあることもすぐわかるレベルすな。
-
-そして、document曰く、Vagrantfile は、git,svn等の、VCSにcommitすべきものらしいので、commitしとく。  
+こんな感じ。APIのバージョンは、"2" のようです。  
+config.vm.box = "base"は、よくわからないけど、今はいいや。  
+Vagrantfile は、git,svn等の、VCSにcommitすべきものらしいので、commit。  
 
 ### Box とは？
 
 生成された、Vagrantfile中にも出てくるけど、Boxとは？  
 Vagrant では、box っていうのが、ひとつのベースイメージになるんだと。  
-仮想イメージの呼び方をVagrant風に言うとこうなるみたいです。  
+仮想イメージの呼び方をVagrant風に言うと "Box" なのです。  
 
-#### Box のインストール
+### Box のインストール
 まずは、自分のマシンに、Box(仮想イメージ)を追加します。  
 下記コマンドを、実行。  
 
@@ -97,12 +134,14 @@ $ vagrant box add hashicorp/precise64
         ==> box: Successfully added box 'hashicorp/precise64' (v1.1.0) for 'virtualbox'!
 ```
 
-今回使用してる、hashicorpさん謹製のbox、precise64は、  
+今回使用してる、hashicorp さん謹製の box、precise64 は、  
+
 - hyperv
 - virtualbox
 - vmware_fusion
-に対応してるみたいだけど、2番のvirtualboxを選択。  
-そうすると、下記ディレクトリ配下に、VirtualBoxのイメージがダウンロードされたり、  
+
+に対応してるみたいだけど、2番の virtualbox を選択。  
+そうすると、下記ディレクトリ配下に、VirtualBox のイメージがダウンロードされたり、  
 Vagrantfileのような諸情報が格納されます。(結構時間かかる)  
 
 ${HOME}/.vagrant.d  
@@ -112,32 +151,44 @@ ${HOME}/.vagrant.d/gems
 ${HOME}/.vagrant.d/rgloader  
 ${HOME}/.vagrant.d/tmp  
 
-たぶん大事なのは、boxes配下なのかな？きっとそうだろう。  
+たぶん大事なのは、boxes 配下なのかな？きっとそうだろう。  
 イメージのダウンロード元は、[ここ](https://vagrantcloud.com/)からみたい。  
 
-この状態で、
+初期化完了した状態で、
 
 ```
 $ vagrant up
 ```
-実行すると、今追加したほやほやのboxがすぐ起動するよん。  
-ただ、ネットワーク設定も、ホスト名の設定も、起動時にインストールするものが  
-あるのかどうか、などなど、何もしてないので、一旦落として設定に戻りますよと。
+実行すると、今追加したほやほやのboxがすぐ起動。  
+ただ、諸々未設定なので、一旦落として設定しましょ。
+
+- ネットワーク設定
+- ホスト名の設定
+- 起動時にインストールするアプリがあるのかどうか
+
+などなど、設定していきます。  
+まずは、停止。  
 
 ```
 $ vagrant destroy
 ```
+
+### Vagrantfile設定
 設定自体は、初期化時に生成された、Vagrantfileを編集していく。
-- Vagrantfile では、下記なんかを定義できる
-  - 起動するマシンスペック
-  - インストールするアプリケーション
-  - どうやってアクセスするか
 
-こんなマシンにしようかな。
+Vagrantfile では、下記なんかを定義できる  
 
-- CPU x 1
-- Memory 512MB
-- HDD 15GB
+- 起動するマシンスペック
+- インストールするアプリケーション
+- どうやってアクセスするか
+
+今回は、こんなマシンにしようかな。
+
+![guestserver](http://blog.branch4.pw/images/2014/08/guestserver01.png)
+
+- CPU x 1 個
+- Memory 512 MB
+- HDD 15 GB
 - Ubuntu12.04
 - Network(DHCP/public)
 - hostname: testserver
@@ -170,18 +221,19 @@ Host名は、testserverですよ！と、いうこと。
 #### config.vm.network "public_network"
 Public、といっても、グローバルIPが必ず振られるわけではない。  
 たぶん、下記環境だったらグローバルが来るんじゃないか？
-- Network IFが1つ
-- DHCPでグローバルが割り当てられる
 
-VirtualBoxでは、NATになる。
+- Network IF が 1 つ
+- DHCP でグローバルが割り当てられる
 
-Network IFが複数ある場合は、こんな感じに指定するそうな。
+VirtualBox では、NAT になる。
+
+Network IF が複数ある場合は、こんな感じに指定するそうな。
 ```
 config.vm.network "public_network", bridge: 'en1: Wi-Fi(AirPort)'
 ```
 
 #### config.vm.provision :shell, path: bootstrap.sh
-ゲストサーバ起動時に、PROJECT_ROOT/bootstrap.shを実行しろ、ということ。  
+ゲストサーバ起動時に、PROJECT_ROOT/bootstrap.sh を実行しろ、ということ。  
 なので、ここに、
 
 ```
@@ -191,7 +243,7 @@ apt-get update
 apt-get install -y apache2
 ```
 
-って書いておくと、起動時に、apache2が入った状態になります。  
+って書いておくと、起動時に、apache2 が入った状態になります。  
 さて、準備は整ったはずなので、いざ起動！！
 
 ```
@@ -211,8 +263,8 @@ Bringing machine 'default' up with 'virtualbox' provider...
 5) p2p0
 
 ```
-あ、NICだけじゃなくて色々あるから指定しないとだめなんですね・・・  
-一旦とめて、Vagrantfileを編集。
+あ、NIC だけじゃなくて色々あるから指定しないとだめなんですね・・・  
+一旦とめて、Vagrantfile を編集。
 
 ```
 $ cat Vagrantfile
@@ -281,17 +333,17 @@ bash: /tmp/vagrant-shell: /usr/bin/evn: bad interpreter: No such file or directo
 ```
 
 はい、再度失敗orz  
-なんだなんだ・・・
+なんだなんだ・・・bootstrap.shを確認確認・・・  
 
-#!/usr/bin/evn bash  
-#!/usr/bin/evn bash  
-#!/usr/bin/evn bash  
-#!/usr/bin/evn bash  
-#!/usr/bin/evn bash  
+&#35;!/usr/bin/evn bash  
+&#35;!/usr/bin/evn bash  
+&#35;!/usr/bin/evn bash  
+&#35;!/usr/bin/evn bash  
+&#35;!/usr/bin/evn bash  
 
-evnね・・・
+evn ね・・・修正いたしまして・・・
 ```
-#!/usr/bin/env bash
+&#35;!/usr/bin/env bash
 
 apt-get update
 apt-get install -y apache2
@@ -304,8 +356,8 @@ Bringing machine 'default' up with 'virtualbox' provider...
 ==> default: Checking if box 'hashicorp/precise64' is up to date...
 ==> default: VirtualBox VM is already running.
 ```
-たしかーに。既に実行されてるのか。ってことは、bootstrap.shは今回は実行されてなさげなので、  
-下記コマンドどっちかで強制実行。  
+あ、さっき実行してるから実行中なのか。もしかして今回は bootstrap.sh が実行されてないかも。  
+なので、下記コマンドどっちかで強制実行。  
 
 ```
 $ vagrant reload --provision
@@ -319,10 +371,11 @@ $ vagrant provision
 #### $ vagrant provision
 こっちは起動したままbootstrap.shだけ強制実行。  
 
-### login
-実際にログインアクセスしますよと。
+どっちか実行すると、ちゃんと apache がインストールされます。  
+
+### ログイン！
+次は実際にログインアクセスしますよと。
 ```
-$ vagrant ssh
 $ vagrant ssh
 Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)
 
@@ -347,7 +400,7 @@ Hideaki-no-MacBook-Pro:project_blog nemoto_hideaki$ vagrant reload --provision
     default: Adapter 1: nat
     default: Adapter 2: bridged
 ==> default: Forwarding ports...
-    default: 22 => 2204 (adapter 1) <--ここ！！
+    default: 22 => 2204 (adapter 1) <--ここ！！★
 ==> default: Booting VM...
 ==> default: Waiting for machine to boot. This may take a few minutes...
     default: SSH address: 127.0.0.1:2204
@@ -357,16 +410,16 @@ Hideaki-no-MacBook-Pro:project_blog nemoto_hideaki$ vagrant reload --provision
 ==> default: Checking for guest additions in VM...
 ```
 
-というわけで、localhostの2204番にアクセスしてみるも・・・
+というわけで、localhostの 2204 番にアクセスしてみるも・・・
 ```
 $ ssh -p 2204 vagrant@127.0.0.1
 vagrant@127.0.0.1's password:
 ```
-private key設定すればよさげだけど・・・どのkeyだ？面倒なんでパス。  
-つまり、こんな設定をして、vagrant up/vagrant sshすればつながるよ！  
+private key 設定すればよさげだけど・・・どの key だ？面倒なんでパス。  
+つまり、こんな設定をして、vagrant up/vagrant ssh すればつながるよ！  
 という話でした。
 
-はっ！マシンスペック！変えるんだった。とりあえず、defaultのままのスペックは下記。  
+はっ！マシンスペック！変えるんだった。とりあえず、default のままのスペックは下記。  
 ```
 $ cat /proc/cpuinfo | grep -E 'processor|model name'
 processor: 0
@@ -393,13 +446,14 @@ vagrant                     233G   92G  142G  40% /vagrant
 CPU : 2個
 Memory : 384MB
 HDD : 80GB
-(VirtualBoxのGUIから引っ張って来てるスペック)
+(VirtualBox の GUI から引っ張って来てるスペック)
 
 - CPU : 1個
 - Memory 512MB
 - HDD 15GB
 
 やることは、
+
 - CPUを一個に減らす
 - Memoryを512MBに増やす
 - HDDを15GBに減らす
@@ -426,7 +480,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
 ```
 こう。こんな感じでいけるはず。  
-modifyhdの横の、"b5fc9c57-f008-4118-a03f-e535f25deea4"は、VirtualBoxイメージのイメージファイルのUUID。  
+modifyhd の横の、"b5fc9c57-f008-4118-a03f-e535f25deea4"は、VirtualBox イメージのイメージファイルの UUID。  
 下記コマンド実行すればみれるです。
 ```
 $ VBoxManage list -l vms
@@ -473,7 +527,7 @@ Please fix this customization and try again.
 VBoxManage: error: Resize hard disk operation for this format is not implemented yet!  
 まだ実装してねーってよ。あきらめよう。  
 
-HDDの件を削って実行して、スペック確認した結果。
+HDD の件を削って実行して、スペック確認した結果。
 ```
 vagrant@testserver:~$ cat /proc/cpuinfo | grep -E 'processor|model name'
 processor   : 0
@@ -494,11 +548,13 @@ none                        246M     0  246M   0% /run/shm
 vagrant                     233G   92G  142G  40% /vagrant
 ```
 
-HDDリサイズとかは、たぶんBox定義からいじる、とかなのかな？  
+HDD リサイズとかは、たぶん Box 定義からいじる、とかなのかな？  
 その辺の深追いはまた今度。  
 まず今日の課題はクリアで。  
 
-### 次回予告
+![guestserver_hddstay](http://blog.branch4.pw/images/2014/08/guestserver01_nohdd.png)
+
+## 次回予告
 複数サーバをぼこぼこあげるとき。
 
 <a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;">
