@@ -3,7 +3,7 @@ layout: post
 title: fluentdのテスト環境をvagrantでセットアップしてみるべ
 date: 2014-08-07 22:00:00 +0900
 comments: true
-published: false
+published: true
 author: xengineer01
 categories: 
   - Infra
