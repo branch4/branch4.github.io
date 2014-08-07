@@ -74,3 +74,7 @@ __EMPHASIZE__
 >> b said ba  
 >>> c said ca  
 
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
