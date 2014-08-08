@@ -3,17 +3,18 @@ layout: post
 title: "求められる人材(前半)"
 date: 2014-08-09 03:35:00 +0900
 comments: true
-published: false
+published: true
 author: maringerz
 categories:
  - recruit
  - carrier
 ---
 
-# 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向
 
 ![games](http://blog.branch4.pw/images/2014/08/medium_2453144285.jpg)  
 photo credit: <a href="https://www.flickr.com/photos/bernatcg/2453144285/">bernat...</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">cc</a>
+
+# 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向
 
 こんにちは！毎日暑くて溶けるねー。  
 
@@ -181,6 +182,6 @@ photo credit: <a href="https://www.flickr.com/photos/s0mpho/2271513941/">Abdulra
 長くて書くのつかれちゃいました〜。
 
 <script type="text/javascript" language="javascript">
-  <num = Math.floor( Math.random() * 6 );
-  <document.write( aff[ num ]);
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
 </script>
