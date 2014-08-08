@@ -1,4 +1,7 @@
---- layout: post title: fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理) date: 2014-08-08 22:00:00 +0900
+---
+layout: post
+title: fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)
+date: 2014-08-08 22:00:00 +0900
 comments: true
 published: false
 author: xengineer01
