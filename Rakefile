@@ -189,8 +189,8 @@ task :new_post, :title do |t, args|
     post.puts ">>> c said ca  "
     post.puts "  "
     post.puts "<script type=\"text/javascript\" language=\"javascript\">"
-    post.puts "  <num = Math.floor( Math.random() * 6 );"
-    post.puts "  <document.write( aff[ num ]);"
+    post.puts "  num = Math.floor( Math.random() * 6 );"
+    post.puts "  document.write( aff[ num ]);"
     post.puts "</script>"
   end
 end
