@@ -13,7 +13,7 @@ categories:
 ![games](http://blog.branch4.pw/images/2014/08/medium_5572998173.jpg)  
 photo credit: <a href="https://www.flickr.com/photos/aidanmorgan/5572998173/">John-Morgan</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a>
 
-# 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向(後半)
+## 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向(後半)
 
 こんにちは！毎日暑くて溶けるねー。  
 今日こそは核心にたどり着きたいmaringerzです。  

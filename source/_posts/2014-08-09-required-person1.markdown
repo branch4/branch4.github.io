@@ -14,7 +14,7 @@ categories:
 ![games](http://blog.branch4.pw/images/2014/08/medium_2453144285.jpg)  
 photo credit: <a href="https://www.flickr.com/photos/bernatcg/2453144285/">bernat...</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">cc</a>
 
-# 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向
+## 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向
 
 こんにちは！毎日暑くて溶けるねー。  
 
