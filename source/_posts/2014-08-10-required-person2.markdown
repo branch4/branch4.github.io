@@ -1,11 +1,13 @@
 ---
 layout: post
 title: "求められる人材(後半)"
-date: 2014-08-10 00:35:57 +0900
+date: 2014-08-10 17:45:00 +0900
 comments: true
-published: false
+published: true
 author: maringerz
-categories: 
+categories:
+ - recruit
+ - carrier
 ---
 
 ![games](http://blog.branch4.pw/images/2014/08/medium_5572998173.jpg)  
@@ -251,6 +253,6 @@ photo credit: <a href="https://www.flickr.com/photos/42961083@N06/3955995684/">q
 これからもわくわくする面白いゲームが沢山生み出させれますように！！
 
 <script type="text/javascript" language="javascript">
-  <num = Math.floor( Math.random() * 6 );
-  <document.write( aff[ num ]);
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
 </script>
