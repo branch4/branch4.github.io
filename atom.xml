@@ -4,7 +4,7 @@
   <title><![CDATA[branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-10T17:51:04+09:00</updated>
+  <updated>2014-08-10T17:54:38+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -21,7 +21,7 @@
     <content type="html"><![CDATA[<p><img src="http://blog.branch4.pw/images/2014/08/medium_5572998173.jpg" alt="games" /><br/>
 photo credit: <a href="https://www.flickr.com/photos/aidanmorgan/5572998173/">John-Morgan</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
 
-<h1>市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向(後半)</h1>
+<h2>市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向(後半)</h2>
 
 <p>こんにちは！毎日暑くて溶けるねー。<br/>
 今日こそは核心にたどり着きたいmaringerzです。</p>
@@ -356,7 +356,7 @@ photo credit: <a href="https://www.flickr.com/photos/42961083@N06/3955995684/">q
     <content type="html"><![CDATA[<p><img src="http://blog.branch4.pw/images/2014/08/medium_2453144285.jpg" alt="games" /><br/>
 photo credit: <a href="https://www.flickr.com/photos/bernatcg/2453144285/">bernat&hellip;</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">cc</a></p>
 
-<h1>市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向</h1>
+<h2>市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向</h2>
 
 <p>こんにちは！毎日暑くて溶けるねー。</p>
 
@@ -1615,7 +1615,7 @@ fixturesというのがもともと仕組みとしてあるのですが、Factor
 
 <h1>共通で使う値をまとめる</h1>
 
-<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#x6d;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#116;&#111;&#x6d;&#64;&#101;&#120;&#97;&#x6d;&#112;&#108;&#x65;&#x2e;&#x63;&#x6f;&#x6d;">&#116;&#x6f;&#x6d;&#x40;&#x65;&#120;&#97;&#x6d;&#x70;&#x6c;&#x65;&#46;&#x63;&#x6f;&#x6d;</a>&#8216;が3箇所で書かれている。
+<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#x6d;&#97;&#105;&#108;&#116;&#x6f;&#58;&#x74;&#x6f;&#109;&#x40;&#101;&#120;&#x61;&#109;&#112;&#x6c;&#101;&#46;&#x63;&#111;&#109;">&#116;&#111;&#x6d;&#64;&#101;&#x78;&#x61;&#109;&#x70;&#x6c;&#101;&#46;&#x63;&#111;&#x6d;</a>&#8216;が3箇所で書かれている。
 後から値変更するとき3箇所弄るの辛いですね。まとめましょう。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
