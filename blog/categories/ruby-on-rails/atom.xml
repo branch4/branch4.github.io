@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby on Rails | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/ruby-on-rails/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-10T15:20:51+09:00</updated>
+  <updated>2014-08-10T17:44:59+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -116,6 +116,99 @@
   $ cd &lt;app_root&gt;
   $ bundle exec rake assets:precompile RAILS_ENV=production</pre>
   <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[RoR] Gem::Installer::ExtensionBuildError: ERROR: Failed to Build Gem Native Extension.]]></title>
+    <link href="http://blog.branch4.pw/blog/2013/10/22/ror-geminstallerextensionbuilderror/"/>
+    <updated>2013-10-22T15:56:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2013/10/22/ror-geminstallerextensionbuilderror</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Time to time, I get this error...  <br> <br>
+  Many times, it's just alert that I don't have something installed.  <br>
+  This time, it happened with mysql2 gem, and I needed to install <br> <br>
+  libmysqlclient-dev <br> <br>
+  package on my Ubuntu 12.04.  <br> <br>
+  <br>
+  The error was following.  <br> <br>
+  ================= From here ================= <br>
+  Gem::Installer::ExtensionBuildError: ERROR: Failed to build gem native extension.  <br> <br>
+      /home/nubee/.rvm/rubies/ruby-1.9.3-p125/bin/ruby extconf.rb <br>
+  checking for rb_thread_blocking_region()... yes <br>
+  checking for rb_wait_for_single_fd()... yes <br>
+  checking for mysql_query() in -lmysqlclient... no <br>
+  checking for main() in -lm... yes <br>
+  checking for mysql_query() in -lmysqlclient... no <br>
+  checking for main() in -lz... yes <br>
+  checking for mysql_query() in -lmysqlclient... no <br>
+  checking for main() in -lsocket... no <br>
+  checking for mysql_query() in -lmysqlclient... no <br>
+  checking for main() in -lnsl... yes <br>
+  checking for mysql_query() in -lmysqlclient... no <br>
+  checking for main() in -lmygcc... no <br>
+  checking for mysql_query() in -lmysqlclient... no <br>
+  *** extconf.rb failed *** <br>
+  Could not create Makefile due to some reason, probably lack of <br>
+  necessary libraries and/or headers.  Check the mkmf.log file for more <br>
+  details.  You may need configuration options.  <br> <br>
+  Provided configuration options: <br>
+          --with-opt-dir <br>
+          --without-opt-dir <br>
+          --with-opt-include <br>
+          --without-opt-include=${opt-dir}/include <br>
+          --with-opt-lib <br>
+          --without-opt-lib=${opt-dir}/lib <br>
+          --with-make-prog <br>
+          --without-make-prog <br>
+          --srcdir=.  <br>
+          --curdir <br>
+          --ruby=/home/nubee/.rvm/rubies/ruby-1.9.3-p125/bin/ruby <br>
+          --with-mysql-config <br>
+          --without-mysql-config <br>
+          --with-mysql-dir <br>
+          --without-mysql-dir <br>
+          --with-mysql-include <br>
+          --without-mysql-include=${mysql-dir}/include <br>
+          --with-mysql-lib <br>
+          --without-mysql-lib=${mysql-dir}/lib <br>
+          --with-mysqlclientlib <br>
+          --without-mysqlclientlib <br>
+          --with-mlib <br>
+          --without-mlib <br>
+          --with-mysqlclientlib <br>
+          --without-mysqlclientlib <br>
+          --with-zlib <br>
+          --without-zlib <br>
+          --with-mysqlclientlib <br>
+          --without-mysqlclientlib <br>
+          --with-socketlib <br>
+          --without-socketlib <br>
+          --with-mysqlclientlib <br>
+          --without-mysqlclientlib <br>
+          --with-nsllib <br>
+          --without-nsllib <br>
+          --with-mysqlclientlib <br>
+          --without-mysqlclientlib <br>
+          --with-mygcclib <br>
+          --without-mygcclib <br>
+          --with-mysqlclientlib <br>
+          --without-mysqlclientlib <br> <br>
+  <br>
+  Gem files will remain installed in /home/nubee/.rvm/gems/ruby-1.9.3-p125/gems/mysql2-0.3.11 for inspection.  <br>
+  Results logged to /home/nubee/.rvm/gems/ruby-1.9.3-p125/gems/mysql2-0.3.11/ext/mysql2/gem_make.out <br> <br>
+  An error occurred while installing mysql2 (0.3.11), and Bundler cannot continue.  <br>
+  Make sure that `gem install mysql2 -v '0.3.11'` succeeds before bundling.  <br>
+  =================  To here  ================= <br>
+  <br>
+  $ sudo apt-get install libmysqlclient-dev <br>
+  got me all clear.  <br>
+  I also failed on installing rmagick gem, but following packages helped me.  <br>
+  $ sudo apt-get install imagemagick libmagickwand-dev <br>
+  And I'm all clear.  <br>
+  I'll write an entry about using rmagick later.
 </div>
 
 ]]></content>

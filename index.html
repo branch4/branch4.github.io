@@ -9,8 +9,8 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content="photo credit: bernat&hellip; via photopin cc 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向 こんにちは！毎日暑くて溶けるねー。 前回ブログ書くよーっと言ってから、、はや１ヶ月。。
-当然、、 &hellip;">
+  <meta name="description" content="photo credit: John-Morgan via photopin cc 市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向(後半) こんにちは！毎日暑くて溶けるねー。
+今日こそは核心にたどり着きたいmaringerzです。 前回は、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -86,6 +86,59 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-10T00:35:57+09:00" pubdate data-updated="true">Aug 10<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/08/10/required-person2/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/08/10/required-person2/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="http://blog.branch4.pw/images/2014/08/medium_5572998173.jpg" alt="games" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/aidanmorgan/5572998173/">John-Morgan</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<h1>市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向(後半)</h1>
+
+<p>こんにちは！毎日暑くて溶けるねー。<br/>
+今日こそは核心にたどり着きたいmaringerzです。</p>
+
+<p><a href="http://blog.branch4.pw/blog/2014/08/09/required-person1/">前回</a>は、業界の変遷について書いてるだけで終わっちゃったので、今回は、それでどんな人材が必要なのよ？
+というところまでがんばるぞ〜！</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/08/10/required-person2/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/08/09/required-person1/">求められる人材(前半)</a></h1>
     
     
@@ -137,6 +190,114 @@ photo credit: <a href="https://www.flickr.com/photos/bernatcg/2453144285/">berna
   
     <footer>
       <a rel="full-article" href="/blog/2014/08/09/required-person1/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/08/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-08T22:00:00+09:00" pubdate data-updated="true">Aug 8<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/08/08/setup-test-environment-with-vagrant2/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/08/08/setup-test-environment-with-vagrant2/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>こんにちは。前回の続きで、またVagrantのエントリ書いてる<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
+
+<h2>前回のあらすじ</h2>
+
+<p><a href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/">前回の記事</a>
+は、下記あたりの流れをざっくり紹介しました。</p>
+
+<ul>
+<li>Vagrantってなんですか？</li>
+<li>Vagrantのinstall</li>
+<li>Vagrantfileの書き方</li>
+<li>vagrantでソフトウェア関連設定</li>
+<li>vagrantでサーバのハードウェアスペック指定</li>
+</ul>
+
+
+<p>前回は、サーバ１台の場合についてだったんで、今回は複数台管理する場合について。<br/>
+この記事、本来の目的は、fluentdの検証をすることなんで、当然複数サーバあげたいわけで。</p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>今回はたぶん、</p>
+
+<p>1 Projectで複数サーバを管理する場合の、</p>
+
+<ul>
+<li>Vagrantfileの書き方</li>
+<li>vagrant commandの使い方</li>
+<li>networkについて</li>
+<li>provisioningについて</li>
+</ul>
+
+
+<p>こんなところになる予定。</p>
+
+<h2>各種バージョン</h2>
+
+<hr />
+
+<p>前回も書いたけど、このとおり。<br/>
+今回は fluentdのバージョンも追記しておこう。</p>
+
+<ul>
+<li>vagrant version 1.6.3</li>
+<li>Windows PC + VirtualBox 4.3.8r92456</li>
+<li>MintLinux17 + VirtualBox 4.3 ?</li>
+<li>MacOSX(Mavericks) + VirtualBox 4.3 ?</li>
+</ul>
+
+
+<h2>システム構成図</h2>
+
+<hr />
+
+<p>Appサーバのapacheのログを fluentd(HA) に投げて、postgres insertくらいを一旦の目処にしようかね。<br/>
+最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
+と思ってはいるけどどこまで書けるやら・・・。</p>
+
+<p>一応構成図はこれ。</p>
+
+<p><img src="https://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png" alt="multi server01" /></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/08/08/setup-test-environment-with-vagrant2/">Read on &rarr;</a>
     </footer>
   
 
@@ -599,134 +760,6 @@ RSpecのセットアップとかそういうのは書きません。</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/19/posting-blog-with-octopress/">Posting a Blog With Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-19T16:20:00+09:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/06/19/posting-blog-with-octopress/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>※  内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。</p>
-
-<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
-前回に引き続きOctopress関連です。</p>
-
-<p>今回は、実際投稿するときどうするか、という点を。<br/>
-投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、少しかぶり気味。</p>
-
-<h3>prerequisite</h3>
-
-<hr />
-
-<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
-<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
-
-
-<p>までは終わってること。<br/>
-そこまできてたらこのblogは読まなくても書け・・・ます、はい。<br/>
-強いて言えば、準備はできてるけど、なんかよくわからんうちに準備できた人用。<br/>
-それか、このブログみたいに、複数で更新してるので、セットアップした人と、<br/>
-書く人が違う場合用。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/06/19/posting-blog-with-octopress/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/16/rds-temp-resize/">Resize Temp File of Oracle on RDS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-16T15:20:00+09:00" pubdate data-updated="true">Jun 16<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/06/16/rds-temp-resize/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>どもども。<a href="http://portfolio.risterlab.com">saorister</a>です。<br/>
-野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。<br/>
-(統一性なさすぎw)</p>
-
-<p>今回は私がブログ記事担当！<br/>
-ということで、<br/>
-この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。</p>
-
-<h3>DBのディスク空き容量が!!!</h3>
-
-<p><img src="http://blog.branch4.pw/images/2014/06/figure_graph_down.png" alt="DBのディスク空き容量が!!!" /></p>
-
-<p>RDSのOracleさんでTEMP表領域サイズがめっちゃでっかくなっちゃって<br/>
-空き容量がほとんどなくなっちゃったよぉぉぉぉ！！！</p>
-
-<p>パニック！！！</p>
-
-<p>って時の対処法を。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/06/16/rds-temp-resize/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -754,7 +787,15 @@ RSpecのセットアップとかそういうのは書きません。</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/08/09/required-person1/">求められる人材(前半)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/08/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
       </li>
     
       <li class="post">
@@ -763,14 +804,6 @@ RSpecのセットアップとかそういうのは書きません。</p>
     
       <li class="post">
         <a href="/blog/2014/07/30/basic-test-with-rspec/">RSpecでの基本的な書き方（前編）</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/07/27/first-rspec-with-rails/">First RSpec With Rails</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/07/22/multiprocess-with-fluentd/">Fluentdを複数起動したい</a>
       </li>
     
   </ul>
@@ -788,7 +821,7 @@ RSpecのセットアップとかそういうのは書きません。</p>
 
 <section>
   <h1>Top Categories</h1>
-  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/infra'>Infra (4)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/web-development'>Web Development (3)</a></li><li><a href='/blog/categories/recruit'>recruit (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/carrier'>carrier (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/javascript'>Javascript (1)</a></li><li><a href='/blog/categories/mutt'>mutt (1)</a></li></ul>
+  <ul id="top-category-list"><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (11)</a></li><li><a href='/blog/categories/misc'>misc (7)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/infra'>Infra (5)</a></li><li><a href='/blog/categories/web-development'>Web Development (4)</a></li><li><a href='/blog/categories/linux'>linux (3)</a></li><li><a href='/blog/categories/mysql'>MySQL (3)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/provisioning'>Provisioning (2)</a></li><li><a href='/blog/categories/games'>games (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/carrier'>carrier (2)</a></li></ul>
 </section>
 
   

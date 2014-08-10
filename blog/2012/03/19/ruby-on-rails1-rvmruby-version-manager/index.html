@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Ruby on Rails - rvm(Ruby Version Manager) - - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="This entry is a memo about developing with ruby on rails. Prerequisites:   - I&#8217;ve never used ruby   - I&#8217;ve developed with MVC Framework &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Ruby on Rails - rvm(Ruby Version Manager) -</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-19T00:21:00+09:00" pubdate data-updated="true">Mar 19<span>th</span>, 2012</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div  class=post>
+  This entry is a memo about developing with ruby on rails.  <br> <br>
+  Prerequisites: <br>
+    - I&#8217;ve never used ruby <br>
+    - I&#8217;ve developed with MVC Framework in Java and Python <br> <br>
+  First, I did some googling about ruby and etc.  <br> <br>
+  And decided to learn about following applications.  <br> <br>
+    - rvm(Ruby Version Manager) <br>
+    - rubygems <br>
+    - rails <br>
+    - passenger <br> <br>
+  From above, this entry focuses on RVM.  <br> <br>
+  RVM(Ruby Version Manager) manages ruby version and gemsets.  <br> <br>
+  You can install many versions of rubys, and many combinations of gemsets, <br> <br>
+  and choose to use a right version on right purposes.  <br> <br>
+  1. installing rvm <br>
+  go home and install it.  <br> <br> <br>
+  $ cd <br>
+  $ bash < <(curl -s https://rvm.beginrescueend.com/install/rvm) <br> <br>
+  You&#8217;ll get <br>
+  Deprecated command, please use: <br> <br>
+  bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer) <br> <br>
+  So, execute the command above, instead.  <br> <br>
+  This installs rvm under ${HOME}/.rvm <br> <br>
+  2. setup environment variables <br> <br>
+  Edit .bashrc and add this line.  <br> <br>
+    [[ -s &#8220;$HOME/.rvm/scripts/rvm&#8221; ]] && source &#8220;$HOME/.rvm/scripts/rvm&#8221; <br> <br>
+  3. check ruby version that can be installed and install some <br> <br>
+  &#8220;rvm list known&#8221; command shows what&#8217;s available.  <br> <br>
+  $ rvm list known <br>
+  # MRI Rubies <br> <br>
+  [ruby-]1.8.6[-p420] <br>
+  [ruby-]1.8.7[-p358] <br>
+  [ruby-]1.8.7-head <br>
+  [ruby-]1.9.1[-p431] <br>
+  [ruby-]1.9.2-p180 <br>
+  [ruby-]1.9.2-p290 <br>
+  [ruby-]1.9.2[-p318] <br>
+  [ruby-]1.9.2-head <br>
+  [ruby-]1.9.3-preview1 <br>
+  [ruby-]1.9.3-rc1 <br>
+  [ruby-]1.9.3-p0 <br>
+  [ruby-]1.9.3[-p125] <br>
+  [ruby-]1.9.3-head <br>
+  ruby-head <br>
+  &#8230;snip <br> <br>
+  I installed 1.9.3-p125 and 1.8.7-p358.  <br> <br>
+  $ rvm install 1.9.3-p125 <br>
+  $ rvm install 1.8.7-p358 <br> <br>
+  4. set default ruby <br> <br>
+  $ rvm use 1.9.3-p125 &#8211;default <br>
+  $ ruby -v <- check the version <br> <br>
+  ruby 1.9.3p125 (2012-02-16 revision 34643) [x86_64-linux] <br> <br>
+  <br>
+  5. create gemsets <br> <br>
+  gemset is a grouping function of gems.  <br> <br>
+  I can create gemset for rails version3.1 and rails version 3.2, <br> <br>
+  and use it on different purpose, when ever I need to.  <br> <br>
+  $ rvm gemset create rails31 <br> <br>
+  $ rvm gemset create rails32 <br> <br>
+  <br>
+  $ rvm gemset list <br>
+  gemsets for ruby-1.9.3-p125 (found in ${HOME}/.rvm/gems/ruby-1.9.3-p125) <br>
+     global <br>
+     rails31 <br>
+     rails32 <br> <br>
+  <br> <br>
+  6. set default gemsets <br>
+    $ rvm use 1.9.3-p125@rails32 &#8211;default <br>
+  7. install passenger and rails3.2.2 <br>
+    check where you are.  <br>
+    $ rvm gemset list <br>
+    gemsets for ruby-1.9.3-p125 (found in ${HOME}/.rvm/gems/ruby-1.9.3-p125) <br>
+       global <br>
+       rails31 <br>
+    => rails32 <br>
+    $ gem install rails &#8211;version 3.2.2 <br>
+    $ gem install passenger <br>
+    8. setup apache to use passenger(install modules and so on) <br>
+    a. if you use apt-get installed apache <br>
+    just type <br>
+    $ passenger-install-apache2 <br>
+    and follow the instructions.  <br>
+    b. if you plan to use self compiled apache <br>
+      - add apache binary path to PATH <br>
+        PATH=${PATH}:/usr/local/httpd/bin/ <br>
+        export PATH <br>
+      - set APXS2 path <br>
+      - set APR_CONFIG path <br>
+      - set APU_CONFIG path <br>
+          APXS2=/usr/local/httpd/bin/apxs <br>
+          APR_CONFIG=/usr/local/httpd/bin/apr-1-config <br>
+          APU_CONFIG=/usr/local/httpd/bin/apu-1-config <br>
+          export APXS2 <br>
+          export APR_CONFIG <br>
+          export APU_CONFIG <br>
+        - set HTTPD path <br>
+          HTTPD=/usr/local/httpd <br>
+          export HTTPD <br>
+      and then type <br>
+      $ rvmsudo passenger-install-apache2 <br>
+    and do what the terminal saids.  <br>
+    I&#8217;ll write about executing self made ruby app on rails on the next entry.  <br>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-19T00:21:00+09:00" pubdate data-updated="true">Mar 19<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ruby-on-rails/'>Ruby on Rails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/" data-via="" data-counturl="http://blog.branch4.pw/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/12/managing-kvm-image-with-virt-manager/" title="Previous Post: Managing KVM image with virt-manager">&laquo; Managing KVM image with virt-manager</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/03/25/upstart-config-for-apache/" title="Next Post: upstart config for apache">upstart config for apache &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/09/required-person1/">求められる人材(前半)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/08/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/07/setup-test-environment-with-vagrant/">Fluentdのテスト環境をvagrantでセットアップしてみるべ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/30/basic-test-with-rspec/">RSpecでの基本的な書き方（前編）</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (11)</a></li><li><a href='/blog/categories/misc'>misc (7)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/infra'>Infra (5)</a></li><li><a href='/blog/categories/web-development'>Web Development (4)</a></li><li><a href='/blog/categories/linux'>linux (3)</a></li><li><a href='/blog/categories/mysql'>MySQL (3)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/provisioning'>Provisioning (2)</a></li><li><a href='/blog/categories/games'>games (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/carrier'>carrier (2)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2012/03/19/ruby-on-rails1-rvmruby-version-manager/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

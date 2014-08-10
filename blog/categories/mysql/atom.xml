@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: MySQL | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/mysql/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-08-10T17:44:59+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[MySQL] 文字化け修正]]></title>
+    <link href="http://blog.branch4.pw/blog/2013/10/22/mysql/"/>
+    <updated>2013-10-22T16:16:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2013/10/22/mysql</id>
+    <content type="html"><![CDATA[<div  class=post>
+  mysqlのバージョンは、5.5.32-0ubuntu0.12.04.1。 <br> <br>
+  インストールしたてのmysqlに、何も考えず <br> <br>
+  $ rake db:seed <br> <br>
+  やったら、がっつり「？？」に文字化けしちゃった。 <br>
+  毎度設定忘れるので、メモ。 <br> <br>
+  mysql> select  * from states; <br>
+  +----+-------+---------------------+---------------------+ <br>
+  | id | state | created_at          | updated_at          | <br>
+  +----+-------+---------------------+---------------------+ <br>
+  |  1 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  2 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  3 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  4 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  5 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  6 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  |  7 | ??    | 2013-10-22 07:06:42 | 2013-10-22 07:06:42 | <br>
+  +----+-------+---------------------+---------------------+ <br>
+  7 rows in set (0.01 sec) <br> <br>
+  <br>
+  my.cnfを編集して追記する。 <br>
+  $ sudo vi /etc/mysql/my.cnf <br> <br>
+  [mysqld]の欄に下記追記。 <br>
+  character-set-server = utf8 <br>
+  skip-character-set-client-handshake <br>
+  collation-server = utf8_general_ci <br>
+  init-connect = SET NAMES utf8 <br> <br>
+  そしてmysql再起動。 <br>
+  $ sudo /etc/init.d/mysql restart <br> <br>
+  database作り直し。 <br>
+  $ mysql <br>
+  mysql> create database hogehoge <br> <br>
+  $ rake db:migrate <br>
+  $ rake db:seed <br> <br>
+  mysql> select * from states; <br>
+  +----+-----------+---------------------+---------------------+ <br>
+  | id | state     | created_at          | updated_at          | <br>
+  +----+-----------+---------------------+---------------------+ <br>
+  |  1 | 状１      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  2 | 状２      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  3 | 状３      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  4 | 状４      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  5 | 状５      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  6 | 状６      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  |  7 | 状７      | 2013-10-22 07:12:15 | 2013-10-22 07:12:15 | <br>
+  +----+-----------+---------------------+---------------------+ <br>
+  7 rows in set (0.00 sec) <br> <br>
+  ほほほー。直った。
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[MySQL] Show Database Character-set and Change It to Utf8]]></title>
+    <link href="http://blog.branch4.pw/blog/2011/12/11/mysql-show-database-character-set-and/"/>
+    <updated>2011-12-11T17:23:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2011/12/11/mysql-show-database-character-set-and</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <p  dir=ltr>
+    > show variables like "char%";
+  </p>
+  <p  dir=ltr>
+    edit my.cnf.
+  </p>
+  <p  dir=ltr>
+    [mysqld] <br>
+    #character-set-server = latin1 <br>
+    #collation-server = latin1_general_ci <br>
+    default-character-set=utf8 <br>
+    skip-character-set-client-handshake
+  </p>
+  <p  dir=ltr>
+    character-set-server defines default character-set.  <br>
+    collation-server defines servers default check order for character-set.  <br>
+    To tell the truth, I havent had enough understanding for collation-server.  <br>
+    I'll write about it again, when I looked it up.  <br>
+    I'll have to edit others like, [mysqldump] and [mysql].  <br>
+    Just add
+  </p>
+  <p  dir=ltr>
+    default-character-set=utf8
+  </p>
+  <p  dir=ltr>
+    and finally, I got to set character-set for my CUI.  <br>
+    After getting into the mysql console, just type
+  </p>
+  <p  dir=ltr>
+    SET NAMES <what ever char-set with your console> <br>
+    char-set = cp932(in windows)/utf8(in Linux)
+  </p>
+  <p  dir=ltr>
+    that should be it.
+  </p>
+  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[MySQL] Generate SQL From Existing Database/table]]></title>
+    <link href="http://blog.branch4.pw/blog/2011/12/11/mysql-showing-sql-from-existing/"/>
+    <updated>2011-12-11T17:21:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2011/12/11/mysql-showing-sql-from-existing</id>
+    <content type="html"><![CDATA[<div  class=post>
+  > show create database <DB name> <br>
+  >show create table <table name> <br> <br>
+  thats it.
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>
