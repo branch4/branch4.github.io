@@ -134,10 +134,10 @@ photo credit: <a href="https://www.flickr.com/photos/tracy_olson/61056391/">Trac
 
 "ゼロから" というのは誤解を生みそうなので少し説明。  
 
-ここでいう "ゼロから" というのは、
-× これまで全くなかった独創的な新しいゲームを創ること
+ここでいう "ゼロから" というのは、  
+× これまで全くなかった独創的な新しいゲームを創ること  
 ○ 今までにどこかにあったゲームや遊びを、スマートフォンというデバイスの中で、凝縮されたゲームシステムに
-落とすこと
+落とすこと  
 
 ![from zero](http://blog.branch4.pw/images/2014/08/medium_8483478010.jpg)  
 photo credit: <a href="https://www.flickr.com/photos/wizzer/8483478010/">wizzer2801</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">cc</a>
@@ -167,11 +167,16 @@ photo credit: <a href="https://www.flickr.com/photos/wizzer/8483478010/">wizzer2
 
 ## 転職市場の人材の傾向
 
+![talent](http://blog.branch4.pw/images/2014/08/a0001_011477.jpg)  
+
 個人によって異なるのでこれはあくまで私が感じている傾向にすぎないが、
 
 ### ネットワークゲーム出身者の傾向
 日本には国産のネットワークゲームは少なく、台湾、韓国、中国からの輸入ゲームが多い。
 そのため、現地で開発されたゲームの日本ローカライズ版の運営を経験している場合が多い。  
+
+![hieroglyph](http://blog.branch4.pw/images/2014/08/medium_8033561698.jpg)  
+photo credit: <a href="https://www.flickr.com/photos/jankunst/8033561698/">j. kunst</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a>
 
 ゲームをゼロから新規開発した経験者は少ないので、ゲームデザインやゲームの仕様、内製の開発メンバーと
 業務を遂行するなどは経験が足りないこともある。  
@@ -181,6 +186,10 @@ photo credit: <a href="https://www.flickr.com/photos/wizzer/8483478010/">wizzer2
 ソーシャルゲームの運営にも転用できることが多い。  
 
 ### コンシューマゲーム出身者の傾向
+
+![fun games!](http://blog.branch4.pw/images/2014/08/medium_7439512656.jpg)  
+photo credit: <a href="https://www.flickr.com/photos/jdhancock/7439512656/">JD Hancock</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a>
+
 まず、子供時代からゲームが大好きという人が非常に多く、面白いゲーム作りにこだわりがある。  
 
 広く過去のゲームに触れており、ゲームの遊びという点では知識が非常に豊富だったりする。
@@ -199,6 +208,9 @@ photo credit: <a href="https://www.flickr.com/photos/wizzer/8483478010/">wizzer2
 現在のヒットタイトルを生み出している有名なゲームディレクターの方々にもコンシューマ出身者が目立つ。
 
 ### ソーシャルゲーム出身者の傾向
+
+![pachage](http://blog.branch4.pw/images/2014/08/medium_3955995684.jpg)  
+photo credit: <a href="https://www.flickr.com/photos/42961083@N06/3955995684/">quijonido</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a>
 
 ここ数年で、この業界自体が成長したため、ソーシャルゲーム一本！という場合よりも、
 多様な経験を経て、直近ソーシャルゲーム業界にいる方が多い。
@@ -220,7 +232,6 @@ photo credit: <a href="https://www.flickr.com/photos/wizzer/8483478010/">wizzer2
 新規のゲーム企画経験は浅く、"ゼロから" １を創ることに長けている方は少ないが、
 既存のパッケージ系のゲームの運用経験と市場のゲームの動向の把握から、最新のユーザーニーズを
 把握して今求められているゲームを企画できれば、ゼロから１を生み出していけるのでは。
-
 
 ## おわりに
 
