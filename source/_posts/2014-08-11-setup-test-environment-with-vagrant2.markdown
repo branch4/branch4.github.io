@@ -1,9 +1,9 @@
 ---
 layout: post
 title: fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)
-date: 2014-08-11 2:00:00 +0900
+date: 2014-08-11 5:00:00 +0900
 comments: true
-published: false
+published: true
 author: xengineer01
 categories: 
   - Infra
@@ -14,6 +14,18 @@ categories:
 こんにちは。前回の続きで、またVagrantのエントリ書いてる[@xengineer01](https://twitter.com/xengineer01)です。  
 
 ![vagrant logo](http://blog.branch4.pw/images/2014/08/logo_vagrant.png)
+
+## システム構成図
+---
+まずは今回作ろうとしてるシステムの構成図。  
+
+Appサーバのapacheのログを fluentd(HA) に投げて、postgres insertくらいを一旦の目処にしようかね。  
+最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
+と思ってはいるけどどこまで書けるやら・・・。
+
+![multi server01](https://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png)
+
+<!-- more -->
 
 ## 前回のあらすじ
 [前回の記事](http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/)
@@ -51,17 +63,6 @@ categories:
 - MintLinux17 + VirtualBox 4.3 ?
 - MacOSX(Mavericks) + VirtualBox 4.3.14r95030
 
-## システム構成図
----
-Appサーバのapacheのログを fluentd(HA) に投げて、postgres insertくらいを一旦の目処にしようかね。  
-最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
-と思ってはいるけどどこまで書けるやら・・・。
-
-今回の簡易システム構成図はこれ。
-
-![multi server01](https://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png)
-
-<!-- more -->
 
 ## Vagrantfile複数サーバ対応
 ----------
@@ -249,6 +250,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               :apserver02 => '192.168.101.2',
               :fluentd01  => '192.168.102.1',
               :fluentd02  => '192.168.102.2'
+              :postgres01 => '192.168.103.1'
             }                                                      #2
 
   not_dbs.each do |not_db_name, not_db_ip|                         #3
@@ -265,32 +267,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
     end
   end
-
-  config.vm.define "postgres01" do |postgres01|
-    postgres01.vm.box = "hashicorp/precise64"
-    postgres01.vm.hostname = "postgres01"
-    postgres01.vm.network "private_network", ip: '192.168.103.1'
-    postgres01.vm.provision :shell, path: "bootstrap/postgres01.sh"
-
-    postgres01.vm.provider :virtualbox do |v|
-      v.customize ["modifyvm", :id, "--memory", "384"]
-      v.customize ["modifyvm", :id, "--cpus", "1"]
-    end
-  end
 end
 ```
 
 なんかまとまってる感あり！
 行末に、コメントで番号付けてるとこを軽く説明しておこうかな。
 
-1. config.vm.provision :shell, path: "bootstrap/all.sh"
+- config.vm.provision :shell, path: "bootstrap/all.sh"
   - あれだわ。全部のサーバで実行する provisioning の shell を指定してます
   - これとは別に、各サーバ毎に実行する shell もループ中で指定しております
-2. not_dbs = { :apserver01 => '192.168.101.1', ... }
-  - 今回は、DBサーバとそれ以外で事前処理が似てたので、それ以外を共通化してループにしてみた
-3. not_dbs.each do |not_db_name, not_db_ip|
+- not_dbs = { :apserver01 => '192.168.101.1', ... }
+  - 共通化してループにしてみた(not_dbs のネーミングは・・・最初 DB 以外にしてたから。最終的にまとめちゃった)
+- not_dbs.each do |not_db_name, not_db_ip|
   - そのループ。中の処理はみればわかる
-4. server_config.vm.network "private_network", ip: not_db_ip
+- server_config.vm.network "private_network", ip: not_db_ip
   -  networkはね、今回はプライベートにしました。IP も指定で
 
 結構簡略化できてると思うけどどうでしょう。
@@ -455,47 +445,60 @@ shell でも、ここまで共通化したり、分けたりできれば結構�
 
 ### vagrant command について
 
-まずは、リストアップ。  
-- box
-  - manages boxes: installation, removal, etc.
-- connect
-  - connect to a remotely shared Vagrant environment
-- destroy
-  - stops and deletes all traces of the vagrant machine
-- global-status
-  - outputs status Vagrant environments for this user
+リストアップ＆説明。でも説明は、公式サイトから抜粋しただけ。  
+#### 今のところよく使いそうなやーつ
+
 - halt
   - stops the vagrant machine
 - help
   - shows the help for a subcommand
-- init
-  - initializes a new Vagrant environment by creating a Vagrantfile
-- login
-  - log in to Vagrant Cloud
-- package
-  - packages a running vagrant environment into a box
-- plugin
-  - manages plugins: install, uninstall, update, etc.
 - provision
   - provisions the vagrant machine
-- rdp
-  - connects to machine via RDP
 - reload
   - restarts vagrant machine, loads new Vagrantfile configuration
-- resume
-  - resume a suspended vagrant machine
-- share
-  - share your Vagrant environment with anyone in the world
 - ssh
   - connects to machine via SSH
-- ssh-config
-  - outputs OpenSSH valid configuration to connect to the machine
 - status
   - outputs status of the vagrant machine
-- suspend
-  - suspends the machine
+  - 起動してるサーバのリストをみれるので、ちょいちょい使う
+  - statusみて、どのサーバに ssh するか決めて、みたいな
 - up
   - starts and provisions the vagrant environment
+
+#### その次に使いそうなやーつ
+
+- init
+  - initializes a new Vagrant environment by creating a Vagrantfile
+- destroy
+  - stops and deletes all traces of the vagrant machine
+- resume
+  - resume a suspended vagrant machine
+- suspend
+  - suspends the machine
+
+#### たまーに使うかもねなやーつ
+
+- login
+  - log in to Vagrant Cloud
+- share
+  - share your Vagrant environment with anyone in the world
+- plugin
+  - manages plugins: install, uninstall, update, etc.
+- global-status
+  - outputs status Vagrant environments for this user
+
+#### そんなに使わなそうねなやーつ(box/packageあたりは、box 自作するようになると使うかな)
+
+- box
+  - manages boxes: installation, removal, etc.
+- connect
+  - connect to a remotely shared Vagrant environment
+- package
+  - packages a running vagrant environment into a box
+- rdp
+  - connects to machine via RDP
+- ssh-config
+  - outputs OpenSSH valid configuration to connect to the machine
 - version
   - prints current and latest Vagrant version
 
