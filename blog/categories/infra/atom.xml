@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Infra | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/infra/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-11T14:05:22+09:00</updated>
+  <updated>2014-08-11T14:11:41+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -32,7 +32,7 @@
 最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
 と思ってはいるけどどこまで書けるやら・・・。</p>
 
-<p><img src="https://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png" alt="multi server01" /></p>
+<p><img src="http://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png" alt="mul2ti server01" /></p>
 
 <!-- more -->
 
