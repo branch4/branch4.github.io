@@ -178,8 +178,11 @@ photo credit: <a href="https://www.flickr.com/photos/s0mpho/2271513941/">Abdulra
 スマートフォンの標準化に伴い、Supercellや KING等の海外の秀逸なゲームの日本進出も目立つ。
 このような業界の変遷の中で今ゲームの企画者であるプランナー、ディレクターに求められるものとは？！
 
-と、今回はこの辺りまでで、後半へ続く。
+と、今回はこの辺りまでで、
+[後半](http://blog.branch4.pw/blog/2014/08/10/required-person2/)
+へ続く。
 長くて書くのつかれちゃいました〜。
+
 
 <script type="text/javascript" language="javascript">
   num = Math.floor( Math.random() * 6 );

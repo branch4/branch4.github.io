@@ -557,6 +557,9 @@ HDD リサイズとかは、たぶん Box 定義からいじる、とかなの�
 ## 次回予告
 複数サーバをぼこぼこあげるとき。
 
+続きの複数サーバ編は
+[ここ](http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/)だよ。
+
 <script type="text/javascript" language="javascript">
   num = Math.floor( Math.random() * 6 );
   document.write( aff[ num ]);
