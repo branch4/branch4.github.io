@@ -23,7 +23,7 @@ Appサーバのapacheのログを fluentd(HA) に投げて、postgres insertく�
 最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
 と思ってはいるけどどこまで書けるやら・・・。
 
-![multi server01](https://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png)
+![mul2ti server01](http://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png)
 
 <!-- more -->
 
