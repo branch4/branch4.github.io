@@ -1,0 +1,4891 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-08-13T22:28:04+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/12/set-time-on-ec2/"/>
+    <updated>2014-08-12T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/12/set-time-on-ec2</id>
+    <content type="html"><![CDATA[<p>Hi, I’m <a href="http://diary.risterlab.com">risterlab</a>, a web infrastructural engineer who love vegetables.</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="digital clock" /></p>
+
+<p>Today, I give some tips about setting the time on EC2 of AWS.</p>
+
+<p>If you set the time from UTC to your local time by following the instruction you usually get from googling,<br/>
+the time of EC2 might be reverted to UTC after the server reboots, <br/>
+not every time but sometimes&hellip;</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>The way which you can get by googling</h3>
+
+<hr />
+
+<p><code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code></p>
+
+<p>You usually could find the instruction like above.<br/>
+The time setting will soon become your local time.  <br/>
+It’s so easy! Done!</p>
+
+<p>But by this way, the time might get back to UTC.<br/>
+You need to be careful, because it would happen not every time you reboot the server, but sometimes.</p>
+
+<p>For me, it was after almost a year of service release that the time was reverted to UTC. <br/>
+That was so troublesome since cron and application see the time.</p>
+
+<h3>Why the time gets back to UTC</h3>
+
+<hr />
+
+<p>The thing is&hellip; when glibc package gets updated,<br/>
+/etc/localtime will be set to UTC by the script included in the glibc package.</p>
+
+<p>In the case of Amazon Linux, cloud_init exec the security updates as the server starts.<br/>
+The time setting will be initialized at that time.</p>
+
+<p>So, when you reboot the EC2 server after its glibc package gets updated,<br/>
+cloud_init update the package and /etc/localtime will be initialized.</p>
+
+<p>This is why the time gets back to UTC.</p>
+
+<h3>How to avoid the initialization of the time setting on EC2</h3>
+
+<hr />
+
+<p>There are two ways of dealing with the issue above.</p>
+
+<p>Edit not &ldquo;/etc/localtime”, but “/etc/sysconfig/clock”</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ZONE="Asia/Tokyo"
+</span><span class='line'>UTC=False</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to ZONE, you need to set your local identifier.<br/>
+It’s the case for Tokyo, Japan.</p>
+
+<p>Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg&#8221;</p>
+
+<p>It’s not recommended.<br/>
+Usually the security updates are necessary though it is troublesome if the time would get back sometimes after the reboots.</p>
+
+<h3>Summary</h3>
+
+<hr />
+
+<p>When you google the way to set the time on EC2,<br/>
+you’ll usually get the information like below.</p>
+
+<p><code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code></p>
+
+<p>This is available when you want to set the time to your local time very soon.<br/>
+But you need to be careful that this is not that the time is fixed.<br/>
+To avoid the time setting gets initialized carelessly,<br/>
+Not “/etc/localtime”, but “/etc/sysconfig/clock” is the file you need to edit.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ZONE="Asia/Tokyo"
+</span><span class='line'>UTC=False</span></code></pre></td></tr></table></div></figure>
+
+
+<p>日本人の方は<a href="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/">日本語の記事</a>もあります。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/"/>
+    <updated>2014-08-11T05:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2</id>
+    <content type="html"><![CDATA[<p>こんにちは。前回の続きで、またVagrantのエントリ書いてる<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
+
+<h2>システム構成図</h2>
+
+<hr />
+
+<p>まずは今回作ろうとしてるシステムの構成図。</p>
+
+<p>Appサーバのapacheのログを fluentd(HA) に投げて、postgres insertくらいを一旦の目処にしようかね。<br/>
+最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
+と思ってはいるけどどこまで書けるやら・・・。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png" alt="mul2ti server01" /></p>
+
+<!-- more -->
+
+
+<h2>前回のあらすじ</h2>
+
+<p><a href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/">前回の記事</a>
+は、下記あたりの流れをざっくり紹介しました。</p>
+
+<ul>
+<li>Vagrantってなんですか？</li>
+<li>Vagrantのinstall</li>
+<li>Vagrantfileの書き方</li>
+<li>vagrantでソフトウェア関連設定</li>
+<li>vagrantでサーバのハードウェアスペック指定</li>
+</ul>
+
+
+<p>前回は、サーバ１台の場合についてだったんで、今回は複数台管理する場合について。<br/>
+この記事、本来の目的は、fluentdの検証をすることなんで、当然複数サーバあげたいわけで。</p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>今回はたぶん、</p>
+
+<p>1 Projectで複数サーバを管理する場合の、</p>
+
+<ul>
+<li>Vagrantfileの書き方</li>
+<li>networkについて</li>
+<li>provisioningについて</li>
+<li>vagrant commandの使い方</li>
+</ul>
+
+
+<p>こんなところになる予定。</p>
+
+<h2>各種バージョン</h2>
+
+<hr />
+
+<p>前回も書いたけど、このとおり。<br/>
+今回は fluentdのバージョンも追記しておこう。</p>
+
+<ul>
+<li>vagrant version 1.6.3</li>
+<li>Windows PC + VirtualBox 4.3.8r92456</li>
+<li>MintLinux17 + VirtualBox 4.3 ?</li>
+<li>MacOSX(Mavericks) + VirtualBox 4.3.14r95030</li>
+</ul>
+
+
+<h2>Vagrantfile複数サーバ対応</h2>
+
+<hr />
+
+<h3>１台のときは？</h3>
+
+<p>何はなくとも予習と復習は大切です。<br/>
+なので、前回の復習から。単体のサーバの場合の Vagrantfile はこんな感じでした。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat Vagrantfile
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "hashicorp/precise64"
+</span><span class='line'>  config.vm.hostname = "testserver"
+</span><span class='line'>  config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>  config.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>
+</span><span class='line'>  config.vm.provider :virtualbox do |v|
+</span><span class='line'>    v.customize ["modifyvm", :id, "--memory", "512"]
+</span><span class='line'>    v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ほむほむ。思い出しました。</p>
+
+<h3>複数台のときは？</h3>
+
+<p>では、引き続き複数の場合はどうすりゃいいんかね・・・ vagrant の公式 website を物色。</p>
+
+<p><a href="https://docs.vagrantup.com/v2/multi-machine/index.html">ここ</a>ですよ。ドンピシャ。
+ではこれを参考に、システム構成図ぽく書いてみると・・・</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat Vagrantfile
+</span><span class='line'># -*- mode: ruby -*-
+</span><span class='line'># vi: set ft=ruby :
+</span><span class='line'>
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>
+</span><span class='line'>  config.vm.define "ap_server01" do |ap_server01|
+</span><span class='line'>    ap_server01.vm.box = "hashicorp/precise64"
+</span><span class='line'>    ap_server01.vm.hostname = "apserver01"
+</span><span class='line'>    ap_server01.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>    ap_server01.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>
+</span><span class='line'>    ap_server01.vm.provider :virtualbox do |v|
+</span><span class='line'>      v.customize ["modifyvm", :id, "--memory", "384"]
+</span><span class='line'>      v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  config.vm.define "ap_server02" do |ap_server02|
+</span><span class='line'>    ap_server02.vm.box = "hashicorp/precise64"
+</span><span class='line'>    ap_server02.vm.hostname = "apserver02"
+</span><span class='line'>    ap_server02.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>    ap_server02.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>
+</span><span class='line'>    ap_server02.vm.provider :virtualbox do |v|
+</span><span class='line'>      v.customize ["modifyvm", :id, "--memory", "384"]
+</span><span class='line'>      v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  config.vm.define "fluentd01" do |fluentd01|
+</span><span class='line'>    fluentd01.vm.box = "hashicorp/precise64"
+</span><span class='line'>    fluentd01.vm.hostname = "fluentd01"
+</span><span class='line'>    fluentd01.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>    fluentd01.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>
+</span><span class='line'>    fluentd01.vm.provider :virtualbox do |v|
+</span><span class='line'>      v.customize ["modifyvm", :id, "--memory", "384"]
+</span><span class='line'>      v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  config.vm.define "fluentd02" do |fluentd02|
+</span><span class='line'>    fluentd02.vm.box = "hashicorp/precise64"
+</span><span class='line'>    fluentd02.vm.hostname = "fluentd02"
+</span><span class='line'>    fluentd02.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>    fluentd02.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>
+</span><span class='line'>    fluentd02.vm.provider :virtualbox do |v|
+</span><span class='line'>      v.customize ["modifyvm", :id, "--memory", "384"]
+</span><span class='line'>      v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  config.vm.define "postgres" do |postgres|
+</span><span class='line'>    postgres.vm.box = "hashicorp/precise64"
+</span><span class='line'>    postgres.vm.hostname = "postgres"
+</span><span class='line'>    postgres.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>    postgres.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>
+</span><span class='line'>    postgres.vm.provider :virtualbox do |v|
+</span><span class='line'>      v.customize ["modifyvm", :id, "--memory", "384"]
+</span><span class='line'>      v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>な、、、ながいすな・・・これはさすがに短くできる予感しかしないけども、
+一旦起動するかどうか確認をば・・・</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant up</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ってうつと・・・おお、、、起動した。結構時間かかった。
+あと今更だけど、network &ldquo;public_network&#8221;ってどういう IP 振られてるんだろう？</p>
+
+<p>ログインして確認しよう。ぬ、複数サーバあがってるときに、vagrant ssh つっても、
+どのサーバに ssh するかわからんだろ・・・とりあえずやってみる。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant ssh
+</span><span class='line'>This command requires a specific VM name to target in a multi-VM environment.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あ、、、やっぱり怒られるのね・・・。どうやら引数に、ssh したいサーバの識別子渡すそうです。</p>
+
+<p>config.vm.define &ldquo;ap_server01&rdquo; do |ap_server01| &lt;&ndash; &ldquo;ここの中の文字列&rdquo;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant ssh ap_server01
+</span><span class='line'>Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)
+</span><span class='line'>
+</span><span class='line'> * Documentation:  https://help.ubuntu.com/
+</span><span class='line'>Welcome to your Vagrant-built virtual machine.
+</span><span class='line'>Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+</span><span class='line'>vagrant@apserver01:~$ /sbin/ip a
+</span><span class='line'>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 16436 qdisc noqueue state UNKNOWN
+</span><span class='line'>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span><span class='line'>    inet 127.0.0.1/8 scope host lo
+</span><span class='line'>    inet6 ::1/128 scope host
+</span><span class='line'>       valid_lft forever preferred_lft forever
+</span><span class='line'>2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+</span><span class='line'>    link/ether 08:00:27:88:0c:a6 brd ff:ff:ff:ff:ff:ff
+</span><span class='line'>    inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0
+</span><span class='line'>    inet6 fe80::a00:27ff:fe88:ca6/64 scope link
+</span><span class='line'>       valid_lft forever preferred_lft forever
+</span><span class='line'>3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+</span><span class='line'>    link/ether 08:00:27:01:26:5a brd ff:ff:ff:ff:ff:ff
+</span><span class='line'>    inet 172.16.17.10/24 brd 172.16.17.255 scope global eth1
+</span><span class='line'>    inet6 2408:27:bfff:28d:411a:c61a:be37:db7c/64 scope global temporary dynamic
+</span><span class='line'>       valid_lft 604272sec preferred_lft 85272sec
+</span><span class='line'>    inet6 2408:27:bfff:28d:a00:27ff:fe01:265a/64 scope global dynamic
+</span><span class='line'>       valid_lft 2591957sec preferred_lft 604757sec
+</span><span class='line'>    inet6 fe80::a00:27ff:fe01:265a/64 scope link
+</span><span class='line'>       valid_lft forever preferred_lft forever
+</span><span class='line'>vagrant@apserver01:~$ logout
+</span><span class='line'>Connection to 127.0.0.1 closed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>IP は、そうか、うちの自宅内の DHCP が振られてるのね。
+検証環境には、完全 Private振りたいので、あとで変更しよっと。
+その前に、Vagrantfile の簡略化をしてみよう。これは長過ぎる・・・</p>
+
+<h3>Vagrantfile 短く！</h3>
+
+<p>さて、どうしたものか、まずはぐぐってみる。</p>
+
+<p><em>&ldquo;vagrantfile 簡略化&rdquo;</em></p>
+
+<p>はそれっぽいのがヒットせず。</p>
+
+<p><em>&ldquo;vagrantfile 複数&rdquo;</em></p>
+
+<p>で、<a href="http://nmbr8.com/blog/2014/05/22/how-to-define-and-control-multiple-guest-machines-per-Vagrantfile/">こんな記事</a>が。
+これだ！ruby で書けばいいからこう書けるのね。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat Vagrantfile
+</span><span class='line'># -*- mode: ruby -*-
+</span><span class='line'># vi: set ft=ruby :
+</span><span class='line'>
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.provision :shell, path: "bootstrap/all.sh"             #1
+</span><span class='line'>
+</span><span class='line'>  not_dbs = { :apserver01 =&gt; '192.168.101.1',
+</span><span class='line'>              :apserver02 =&gt; '192.168.101.2',
+</span><span class='line'>              :fluentd01  =&gt; '192.168.102.1',
+</span><span class='line'>              :fluentd02  =&gt; '192.168.102.2'
+</span><span class='line'>              :postgres01 =&gt; '192.168.103.1'
+</span><span class='line'>            }                                                      #2
+</span><span class='line'>
+</span><span class='line'>  not_dbs.each do |not_db_name, not_db_ip|                         #3
+</span><span class='line'>    config.vm.define not_db_name do |server_config|
+</span><span class='line'>      bootstrap_path = "bootstrap/#{not_db_name}.sh"
+</span><span class='line'>      server_config.vm.box = "hashicorp/precise64"
+</span><span class='line'>      server_config.vm.hostname = not_db_name.to_s
+</span><span class='line'>      server_config.vm.network "private_network", ip: not_db_ip    #4
+</span><span class='line'>      server_config.vm.provision :shell, path: bootstrap_path
+</span><span class='line'>
+</span><span class='line'>      server_config.vm.provider :virtualbox do |v|
+</span><span class='line'>        v.customize ["modifyvm", :id, "--memory", "384"]
+</span><span class='line'>        v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>      end
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>なんかまとまってる感あり！
+行末に、コメントで番号付けてるとこを軽く説明しておこうかな。</p>
+
+<ul>
+<li>config.vm.provision :shell, path: &ldquo;bootstrap/all.sh&rdquo;
+
+<ul>
+<li>あれだわ。全部のサーバで実行する provisioning の shell を指定してます</li>
+<li>これとは別に、各サーバ毎に実行する shell もループ中で指定しております</li>
+</ul>
+</li>
+<li>not_dbs = { :apserver01 => &lsquo;192.168.101.1&rsquo;, &hellip; }
+
+<ul>
+<li>共通化してループにしてみた(not_dbs のネーミングは・・・最初 DB 以外にしてたから。最終的にまとめちゃった)</li>
+</ul>
+</li>
+<li>not_dbs.each do |not_db_name, not_db_ip|
+
+<ul>
+<li>そのループ。中の処理はみればわかる</li>
+</ul>
+</li>
+<li>server_config.vm.network &ldquo;private_network&rdquo;, ip: not_db_ip
+
+<ul>
+<li>networkはね、今回はプライベートにしました。IP も指定で</li>
+</ul>
+</li>
+</ul>
+
+
+<p>結構簡略化できてると思うけどどうでしょう。
+次は、provisioning 用の shellを覗いてみよう。</p>
+
+<p>shellは、apserver/fluentdは、複数台あるけど、今全部中身一緒なので、1台分だけみる。</p>
+
+<h4>全部のサーバで実行されるやーつ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat bootstrap/all.sh
+</span><span class='line'>#!/usr/bin/env bash
+</span><span class='line'>
+</span><span class='line'>apt-get update
+</span><span class='line'>apt-get install -y vim
+</span><span class='line'>apt-get install -y vim-common</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>ap server でだけ実行されるやーつ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat bootstrap/apserver01.sh
+</span><span class='line'>#!/usr/bin/env bash
+</span><span class='line'>
+</span><span class='line'>/vagrant/bootstrap/apserver.sh
+</span><span class='line'>/vagrant/bootstrap/not_db.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>fluentd でだけ実行されるやーつ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat bootstrap/fluentd01.sh
+</span><span class='line'>#!/usr/bin/env bash
+</span><span class='line'>
+</span><span class='line'>/vagrant/bootstrap/not_db.sh
+</span><span class='line'>
+</span><span class='line'>cat &lt;&lt; EOF &gt; /etc/td-agent/td-agent.conf
+</span><span class='line'># Input
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type forward
+</span><span class='line'>  port 24224
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'># Output
+</span><span class='line'>&lt;match apache.**&gt;
+</span><span class='line'>  type file
+</span><span class='line'>  path /var/log/td-agent/out_apachelog
+</span><span class='line'>  time_slice_format %Y%m%d
+</span><span class='line'>  time_slice_wait 10m
+</span><span class='line'>  time_format %Y%m%dT%H%M%S%z
+</span><span class='line'>  compress gzip
+</span><span class='line'>  utc
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>EOF</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>postgres でだけ実行されるやーつ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat bootstrap/postgres01.sh
+</span><span class='line'>#!/usr/bin/env bash
+</span><span class='line'>
+</span><span class='line'>apt-get install -y postgresql</span></code></pre></td></tr></table></div></figure>
+
+
+<p>大体見ればわかると思うので、一個だけ説明。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/vagrant/bootstrap/apserver.sh
+</span><span class='line'>/vagrant/bootstrap/not_db.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この二つだけ。</p>
+
+<p>/vagrant っていうのは、Hostサーバでいうところの、PROJECT_ROOTのディレクトリなのです。<br/>
+つまり、</p>
+
+<p>PROJECT_ROOT/bootstrap/apserver.sh<br/>
+PROJECT_ROOT/bootstrap/not_db.sh</p>
+
+<p>をそれぞれ実行しろよ、と。
+今回でいうと、apserverが一番実行される shell が多いのかな。</p>
+
+<ol>
+<li>まず、全体で、all.shを実行</li>
+<li>次に、apserver01.sh に書いてある何かを実行(今回は実は中身ほとんどないんだけど)</li>
+<li>で、bootstrap/apserver.sh と bootstrap/not_db.sh を実行</li>
+</ol>
+
+
+<p>なるほど。こんな感じにすれば、共通化もできるのねん。一旦、簡略化はこんなもんかな。</p>
+
+<p>apserver.sh と not_db.sh については、下記内容が書いてありますよ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat bootstrap/apserver.sh
+</span><span class='line'>#!/usr/bin/env bash
+</span><span class='line'>
+</span><span class='line'>apt-get install -y apache2
+</span><span class='line'>rm -rf /var/www
+</span><span class='line'>ln -fs /vagrant /var/www
+</span><span class='line'>
+</span><span class='line'>chmod o+x /var/log/apache2/
+</span><span class='line'>chmod o+r /var/log/apache2/access.log
+</span><span class='line'>
+</span><span class='line'>cat &lt;&lt; EOF &gt; /etc/td-agent/td-agent.conf
+</span><span class='line'># tail input
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type tail
+</span><span class='line'>  path /var/log/apache2/access.log
+</span><span class='line'>  pos_file /var/log/td-agent/tmp/httpd-access.log.pos
+</span><span class='line'>  tag apache.access
+</span><span class='line'>  format apache2
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'># Log Forwarding
+</span><span class='line'>&lt;match apache.**&gt;
+</span><span class='line'>  type forward
+</span><span class='line'>
+</span><span class='line'>  # primary host
+</span><span class='line'>  &lt;server&gt;
+</span><span class='line'>    host 192.168.102.1
+</span><span class='line'>    port 24224
+</span><span class='line'>  &lt;/server&gt;
+</span><span class='line'>  # use secondary host
+</span><span class='line'>  &lt;server&gt;
+</span><span class='line'>    host 192.168.102.2
+</span><span class='line'>    port 24224
+</span><span class='line'>    standby
+</span><span class='line'>  &lt;/server&gt;
+</span><span class='line'>
+</span><span class='line'>  # use longer flush_interval to reduce CPU usage.
+</span><span class='line'>  # note that this is a trade-off against latency.
+</span><span class='line'>  flush_interval 60s
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>EOF</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat bootstrap/not_db.sh
+</span><span class='line'>#!/usr/bin/env bash
+</span><span class='line'>
+</span><span class='line'>apt-get install -y curl
+</span><span class='line'>curl -L http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh | sh
+</span><span class='line'>
+</span><span class='line'>mkdir /var/log/td-agent/tmp/
+</span><span class='line'>chown td-agent. /var/log/td-agent/tmp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>apserver.shの内容</h4>
+
+<p>見ればわかるけど、apache インストールと、fluentd の HA 設定してるくらい。</p>
+
+<h4>not_db.shの内容</h4>
+
+<p>ほぼ fluentd インストールしてるだけ。</p>
+
+<h3>Network について</h3>
+
+<p>network は、public/private で書き方だけわかったからいいや。</p>
+
+<h4>public(DHCP)</h4>
+
+<p>config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;</p>
+
+<h4>private(static)</h4>
+
+<p>config.vm.network &ldquo;private_network&rdquo;, ip: &lsquo;IP address&rsquo;</p>
+
+<p>たぶん、private で DHCP 振りたい場合は、ip: 以降削ればいける。</p>
+
+<h3>Provisioning について</h3>
+
+<p>shell でも、ここまで共通化したり、分けたりできれば結構楽にはいけると思うけど、
+そもそも、shell でやってるのはいかがなものか、という意見は認める。なので次は、ansible やろうかな。</p>
+
+<h3>vagrant command について</h3>
+
+<p>リストアップ＆説明。でも説明は、公式サイトから抜粋しただけ。</p>
+
+<h4>今のところよく使いそうなやーつ</h4>
+
+<ul>
+<li>halt
+
+<ul>
+<li>stops the vagrant machine</li>
+</ul>
+</li>
+<li>help
+
+<ul>
+<li>shows the help for a subcommand</li>
+</ul>
+</li>
+<li>provision
+
+<ul>
+<li>provisions the vagrant machine</li>
+</ul>
+</li>
+<li>reload
+
+<ul>
+<li>restarts vagrant machine, loads new Vagrantfile configuration</li>
+</ul>
+</li>
+<li>ssh
+
+<ul>
+<li>connects to machine via SSH</li>
+</ul>
+</li>
+<li>status
+
+<ul>
+<li>outputs status of the vagrant machine</li>
+<li>起動してるサーバのリストをみれるので、ちょいちょい使う</li>
+<li>statusみて、どのサーバに ssh するか決めて、みたいな</li>
+</ul>
+</li>
+<li>up
+
+<ul>
+<li>starts and provisions the vagrant environment</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>その次に使いそうなやーつ</h4>
+
+<ul>
+<li>init
+
+<ul>
+<li>initializes a new Vagrant environment by creating a Vagrantfile</li>
+</ul>
+</li>
+<li>destroy
+
+<ul>
+<li>stops and deletes all traces of the vagrant machine</li>
+</ul>
+</li>
+<li>resume
+
+<ul>
+<li>resume a suspended vagrant machine</li>
+</ul>
+</li>
+<li>suspend
+
+<ul>
+<li>suspends the machine</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>たまーに使うかもねなやーつ</h4>
+
+<ul>
+<li>login
+
+<ul>
+<li>log in to Vagrant Cloud</li>
+</ul>
+</li>
+<li>share
+
+<ul>
+<li>share your Vagrant environment with anyone in the world</li>
+</ul>
+</li>
+<li>plugin
+
+<ul>
+<li>manages plugins: install, uninstall, update, etc.</li>
+</ul>
+</li>
+<li>global-status
+
+<ul>
+<li>outputs status Vagrant environments for this user</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>そんなに使わなそうねなやーつ(box/packageあたりは、box 自作するようになると使うかな)</h4>
+
+<ul>
+<li>box
+
+<ul>
+<li>manages boxes: installation, removal, etc.</li>
+</ul>
+</li>
+<li>connect
+
+<ul>
+<li>connect to a remotely shared Vagrant environment</li>
+</ul>
+</li>
+<li>package
+
+<ul>
+<li>packages a running vagrant environment into a box</li>
+</ul>
+</li>
+<li>rdp
+
+<ul>
+<li>connects to machine via RDP</li>
+</ul>
+</li>
+<li>ssh-config
+
+<ul>
+<li>outputs OpenSSH valid configuration to connect to the machine</li>
+</ul>
+</li>
+<li>version
+
+<ul>
+<li>prints current and latest Vagrant version</li>
+</ul>
+</li>
+</ul>
+
+
+<h3>おわりに</h3>
+
+<p>はい、postgresに突っ込むところまではいきませんでした。
+なぜならpostgres使ったことなくてちょっとめんどくさくなったから。</p>
+
+<p>なので、現状だと、apache の log を tail で引っ張ってきて、fluentd01/02にファイル出力する、 まで。
+次はどこまでいけるかな・・・</p>
+
+<h2>次回予告</h2>
+
+<p>ansible 使った provisioning 。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[求められる人材(後半)]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/10/required-person2/"/>
+    <updated>2014-08-10T17:45:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/10/required-person2</id>
+    <content type="html"><![CDATA[<p><img src="http://blog.branch4.pw/images/2014/08/medium_5572998173.jpg" alt="games" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/aidanmorgan/5572998173/">John-Morgan</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<h2>市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向(後半)</h2>
+
+<p>こんにちは！毎日暑くて溶けるねー。<br/>
+今日こそは核心にたどり着きたいmaringerzです。</p>
+
+<p><a href="http://blog.branch4.pw/blog/2014/08/09/required-person1/">前回</a>は、業界の変遷について書いてるだけで終わっちゃったので、今回は、それでどんな人材が必要なのよ？
+というところまでがんばるぞ〜！</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>前回おさらい</h2>
+
+<p>前回の記事をほんとにさらっと搔い摘むと、</p>
+
+<ul>
+<li>フィーチャーフォンでSNS</li>
+<li>フィーチャーフォンでソーシャルゲーム</li>
+<li>フィーチャーフォンでソーシャルゲームプラットフォームが台頭</li>
+<li>スマートフォンでネイティブゲームのマーケットが台頭</li>
+<li>各社激動の変化に苦戦 ← イマココ</li>
+</ul>
+
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_11787236654.jpg" alt="kusen" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/yeahbouyee/11787236654/">yeahbouyee</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<p>な感じでした。ではでは、引き続きどんな人材が求められているかを考えてみよー。</p>
+
+<h2>求められる人材の変化</h2>
+
+<hr />
+
+<p>半年で市場の状況が変わるソーシャルゲーム業界では常に求められる人材も変わる。
+本当に市場は半年で大きく変わる。。。</p>
+
+<p>プラットフォーム中心のゲーム全盛期にゲーム企画・運用者に求められた人材と
+スマートフォン向けのネイティブゲームの企画者・運用者に求められる人材要件は異なる。</p>
+
+<h3>プラットフォーム上のカードバトル中心のゲーム企画・運用に求められていた人材とは</h3>
+
+<hr />
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_211239773.jpg" alt="platform" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/stuckincustoms/211239773/">Stuck in Customs</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/">cc</a></p>
+
+<h4>カードバトルゲーム中心のフィーチャーフォン(ブラウザ)ゲーム開発の特徴</h4>
+
+<ul>
+<li>初期開発費１５００万〜３０００万
+
+<ul>
+<li>IP の買い取りもしくはレベシェア化によって追加</li>
+</ul>
+</li>
+<li>開発期間２ヶ月〜４ヶ月
+
+<ul>
+<li>IP 保有会社との IP の使い方監修期間により多少変動</li>
+</ul>
+</li>
+<li>運用
+
+<ul>
+<li>１週間〜２週間に１度大きなイベント実施（月３つくらいの中核イベントを回す）</li>
+<li>デイリーで時間限定のイベントを実施。イベントに伴うカードのガチャ追加。</li>
+</ul>
+</li>
+<li>企画
+
+<ul>
+<li>ゲーム性の高い企画はそれほど必要ない
+
+<ul>
+<li>パッケージ化されたゲームシステムに大きなゲームの中身の手を加える必要はなかったため、ゼロからのゲームの企画力はほとんど必要なかった</li>
+<li>ゲーム仕様もゲームそのものの詳細仕様を考える必要はないため、仕様書作成能力の高くは求められない</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>求められる能力</h4>
+
+<p>フィーチャーフォンのブラウザゲーム開発の特徴から、求められる能力を考えると、、、</p>
+
+<ul>
+<li>プロジェクト進捗管理の能力
+
+<ul>
+<li>短期間にいかに少人数で効率的な開発や外部の開発会社を使ってゲームを完成させることができるか</li>
+</ul>
+</li>
+<li>関係各位との調整能力
+
+<ul>
+<li>大型 IP を本来の IP ユーザーの期待を裏切らず実装するため、版権保有会社からの要望や監修にうまく対応する能力</li>
+</ul>
+</li>
+<li>分析力と対応力
+
+<ul>
+<li>リリース後の運用で、どの KPI をみて常にユーザーを飽きさせずにタイムリーにイベントを打つか</li>
+</ul>
+</li>
+<li>カードの目利きとユーザの指向性分析
+
+<ul>
+<li>ガチャで売るカードが売り上げの大半を占めるので、カード（商品）の最大化
+　  レアリティ、パラメータ、イベントでの利用価値、イラストの絵柄が商品価値を左右する</li>
+</ul>
+</li>
+</ul>
+
+
+<p>こんな感じで、面白いゲーム性を追求する、というよりは、プロジェクトをいかに効率的にハンドリングするか、
+という能力が重要視されるように思える。(良い悪いは特になく)</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_467087455.jpg" alt="project management" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/perhapstoopink/467087455/">perhapstoopink</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<p>求められる経験を端的に言うと、求められる能力と同じにはなるが・・・<br/>
+深いゲーム開発の経験ではなく、</p>
+
+<ul>
+<li>対外折衝力</li>
+<li>社内調整力</li>
+<li>スケジュール管理スキル</li>
+<li>数値分析力</li>
+<li>分析からのスピード感のある施策企画、実施スキル</li>
+</ul>
+
+
+<p>などが重視された、まだまだ急成長の業界であったことから経験者が少なかった。
+業界未経験からでも、人物的な素養の高い人材を多数採用していた企業も多かった。</p>
+
+<h3>スマートフォン向けネイティブゲームの企画・運用に求められる人材とは</h3>
+
+<hr />
+
+<h4>スマートフォン向けネイティブゲーム開発の特徴</h4>
+
+<ul>
+<li>初期開発費
+
+<ul>
+<li>７０００〜２億</li>
+<li>当然仕様によりけりだが、昨今のゲームはこのくらいはかかる</li>
+<li>一因としては、ユーザの目が肥えていることや、外注費が大体固定化されつつある点にもある</li>
+</ul>
+</li>
+<li>開発期間
+
+<ul>
+<li>５ヶ月〜１年</li>
+</ul>
+</li>
+<li>運用
+
+<ul>
+<li>運用としては、イベント実施頻度をカードバトル時代と大きくはあまり変わらないが
+新たなゲーム性のため、イベント内容も多岐にわたる</li>
+<li>ブラウザ中心だったフィーチャーフォンゲームと大きく異なる点として、
+サーバ開発だけで打てるイベントに限りがある点が挙げられる。
+新規イベントを打つために、クライアント開発を完了し、申請を通した上で
+リリースする必要がある場合も多い。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>まず驚くのが、開発費の高騰であるが、ユーザニーズが高くなっている現状、これは避けられないところでもある。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_61056391.jpg" alt="money" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/tracy_olson/61056391/">Tracy O</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">cc</a></p>
+
+<p>カードバトルのような一様なパッケージ化されたゲームは正直なところ衰退化している。
+現に現在のGoogle/Appleのストア、マーケットの Grossing TOP30 に入っているカードバトルゲームの
+数を、一年前と比較すると半分ほどに減少している。</p>
+
+<p>前述した、スマートフォンのネイティブゲーム業界では</p>
+
+<ul>
+<li>新たな体験を与えるゲームの遊び</li>
+<li>作り込んだゲーム性</li>
+<li>ウェブ上では実現できなかった直感的な操作性</li>
+<li>３Dを利用したリッチコンテンツ</li>
+<li>リアルタイム通信バトル</li>
+</ul>
+
+
+<p>などが求められている。それができる人材は、よく言われていることだが
+まさに「０から１を生み出せる」であり、そういったゲームプランナー、ディレクターが最も求められる。</p>
+
+<p>&ldquo;ゼロから&rdquo; というのは誤解を生みそうなので少し説明。</p>
+
+<p>ここでいう &ldquo;ゼロから&rdquo; というのは、<br/>
+× これまで全くなかった独創的な新しいゲームを創ること<br/>
+○ 今までにどこかにあったゲームや遊びを、スマートフォンというデバイスの中で、凝縮されたゲームシステムに
+落とすこと</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_8483478010.jpg" alt="from zero" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/wizzer/8483478010/">wizzer2801</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">cc</a></p>
+
+<p>本エントリで、&#8221;ゼロから&#8221; 生み出す、と言っているのは、こういうことのつもり。
+そんなことを出来る能力が求められている。
+そして、それが今のユーザのニーズに合致していることが重要である。</p>
+
+<p>詳細に落とし込んでみると、</p>
+
+<ul>
+<li>コアとなる遊び＋マネタイズを含むゲームサイクルを企画できる（これが一番難しい＞＜！！）</li>
+<li>ゲームのデザインを一から仕様に落とせる能力</li>
+<li>プロジェクトの規模が大きく、期間も長く、開発コストも高いためプロジェクト全体を俯瞰して
+　スケジュールの企画・管理、コスト管理が出来る能力（企業によってはプロマネが担う）</li>
+</ul>
+
+
+<p>ではないかと思う。
+運用に求められる人材は以前と近しいが、開発規模の大きなネイティブアプリゲームでは
+後追いでの機能や遊びの追加は、難しい。
+そのため、企画開発の段階からより運用をイメージした開発が必要となる。
+という意味では、運用もイメージしてゲームサイクルを考えることが更に求められる。</p>
+
+<p>そんな人材がいれば困らない。。
+今求められている人材というのは、要件を満たした人材が社内にいない、もしくは非常に少ないので、
+外から採用したいということ。</p>
+
+<p>それでは、今の転職市場の人材の傾向はというと、、、</p>
+
+<h2>転職市場の人材の傾向</h2>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/a0001_011477.jpg" alt="talent" /></p>
+
+<p>個人によって異なるのでこれはあくまで私が感じている傾向にすぎないが、</p>
+
+<h3>ネットワークゲーム出身者の傾向</h3>
+
+<p>日本には国産のネットワークゲームは少なく、台湾、韓国、中国からの輸入ゲームが多い。
+そのため、現地で開発されたゲームの日本ローカライズ版の運営を経験している場合が多い。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_8033561698.jpg" alt="hieroglyph" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/jankunst/8033561698/">j. kunst</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a></p>
+
+<p>ゲームをゼロから新規開発した経験者は少ないので、ゲームデザインやゲームの仕様、内製の開発メンバーと
+業務を遂行するなどは経験が足りないこともある。</p>
+
+<p>また、既存のゲーム機能をベースとしたイベント運営や GM 経験者が多いので、
+ユーザーに長く楽しんでもらうための運営視点とイベント等の経験は
+ソーシャルゲームの運営にも転用できることが多い。</p>
+
+<h3>コンシューマゲーム出身者の傾向</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_7439512656.jpg" alt="fun games!" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/jdhancock/7439512656/">JD Hancock</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<p>まず、子供時代からゲームが大好きという人が非常に多く、面白いゲーム作りにこだわりがある。</p>
+
+<p>広く過去のゲームに触れており、ゲームの遊びという点では知識が非常に豊富だったりする。
+本来ゲーム好きで、もっと面白い遊びはないかと模索してゲームを作ってきている人も多いので、
+ゼロから１を生み出すという観点を持っている割合が他の経験者と比べると高いように思う。</p>
+
+<p>ただし、数年で１本開発する場合も多いため、半年で変化するソーシャルゲーム業界の変化や開発スピードに戸惑うことも多い。
+また数百名規模のプロジェクトで一部分の役割を担ってきたことが多いため、ゲームを全体から俯瞰してコンパクトに
+ゲームサイクルをまとめることにも慣れるまで苦戦する人も。</p>
+
+<p>また、売切型でゲームを作っているので、ゲームをリリースした後の運営の仕方やマネタイズについての観点も、
+コンシューマのみの経験の場合、キャッチアップが必要となる。</p>
+
+<p>コンシューマの経験と上記ソーシャル特有の面を兼ね備えると、
+かなり今求められている人材に近くなる可能性が感じられる。
+現在のヒットタイトルを生み出している有名なゲームディレクターの方々にもコンシューマ出身者が目立つ。</p>
+
+<h3>ソーシャルゲーム出身者の傾向</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_3955995684.jpg" alt="pachage" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/42961083@N06/3955995684/">quijonido</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<p>ここ数年で、この業界自体が成長したため、ソーシャルゲーム一本！という場合よりも、
+多様な経験を経て、直近ソーシャルゲーム業界にいる方が多い。
+そのため、「ソーシャルゲーム出身者の傾向」と一言で言っても、多種多様すぎる。
+※ ウェブのコンテンツ、ネットワーク、コンシューマ、ソーシャルゲーム業界出身者と経験業界は多様</p>
+
+<p>ここでは未経験もしくはウェブ業界から転身してきたソーシャルゲーム業界出身者の観点からでみてみる。
+この観点でいうと、</p>
+
+<p>パッケージ化されたソーシャルゲームがメインになってから、業界に入った人材が多く、
+新規のゲーム開発においては新しいゲームの遊びやゲームサイクルを企画した経験が少ない人が多い。</p>
+
+<p>運用がメインになるため、イベント運用のノウハウやイラスト等の外注管理、KPI をみてユーザーの動きを把握したり、
+ユーザーのレベルに応じて施策を検討するなどの経験は豊富。</p>
+
+<p>他社のソーシャルゲームをユーザーとしてプレイしていることも多く、ソーシャルゲームのトレンドやユーザーニーズを
+把握している。</p>
+
+<p>新規のゲーム企画経験は浅く、&#8221;ゼロから&#8221; １を創ることに長けている方は少ないが、
+既存のパッケージ系のゲームの運用経験と市場のゲームの動向の把握から、最新のユーザーニーズを
+把握して今求められているゲームを企画できれば、ゼロから１を生み出していけるのでは。</p>
+
+<h2>おわりに</h2>
+
+<p>つまり、どの業界を経験していても、得意な分野もあって、経験していない分野もあって、
+という状態なので、各自が、自分がどんな業務を経験していなくて、どこを補完していって、
+どんなプランナー、ディレクターになるか、をしっかり考えられれば、現在のスマートフォン
+ネイティブゲーム業界に必要とされる人材になれるのかな、という結論でした。</p>
+
+<p>ただ、業界のトレンドはすぐに変わってしまうもの、というのもわかっていることなので、
+常にアンテナを巡らせて、自身のキャリアも変えていかなければ、すぐにおいていかれてしまう
+厳しい業界だなぁ、、、と改めて実感いたしました！</p>
+
+<p>めっちゃくちゃ、長ーーくなってm＾＾m　
+何も答えはないけど。これでおしまい。</p>
+
+<p>個人的にはソーシャルゲームはユーザーとして愛しておりますので、
+これからもわくわくする面白いゲームが沢山生み出させれますように！！</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[求められる人材(前半)]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/09/required-person1/"/>
+    <updated>2014-08-09T03:35:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/09/required-person1</id>
+    <content type="html"><![CDATA[<p><img src="http://blog.branch4.pw/images/2014/08/medium_2453144285.jpg" alt="games" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/bernatcg/2453144285/">bernat&hellip;</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">cc</a></p>
+
+<h2>市場激変の中で、今必要とされるソーシャルゲーム業界のプランナー、ディレクターと人材傾向</h2>
+
+<p>こんにちは！毎日暑くて溶けるねー。</p>
+
+<p>前回ブログ書くよーっと言ってから、、はや１ヶ月。。<br/>
+当然、、前のめりなワタシと言ったら、毎週書く気概でいたけれども、<br/>
+ずぼらなワタシには全ーん然、無理無理ちゃんでした＠＠；</p>
+
+<p>今日は、ソーシャルゲーム業界で新しいゲームを生み出し、サービスを提供し続ける企画者たち、
+ここではプランナー、ディレクター職についてのお話をします。
+以下、あくまで私主観でのお話なので、何言ってんのーって内容があったらご了承くださいませ。
+特に記載年代については、完全なるうるおぼえです＞＜</p>
+
+<p>そして書いてたらながーーーくなっちゃったので、２回に分けて掲載いたします。<br/>
+前半は、「ソーシャルゲーム業界の変遷」について書こうと思います。<br/>
+後半は、それを受けて、具体的にどんな人材が求められているか、を書く予定です。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<p>転職市場の中で求められている人材要件は、業界市場の中で新たなニーズを満たす事業やサービスを
+形にして実現できるまた、それ自体を新たに生み出せる力ということ。</p>
+
+<p>まずは、この数年のソーシャルゲーム業界の動向でこんな感じじゃなかったかな、</p>
+
+<h2>ソーシャルゲーム業界の変遷</h2>
+
+<h3>フィーチャーフォーン時代</h3>
+
+<hr />
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_6796127690.jpg" alt="feature phone" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/kiwanja/6796127690/">kiwanja</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<p>２００３年くらいから。<br/>
+携帯電話の機能向上、サービス利用者の盤石な基盤を背景に、<br/>
+各携帯キャリアの公式サービスの強化。勝手サイトも多数できて<br/>
+携帯で多くのコンテンツを提供していくという流れが来た。</p>
+
+<p>月額課金制（定額月３００円とか）で提供する占い、ゲームなどで<br/>
+収益を上げる企業が多数いた。<br/>
+モバイル上での、ポータルサービスも充実してきた時期。</p>
+
+<h3>クローズドSNS時代</h3>
+
+<hr />
+
+<p>２００４年くらいから。<br/>
+グリー, mixi 等の初期 SNS サービスもこの頃開始。<br/>
+はじめ PC で提供していたが、数年かけてモバイル対応も進んだ。</p>
+
+<h3>ブラウザゲームPlatform/ブラウザSocial game時代</h3>
+
+<hr />
+
+<p>２００８年くらいから。<br/>
+グリー、mobage、mixi を中心としてモバイルのウェブブラウザー上でのプラットフォームサービスが大きく成長してきた。<br/>
+プラットフォーム上では従来の SNS、ポータルサービスの機能をベースにゲームがメインコンテンツとなる。</p>
+
+<h4>Freemiumモデルの台頭</h4>
+
+<p>定額課金制のマネタイズモデルから、無料ではじめらるがコンテンツ内で追加で<br/>
+課金ができるモデルとなる。</p>
+
+<h4>ソーシャル要素</h4>
+
+<p>SNS の特徴である「ソーシャル」の要素が働いていることもこのモデルが拡大した要素として大きかった。
+ソーシャル要素を持ったゲームでは、人（ゲーム上だけのつながり、リアルな友人）とつながって
+一緒にゲームを楽しむというコンテンツを生み出した。</p>
+
+<p>ソーシャル性がゲーム内の追加課金をより促すことにも繋がり、グリー、mobage、mixi 等
+大手プラットフォームの成長は向こう５年ほど凄まじい、ユーザーと売上の拡大を実現した。</p>
+
+<p>以降２０１２年後半くらいまで、国内はもちろんプラットフォームの海外展開が進行。
+大手プラットフォーム上では、２０００万 (一時期は３０００万近い？) というユーザーを保有するというメリットから
+多くのSAP (Social Application Provider) がゲームコンテンツを提供し、市場規模を拡大した。</p>
+
+<h4>カードバトルゲームとガチャ</h4>
+
+<p>２００９年以降、プラットフォーム上のソーシャルゲームのメインはカードバトルという言われるゲームジャンル（と呼んでいいのか？）
+で大きな収益をあげていた。</p>
+
+<p>カードバトルゲーム自体は、</p>
+
+<ul>
+<li>クエスト(ゲーム)</li>
+<li>レイドバトルイベント</li>
+<li>PVP (Person vs Person : 相手プレイヤーと１対１でのバトル)</li>
+<li>GVG (Guild vs Guild : 相手グループ対グループでのバトル)</li>
+</ul>
+
+
+<p>をメインゲーム機能とするゲームである。<br/>
+(もちろん各社他にも沢山のゲーム要素を実装していた)<br/>
+これらの要素にうまく絡める形で、ガチャ(※)機能を絡めることで、巨額の収益をあげていた。<br/>
+※ <strong>ガチャ</strong>：ゲーム内アイテムを景品/商品としたガチャポンシステム</p>
+
+<p>ゲーム開発、特に売れるゲーム開発は難しい。</p>
+
+<ul>
+<li>そもそもカードバトルゲーム自体が、収益性の恐ろしく高いゲームシステムであること</li>
+<li>ゲームとして新たな遊びやシステムを生み出すことが難しいこと</li>
+<li>当時はまだウェブ上で操作が主流だった</li>
+</ul>
+
+
+<p>(恐らく) そんな理由から、各社はそのカードバトルのゲームシステムをパッケージ化、<br/>
+その上に、有名なアニメやゲーム、有名人などのメジャーIPを載せて、新たなゲームとして提供するというのが時代の潮流だった。</p>
+
+<h4>売上/営業利益/純利益</h4>
+
+<p>記憶だけをあてにするのもアレなので、フィーチャーフォンの頃から、現在に至るまでの、
+GREE/DeNAの、売上/営業利益/純利益について追ってみた。</p>
+
+<p><strong>売上</strong><br/>
+<img src="http://blog.branch4.pw/images/2014/08/sales.png" alt="Sales" /></p>
+
+<p><strong>営業利益</strong><br/>
+<img src="http://blog.branch4.pw/images/2014/08/operational_profit.png" alt="operational profit" /></p>
+
+<p><strong>純利益</strong><br/>
+<img src="http://blog.branch4.pw/images/2014/08/net_income.png" alt="net income" /></p>
+
+<p>勢いよく、２００９年〜２０１１年いっぱいくらいまで上昇曲線を描いていて、
+そこから先は伸び悩みしているところをみると、大体感覚値は大はずれではないのかな。</p>
+
+<p>でもフィーチャーフォンとかブラウザゲームが、スマートフォンやネイティブゲームに負けた、
+という感覚より、ユーザに新しい選択肢が出来たので、ユーザが分散した、というのがしっくりくるかな。<br/>
+言い方の違いだけどそのほうがあってる感じがする。</p>
+
+<h3>スマートフォーン時代がやってきた！</h3>
+
+<hr />
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_4310691752.jpg" alt="smartphone" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/caribb/4310691752/">caribb</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">cc</a></p>
+
+<p>そんなフィーチャーフォンでのソーシャルゲーム市場の裏側では、
+２００８年くらいからスマートフォンが徐々に浸透し始めてきた。<br/>
+スマートフォーンは各社（Google、Apple）アプリケーションの販売マーケットを自前で持っており、
+携帯内にプリインストールされたマーケットでユーザーは自由にインストールできるようになっている。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_2271513941.jpg" alt="apple" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/s0mpho/2271513941/">Abdulrahman BinSlmah</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/">cc</a></p>
+
+<p>日本におけるソーシャルゲームの市場では２００９年〜２０１０年とまだゲームは前出のプラットフォーム上での展開がメインで
+スマートフォンでの市場は、成長を迎えると言われながらもまだまだ進んでいなかった。</p>
+
+<p>そんな中、２０１１年くらいから本格的なスマートフォンへのデバイス転換が起き、
+ソーシャルゲーム市場の中でもスマートフォンに特化したネィティブアプリが増えてきた。</p>
+
+<p>既存のウェブ上でのゲーム開発とネイティブでのゲーム開発では、大きく開発技術が異なることもあり、
+プラットフォーム、SAP、既存のゲーム会社各社はネイティブでのゲーム開発に苦戦を強いられた。</p>
+
+<p>２０１２年はじめのパズドラ登場、２０１２年後半あたりには、デバイスの転換が業界内の予測を超えた速さで起きた。
+ソーシャルゲームの市場もウェブのブラウザーゲームからネイティブアプリゲームにシフトした。</p>
+
+<p>以降、２０１４年現在までには各社がネイティブアプリゲームをリリースし、Google、Appleのマーケット、ストアには
+あふれんばかりのゲームがリリースされている。</p>
+
+<p>この頃の、Apple/Gooleの動向については、下記記事等でよくわかる。<br/>
+(どの記事も大体同じような内容ですが)<br/>
+<a href="http://mobileascii.jp/elem/000/000/076/76114/">App Annieの見解</a><br/>
+<a href="http://ja.wikipedia.org/wiki/Google_Play">Play market Wiki</a><br/>
+<a href="http://techwave.jp/archives/51763354.html">Play market 250億ダウンロードについて</a><br/>
+<a href="http://trendy.nikkeibp.co.jp/article/column/20131216/1054088/">2014年のスマートフォンマーケットについて</a></p>
+
+<p>スマートフォン向けのソーシャルゲーム市場での大きな変化としては、<br/>
+カードバトルのようなパッケージ化された一様なゲームではなく</p>
+
+<ul>
+<li>新たな体験を与えるゲームの遊び</li>
+<li>作り込んだゲーム性</li>
+<li>ウェブ上では実現できなかった直感的な操作性</li>
+<li>３Dを利用したリッチコンテンツ</li>
+<li>リアルタイム通信バトル</li>
+</ul>
+
+
+<p>などが求められている。</p>
+
+<p>スマートフォンの標準化に伴い、Supercellや KING等の海外の秀逸なゲームの日本進出も目立つ。
+このような業界の変遷の中で今ゲームの企画者であるプランナー、ディレクターに求められるものとは？！</p>
+
+<p>と、今回はこの辺りまでで、
+<a href="http://blog.branch4.pw/blog/2014/08/10/required-person2/">後半</a>
+へ続く。
+長くて書くのつかれちゃいました〜。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdのテスト環境をvagrantでセットアップしてみるべ]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/"/>
+    <updated>2014-08-07T22:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant</id>
+    <content type="html"><![CDATA[<p>こんにちは。Vagrant使ってみよ。と思った<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>まぁ使ってみたかっただけです。<br/>
+fluentdの検証するし、今後も環境構築は何回もするし、ついでだから vagrant使ってみよ、<br/>
+なノリです。</p>
+
+<p>実際は、今回のエントリーでは fluentd の環境構築までいかなかったので、何回かに分けて書きますわ。</p>
+
+<h2>vagrantって？</h2>
+
+<hr />
+
+<p>どこでも同じ環境を寸分違わず再現できるセットアップツール、って感じなのかな。<br/>
+boxつくって、設定ファイル書いとけば、どこに持ってっても同じ環境が作れて、<br/>
+問題の再現とかもしやすい、ということです。便利だわー。<br/>
+今回は、数年ぶりに環境構築する用事があったので、使おうと思ったり。</p>
+
+<!-- more -->
+
+
+<h2>インストール</h2>
+
+<hr />
+
+<p><a href="http://www.vagrantup.com/downloads">こちら</a>からダウンロードしてインストール。<br/>
+簡単だから。ただし、ツール自体にGUIはないのでCLIに抵抗がある人はここでおかえりいただきます。</p>
+
+<h2>セットアップ</h2>
+
+<hr />
+
+<p>まずは、<a href="http://www.vagrantup.com/">公式サイト</a>のドキュメンツを辿ってみるべし。<br/>
+Getting Startedを一通りやれば結構わかる。</p>
+
+<h2>諸情報</h2>
+
+<p>今回使ったのは、</p>
+
+<ul>
+<li>vagrant version 1.6.3</li>
+<li>Windows PC + VirtualBox 4.3.8r92456</li>
+<li>MintLinux17 + VirtualBox 4.3 ?</li>
+<li>MacOSX(Mavericks) + VirtualBox 4.3 ?</li>
+</ul>
+
+
+<p>でございます。作った Vagrantfile 含めた設定は、全環境でちゃんと動いてるぽかったです。</p>
+
+<h3>Vagrantfile なる設定ファイルが肝</h3>
+
+<p>設定ファイルのこと。</p>
+
+<ul>
+<li>1つのプロジェクトあたり、1つ存在する。</li>
+<li>プロジェクト内に、どんなサーバが何台存在しているか</li>
+<li>ネットワーク構成どんな感じか</li>
+<li>各サーバに何インストールしとくか、設定どうなってるか</li>
+</ul>
+
+
+<p>などなど定義します。たぶん、流れ的には、</p>
+
+<ul>
+<li>Vagrantfileの書き方覚える</li>
+<li>Provisioningツールの使い方覚える or 既に覚えてれば不要</li>
+<li>Provider(VirtualBox/KVM/Docker etc&hellip;)の使い分け的なものを覚える</li>
+<li>Boxの作り方覚える</li>
+</ul>
+
+
+<p>この辺を覚えていくんでしょう。</p>
+
+<h3>Projectディレクトリと、Vagrantfile を作る！</h3>
+
+<p>下記コマンドを実行してね。<br/>
+(本Entryでは、以降Projectのルートディレクトリは、PROJECT_ROOTとします)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ mkdir &lt;PROJECT_ROOT&gt;
+</span><span class='line'>$ cd &lt;PROJECT_ROOT&gt;
+</span><span class='line'>$ vagrant init
+</span><span class='line'>A `Vagrantfile` has been placed in this directory. You are now
+</span><span class='line'>ready to `vagrant up` your first virtual environment! Please read
+</span><span class='line'>the comments in the Vagrantfile as well as documentation on
+</span><span class='line'>`vagrantup.com` for more information on using Vagrant.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>やってることは、</p>
+
+<ol>
+<li>Projectディレクトリを作成</li>
+<li>Projectディレクトリに移動</li>
+<li>Projectを初期化(Vagrantfileが生成される)</li>
+</ol>
+
+
+<p>でございます。コマンドで生成された Vagrantfileから、コメントの行を消すと、、、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat Vagrantfile
+</span><span class='line'>
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "base"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな感じ。APIのバージョンは、&#8221;2&#8221; のようです。<br/>
+config.vm.box = &ldquo;base&#8221;は、よくわからないけど、今はいいや。<br/>
+Vagrantfile は、git,svn等の、VCSにcommitすべきものらしいので、commit。</p>
+
+<h3>Box とは？</h3>
+
+<p>生成された、Vagrantfile中にも出てくるけど、Boxとは？<br/>
+Vagrant では、box っていうのが、ひとつのベースイメージになるんだと。<br/>
+仮想イメージの呼び方をVagrant風に言うと &ldquo;Box&rdquo; なのです。</p>
+
+<h3>Box のインストール</h3>
+
+<p>まずは、自分のマシンに、Box(仮想イメージ)を追加します。<br/>
+下記コマンドを、実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant box add hashicorp/precise64
+</span><span class='line'>==&gt; box: Loading metadata for box 'hashicorp/precise64'
+</span><span class='line'>    box: URL: https://vagrantcloud.com/hashicorp/precise64
+</span><span class='line'>    This box can work with multiple providers! The providers that it
+</span><span class='line'>    can work with are listed below. Please review the list and choose
+</span><span class='line'>    the provider you will be working with.
+</span><span class='line'>
+</span><span class='line'>    1) hyperv
+</span><span class='line'>    2) virtualbox
+</span><span class='line'>    3) vmware_fusion
+</span><span class='line'>
+</span><span class='line'>    Enter your choice: 2
+</span><span class='line'>
+</span><span class='line'>    ==&gt; box: Adding box 'hashicorp/precise64' (v1.1.0) for provider: virtualbox
+</span><span class='line'>        box: Downloading: https://vagrantcloud.com/hashicorp/precise64/version/2/provider/virtualbox.box
+</span><span class='line'>        ==&gt; box: Successfully added box 'hashicorp/precise64' (v1.1.0) for 'virtualbox'!</span></code></pre></td></tr></table></div></figure>
+
+
+<p>今回使用してる、hashicorp さん謹製の box、precise64 は、</p>
+
+<ul>
+<li>hyperv</li>
+<li>virtualbox</li>
+<li>vmware_fusion</li>
+</ul>
+
+
+<p>に対応してるみたいだけど、2番の virtualbox を選択。<br/>
+そうすると、下記ディレクトリ配下に、VirtualBox のイメージがダウンロードされたり、<br/>
+Vagrantfileのような諸情報が格納されます。(結構時間かかる)</p>
+
+<p>${HOME}/.vagrant.d<br/>
+${HOME}/.vagrant.d/boxes<br/>
+${HOME}/.vagrant.d/data<br/>
+${HOME}/.vagrant.d/gems<br/>
+${HOME}/.vagrant.d/rgloader<br/>
+${HOME}/.vagrant.d/tmp</p>
+
+<p>たぶん大事なのは、boxes 配下なのかな？きっとそうだろう。<br/>
+イメージのダウンロード元は、<a href="https://vagrantcloud.com/">ここ</a>からみたい。</p>
+
+<p>初期化完了した状態で、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant up</span></code></pre></td></tr></table></div></figure>
+
+
+<p>実行すると、今追加したほやほやのboxがすぐ起動。<br/>
+ただ、諸々未設定なので、一旦落として設定しましょ。</p>
+
+<ul>
+<li>ネットワーク設定</li>
+<li>ホスト名の設定</li>
+<li>起動時にインストールするアプリがあるのかどうか</li>
+</ul>
+
+
+<p>などなど、設定していきます。<br/>
+まずは、停止。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant destroy</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Vagrantfile設定</h3>
+
+<p>設定自体は、初期化時に生成された、Vagrantfileを編集していく。</p>
+
+<p>Vagrantfile では、下記なんかを定義できる</p>
+
+<ul>
+<li>起動するマシンスペック</li>
+<li>インストールするアプリケーション</li>
+<li>どうやってアクセスするか</li>
+</ul>
+
+
+<p>今回は、こんなマシンにしようかな。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/guestserver01.png" alt="guestserver" /></p>
+
+<ul>
+<li>CPU x 1 個</li>
+<li>Memory 512 MB</li>
+<li>HDD 15 GB</li>
+<li>Ubuntu12.04</li>
+<li>Network(DHCP/public)</li>
+<li>hostname: testserver</li>
+<li>apache pre-install</li>
+</ul>
+
+
+<p><a href="http://docs.vagrantup.com/v2/getting-started/index.html">ここ</a>とか、
+<a href="http://docs.vagrantup.com/v2/virtualbox/configuration.html">ここ</a>を参照して、書いていく。<br/>
+ハードのスペック関連は、VirtualBoxのAPI経由なので、<a href="http://www.virtualbox.org/manual/ch08.html">ここ</a>
+からやりたいことを探すんだーね。<br/>
+そして出来上がったVagrantfile。(まだスペック関連入れてない版)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat Vagrantfile
+</span><span class='line'>
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "hashicorp/precise64"
+</span><span class='line'>  config.vm.hostname = "testserver"
+</span><span class='line'>  config.vm.network "public_network"
+</span><span class='line'>  config.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>順番に説明。</p>
+
+<h4>config.vm.box = &ldquo;hashicorp/precise64&rdquo;</h4>
+
+<p>このBoxは、このイメージですよ！と、いうこと。</p>
+
+<h4>config.vm.hostname = &ldquo;testserver&rdquo;</h4>
+
+<p>Host名は、testserverですよ！と、いうこと。</p>
+
+<h4>config.vm.network &ldquo;public_network&rdquo;</h4>
+
+<p>Public、といっても、グローバルIPが必ず振られるわけではない。<br/>
+たぶん、下記環境だったらグローバルが来るんじゃないか？</p>
+
+<ul>
+<li>Network IF が 1 つ</li>
+<li>DHCP でグローバルが割り当てられる</li>
+</ul>
+
+
+<p>VirtualBox では、NAT になる。</p>
+
+<p>Network IF が複数ある場合は、こんな感じに指定するそうな。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.network "public_network", bridge: 'en1: Wi-Fi(AirPort)'</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>config.vm.provision :shell, path: bootstrap.sh</h4>
+
+<p>ゲストサーバ起動時に、PROJECT_ROOT/bootstrap.sh を実行しろ、ということ。<br/>
+なので、ここに、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/evn bash
+</span><span class='line'>
+</span><span class='line'>apt-get update
+</span><span class='line'>apt-get install -y apache2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>って書いておくと、起動時に、apache2 が入った状態になります。<br/>
+さて、準備は整ったはずなので、いざ起動！！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant up
+</span><span class='line'>Bringing machine 'default' up with 'virtualbox' provider...
+</span><span class='line'>==&gt; default: Importing base box 'hashicorp/precise64'...
+</span><span class='line'>==&gt; default: Matching MAC address for NAT networking...
+</span><span class='line'>==&gt; default: Checking if box 'hashicorp/precise64' is up to date...
+</span><span class='line'>==&gt; default: Setting the name of the VM: project_blog_default_1407340802923_76317
+</span><span class='line'>==&gt; default: Fixed port collision for 22 =&gt; 2222. Now on port 2204.
+</span><span class='line'>==&gt; default: Clearing any previously set network interfaces...
+</span><span class='line'>==&gt; default: Available bridged network interfaces:
+</span><span class='line'>1) en0: Wi-Fi (AirPort)
+</span><span class='line'>2) en1: Thunderbolt 1
+</span><span class='line'>3) en2: Thunderbolt 2
+</span><span class='line'>4) bridge0
+</span><span class='line'>5) p2p0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あ、NIC だけじゃなくて色々あるから指定しないとだめなんですね・・・<br/>
+一旦とめて、Vagrantfile を編集。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat Vagrantfile
+</span><span class='line'>
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "hashicorp/precise64"
+</span><span class='line'>  config.vm.hostname = "testserver"
+</span><span class='line'>  config.vm.network "public_network"
+</span><span class='line'>  config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>  config.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>気を取り直して、再度実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant up
+</span><span class='line'>Bringing machine 'default' up with 'virtualbox' provider...
+</span><span class='line'>==&gt; default: Checking if box 'hashicorp/precise64' is up to date...
+</span><span class='line'>==&gt; default: Fixed port collision for 22 =&gt; 2222. Now on port 2205.
+</span><span class='line'>==&gt; default: Clearing any previously set network interfaces...
+</span><span class='line'>==&gt; default: Preparing network interfaces based on configuration...
+</span><span class='line'>    default: Adapter 1: nat
+</span><span class='line'>    default: Adapter 2: bridged
+</span><span class='line'>==&gt; default: Forwarding ports...
+</span><span class='line'>    default: 22 =&gt; 2205 (adapter 1)
+</span><span class='line'>==&gt; default: Booting VM...
+</span><span class='line'>==&gt; default: Waiting for machine to boot. This may take a few minutes...
+</span><span class='line'>    default: SSH address: 127.0.0.1:2205
+</span><span class='line'>    default: SSH username: vagrant
+</span><span class='line'>    default: SSH auth method: private key
+</span><span class='line'>==&gt; default: Machine booted and ready!
+</span><span class='line'>==&gt; default: Checking for guest additions in VM...
+</span><span class='line'>    default: The guest additions on this VM do not match the installed version of
+</span><span class='line'>    default: VirtualBox! In most cases this is fine, but in rare cases it can
+</span><span class='line'>    default: prevent things such as shared folders from working properly. If you see
+</span><span class='line'>    default: shared folder errors, please make sure the guest additions within the
+</span><span class='line'>    default: virtual machine match the version of VirtualBox you have installed on
+</span><span class='line'>    default: your host and reload your VM.
+</span><span class='line'>    default:
+</span><span class='line'>    default: Guest Additions Version: 4.2.0
+</span><span class='line'>    default: VirtualBox Version: 4.3
+</span><span class='line'>==&gt; default: Setting hostname...
+</span><span class='line'>==&gt; default: Configuring and enabling network interfaces...
+</span><span class='line'>==&gt; default: Mounting shared folders...
+</span><span class='line'>    default: /vagrant =&gt; /Users/nemoto_hideaki/work/vagrant/project_blog
+</span><span class='line'>==&gt; default: Running provisioner: shell...
+</span><span class='line'>    default: Running: /var/folders/kn/k_t_9_cs0yjd5q44m9w8b8wh0000gn/T/vagrant-shell20140807-3962-19neoc2.sh
+</span><span class='line'>==&gt; default: stdin: is not a tty
+</span><span class='line'>==&gt; default: bash: /tmp/vagrant-shell: /usr/bin/evn: bad interpreter: No such file or directory
+</span><span class='line'>The following SSH command responded with a non-zero exit status.
+</span><span class='line'>Vagrant assumes that this means the command failed!
+</span><span class='line'>
+</span><span class='line'>chmod +x /tmp/vagrant-shell && /tmp/vagrant-shell
+</span><span class='line'>
+</span><span class='line'>Stdout from the command:
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>Stderr from the command:
+</span><span class='line'>
+</span><span class='line'>stdin: is not a tty
+</span><span class='line'>bash: /tmp/vagrant-shell: /usr/bin/evn: bad interpreter: No such file or directory</span></code></pre></td></tr></table></div></figure>
+
+
+<p>はい、再度失敗orz<br/>
+なんだなんだ・・・bootstrap.shを確認確認・・・</p>
+
+<p>&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash</p>
+
+<p>evn ね・・・修正いたしまして・・・</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&#35;!/usr/bin/env bash
+</span><span class='line'>
+</span><span class='line'>apt-get update
+</span><span class='line'>apt-get install -y apache2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>修正して、再度実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant up
+</span><span class='line'>Bringing machine 'default' up with 'virtualbox' provider...
+</span><span class='line'>==&gt; default: Checking if box 'hashicorp/precise64' is up to date...
+</span><span class='line'>==&gt; default: VirtualBox VM is already running.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あ、さっき実行してるから実行中なのか。もしかして今回は bootstrap.sh が実行されてないかも。<br/>
+なので、下記コマンドどっちかで強制実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant reload --provision
+</span><span class='line'>$ vagrant provision</span></code></pre></td></tr></table></div></figure>
+
+
+<p>違いは、stdoutみる限り、たぶん・・・</p>
+
+<h4>$ vagrant reload &mdash;provision</h4>
+
+<p>こっちは一旦マシン再起動かけてからの強制実行。</p>
+
+<h4>$ vagrant provision</h4>
+
+<p>こっちは起動したままbootstrap.shだけ強制実行。</p>
+
+<p>どっちか実行すると、ちゃんと apache がインストールされます。</p>
+
+<h3>ログイン！</h3>
+
+<p>次は実際にログインアクセスしますよと。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant ssh
+</span><span class='line'>Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)
+</span><span class='line'>
+</span><span class='line'> * Documentation:  https://help.ubuntu.com/
+</span><span class='line'>Welcome to your Vagrant-built virtual machine.
+</span><span class='line'>Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+</span><span class='line'>vagrant@testserver:~$</span></code></pre></td></tr></table></div></figure>
+
+
+<p>おーいえす。ちゃんとホスト名も設定されてる。</p>
+
+<p>ちなみに起動時の標準出力じっくりみると色々わかるんだけど、起動時に、guestのssh port(22)と、<br/>
+hostの何番かを紐づけてくれてるので、そこにアクセスしてもいいのかも。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Hideaki-no-MacBook-Pro:project_blog nemoto_hideaki$ vagrant reload --provision
+</span><span class='line'>==&gt; default: Attempting graceful shutdown of VM...
+</span><span class='line'>==&gt; default: Checking if box 'hashicorp/precise64' is up to date...
+</span><span class='line'>==&gt; default: Clearing any previously set forwarded ports...
+</span><span class='line'>==&gt; default: Fixed port collision for 22 =&gt; 2222. Now on port 2204.
+</span><span class='line'>==&gt; default: Clearing any previously set network interfaces...
+</span><span class='line'>==&gt; default: Preparing network interfaces based on configuration...
+</span><span class='line'>    default: Adapter 1: nat
+</span><span class='line'>    default: Adapter 2: bridged
+</span><span class='line'>==&gt; default: Forwarding ports...
+</span><span class='line'>    default: 22 =&gt; 2204 (adapter 1) &lt;--ここ！！★
+</span><span class='line'>==&gt; default: Booting VM...
+</span><span class='line'>==&gt; default: Waiting for machine to boot. This may take a few minutes...
+</span><span class='line'>    default: SSH address: 127.0.0.1:2204
+</span><span class='line'>    default: SSH username: vagrant
+</span><span class='line'>    default: SSH auth method: private key
+</span><span class='line'>==&gt; default: Machine booted and ready!
+</span><span class='line'>==&gt; default: Checking for guest additions in VM...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>というわけで、localhostの 2204 番にアクセスしてみるも・・・</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ssh -p 2204 vagrant@127.0.0.1
+</span><span class='line'>vagrant@127.0.0.1's password:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>private key 設定すればよさげだけど・・・どの key だ？面倒なんでパス。<br/>
+つまり、こんな設定をして、vagrant up/vagrant ssh すればつながるよ！<br/>
+という話でした。</p>
+
+<p>はっ！マシンスペック！変えるんだった。とりあえず、default のままのスペックは下記。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat /proc/cpuinfo | grep -E 'processor|model name'
+</span><span class='line'>processor: 0
+</span><span class='line'>model name: Intel(R) Core(TM) i5-4258U CPU @ 2.40GHz
+</span><span class='line'>processor: 1
+</span><span class='line'>model name: Intel(R) Core(TM) i5-4258U CPU @ 2.40GHz
+</span><span class='line'>
+</span><span class='line'>$ free -m
+</span><span class='line'>             total       used       free     shared    buffers     cached
+</span><span class='line'>             Mem:           365        321         43          0         11        248
+</span><span class='line'>             -/+ buffers/cache:         61        303
+</span><span class='line'>             Swap:          767          0        767
+</span><span class='line'>
+</span><span class='line'>$ df -h
+</span><span class='line'>Filesystem                  Size  Used Avail Use% Mounted on
+</span><span class='line'>/dev/mapper/precise64-root   79G  2.3G   73G   4% /
+</span><span class='line'>udev                        174M  4.0K  174M   1% /dev
+</span><span class='line'>tmpfs                        74M  288K   73M   1% /run
+</span><span class='line'>none                        5.0M     0  5.0M   0% /run/lock
+</span><span class='line'>none                        183M     0  183M   0% /run/shm
+</span><span class='line'>/dev/sda1                   228M   25M  192M  12% /boot
+</span><span class='line'>vagrant                     233G   92G  142G  40% /vagrant</span></code></pre></td></tr></table></div></figure>
+
+
+<p>CPU : 2個
+Memory : 384MB
+HDD : 80GB
+(VirtualBox の GUI から引っ張って来てるスペック)</p>
+
+<ul>
+<li>CPU : 1個</li>
+<li>Memory 512MB</li>
+<li>HDD 15GB</li>
+</ul>
+
+
+<p>やることは、</p>
+
+<ul>
+<li>CPUを一個に減らす</li>
+<li>Memoryを512MBに増やす</li>
+<li>HDDを15GBに減らす</li>
+</ul>
+
+
+<p><a href="http://docs.vagrantup.com/v2/virtualbox/configuration.html">参考サイト１</a><br/>
+<a href="http://www.virtualbox.org/manual/ch08.html">参考サイト２</a><br/>
+上記２サイトを見比べた結果・・・</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat Vagrantfile
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "hashicorp/precise64"
+</span><span class='line'>  config.vm.hostname = "testserver"
+</span><span class='line'>  config.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+</span><span class='line'>  config.vm.provision :shell, path: "bootstrap.sh"
+</span><span class='line'>
+</span><span class='line'>  # ここから下を追記した
+</span><span class='line'>  config.vm.provider :virtualbox do |v|
+</span><span class='line'>    v.customize ["modifyvm", :id, "--memory", "512"]
+</span><span class='line'>    v.customize ["modifyvm", :id, "--cpus", "1"]
+</span><span class='line'>    v.customize ["modifyhd", "b5fc9c57-f008-4118-a03f-e535f25deea4", "--resize", "1024"]
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こう。こんな感じでいけるはず。<br/>
+modifyhd の横の、&#8221;b5fc9c57-f008-4118-a03f-e535f25deea4&#8221;は、VirtualBox イメージのイメージファイルの UUID。<br/>
+下記コマンド実行すればみれるです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ VBoxManage list -l vms
+</span><span class='line'>Name:            project_blog_default_1407343357247_93821
+</span><span class='line'>Groups:          /
+</span><span class='line'>Guest OS:        Ubuntu (64 bit)
+</span><span class='line'>UUID:            7819729d-541f-47b8-8607-ec50965f4901
+</span><span class='line'>...
+</span><span class='line'>(中略)
+</span><span class='line'>...
+</span><span class='line'>SATA Controller (0, 0): /Users/nemoto_hideaki/VirtualBox VMs/project_blog_default_1407343357247_93821/box-disk1.vmdk (UUID: b5fc9c57-f008-4118-a03f-e535f25deea4) &lt;-- これ！！
+</span><span class='line'>...
+</span><span class='line'>(中略)
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>よし！実行！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant up
+</span><span class='line'>Bringing machine 'default' up with 'virtualbox' provider...
+</span><span class='line'>...
+</span><span class='line'>(中略)
+</span><span class='line'>...
+</span><span class='line'>A customization command failed:
+</span><span class='line'>
+</span><span class='line'>["modifyhd", "b5fc9c57-f008-4118-a03f-e535f25deea4", "--resize", "1024"]
+</span><span class='line'>
+</span><span class='line'>The following error was experienced:
+</span><span class='line'>
+</span><span class='line'>#&lt;Vagrant::Errors::VBoxManageError: There was an error while executing `VBoxManage`, a CLI used by Vagrant
+</span><span class='line'>for controlling VirtualBox. The command and stderr is shown below.
+</span><span class='line'>
+</span><span class='line'>Command: ["modifyhd", "b5fc9c57-f008-4118-a03f-e535f25deea4", "--resize", "1024"]
+</span><span class='line'>
+</span><span class='line'>Stderr: 0%...
+</span><span class='line'>Progress state: VBOX_E_NOT_SUPPORTED
+</span><span class='line'>VBoxManage: error: Resize hard disk operation for this format is not implemented yet!
+</span><span class='line'>&gt;
+</span><span class='line'>
+</span><span class='line'>Please fix this customization and try again.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>はい、まただめ・・・orz<br/>
+VBoxManage: error: Resize hard disk operation for this format is not implemented yet!<br/>
+まだ実装してねーってよ。あきらめよう。</p>
+
+<p>HDD の件を削って実行して、スペック確認した結果。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vagrant@testserver:~$ cat /proc/cpuinfo | grep -E 'processor|model name'
+</span><span class='line'>processor   : 0
+</span><span class='line'>model name  : Intel(R) Core(TM) i5-4258U CPU @ 2.40GHz
+</span><span class='line'>vagrant@testserver:~$ free -m
+</span><span class='line'>             total       used       free     shared    buffers     cached
+</span><span class='line'>Mem:           491        338        153          0         15        260
+</span><span class='line'>-/+ buffers/cache:         61        429
+</span><span class='line'>Swap:          767          0        767
+</span><span class='line'>vagrant@testserver:~$ df -h
+</span><span class='line'>Filesystem                  Size  Used Avail Use% Mounted on
+</span><span class='line'>/dev/mapper/precise64-root   79G  2.3G   73G   4% /
+</span><span class='line'>udev                        237M  4.0K  237M   1% /dev
+</span><span class='line'>tmpfs                        99M  288K   99M   1% /run
+</span><span class='line'>none                        5.0M     0  5.0M   0% /run/lock
+</span><span class='line'>none                        246M     0  246M   0% /run/shm
+</span><span class='line'>/dev/sda1                   228M   25M  192M  12% /boot
+</span><span class='line'>vagrant                     233G   92G  142G  40% /vagrant</span></code></pre></td></tr></table></div></figure>
+
+
+<p>HDD リサイズとかは、たぶん Box 定義からいじる、とかなのかな？<br/>
+その辺の深追いはまた今度。<br/>
+まず今日の課題はクリアで。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/guestserver01_nohdd.png" alt="guestserver_hddstay" /></p>
+
+<h2>次回予告</h2>
+
+<p>複数サーバをぼこぼこあげるとき。</p>
+
+<p>続きの複数サーバ編は
+<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">ここ</a>だよ。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RSpecでの基本的な書き方（前編）]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/30/basic-test-with-rspec/"/>
+    <updated>2014-07-30T20:54:43+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/30/basic-test-with-rspec</id>
+    <content type="html"><![CDATA[<p>こんにちは。adorechicです。
+<a href="http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails/">前回</a> ざっくりRSpecの概要みたいなところで終わってしまったので、今回は基本的な書き方みたいなところを書いてみます。
+とはいえPOROなサンプルコードへのテスト、っていうのはよく見かけるので、Railsのモデルをテーマにやってみます。</p>
+
+<p>RSpecって結構独特な感じあって、RSpec Wayみたいなものがある。
+割と好みわかれたりもするのだけれど、べたべたな感じの書き方からはじめていきます。</p>
+
+<!-- more -->
+
+
+<h1>ファイル</h1>
+
+<p>まあよくあるUserモデルに対するテストを書いてみます。
+app/models/user.rb ってやつ。</p>
+
+<p>これに対応するspecは、spec/models/user_spec.rb です。</p>
+
+<p>Rails使ってるとgeneratorが作ってくれたりする。</p>
+
+<p>実はこのディレクトリ構造みてspecのタイプが判定されたりするのですがRSpec3からデフォルトオフっぽいのであんまり気にしなくてよいかも。</p>
+
+<h1>find_byメソッドをテストしてみる</h1>
+
+<p>実際はActiveRecordのメソッドなんでいちいちテストする必要ないですが、わかりやすいので。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;spec_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="no">User</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">User</span><span class="o">.</span><span class="n">create!</span><span class="p">(</span>
+</span><span class='line'>      <span class="ss">email</span><span class="p">:</span> <span class="s1">&#39;tom@example.com&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">password</span><span class="p">:</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;tom&#39;</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">specify</span> <span class="s1">&#39;.find_by returns tom&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span> <span class="s1">&#39;tom@example.com&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="o">.</span><span class="n">should</span> <span class="n">eq</span> <span class="s1">&#39;tom@example.com&#39;</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span> <span class="s1">&#39;tom&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>どうでしょうか。tomというユーザーを作成して、find_byメソッドでそのモデルインスタンスが取得できることをテストしています。なんとなく雰囲気はつかめるのでは。</p>
+
+<h2>specify</h2>
+
+<p>specifyブロックがひとつのテストになっていて、RSpecではexampleと呼ばれます。
+ちなみにitとspecifyは同じです。itと書くほうが多い。理由はだんだんわかってくるはず。
+specifyの引数には、検証内容を書く。たまにshould returnとか書く人もいるけど、returnsと書くのが一般的です。</p>
+
+<p>内容としては、User.createしてfind_byしたもののメアドと名前が意図したものか検証している。
+この検証してるところをexpectationとか言ったりします。</p>
+
+<p>あえてshouldとexpectの2パターン書いたのですが、意味合い的には同じです。
+もともとはshouldでしたが、RSpec3からは非推奨になってexpectになっています。（ただし例外あり）
+RSpec2の途中からexpectは使える。</p>
+
+<h2>before</h2>
+
+<p>beforeブロックは名前のとおり、exampleが実行される前に実行されるブロックです。
+このコードのように事前にテストデータ作ったりとかの前処理に使えます。</p>
+
+<h2>describe</h2>
+
+<p>一番外側のdescribeは、そういうexampleをまとめたもの。beforeブロックは同じdescribeブロックでは全てに適用されます。describeの引数にUserクラスをわたしているけど、文字列でもOK。ただそのspecファイルが対象としているクラスを引数にしたdescribeを一番外側に置く場合が多い。</p>
+
+<h2>実行してみる</h2>
+
+<p>-fdオプションつけるのオススメです。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">rspec</span> <span class="o">-</span><span class="n">fd</span> <span class="n">spec</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">user_spec</span><span class="o">.</span><span class="n">rb</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>するとこういう出力になるはず。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">User</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">find_by</span> <span class="n">returns</span> <span class="n">tom</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Finished</span> <span class="k">in</span> <span class="mi">0</span><span class="o">.</span><span class="mi">08805</span> <span class="n">seconds</span>
+</span><span class='line'><span class="mi">1</span> <span class="n">example</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failures</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>describeの引数とspecifyの引数のメッセージが表示されている。
+これだけでなんとなく何のテストをしているかわかりますね。</p>
+
+<h2>寄り道：ここで作ったデータってどうなるの？残るの？</h2>
+
+<p>まあそのまんまにしてたら残りますよね。
+でも前回のテストで作られたゴミが残ってると意図せずテストこけたりして辛い。
+毎回クリーンな状態でやりたい。</p>
+
+<p>ということで、都度データをきれいにしてくれるツールがあります。
+<a href="https://github.com/DatabaseCleaner/database_cleaner">DatabaseCleaner</a> とかが有名ですが、
+<a href="https://github.com/amatsuda/database_rewinder">DatabaseRewinder</a> が速いしオススメです。</p>
+
+<h1>テストデータを簡単に用意する</h1>
+
+<p>とりあえずはテストデータ普通にcreateメソッドで作ったわけですが、これ毎回必要なパラメータ設定してcreateするとかダルいですね。ここでもpasswordとかなんでもよいのに指定している。</p>
+
+<p>そういうテストデータを用意するツールもあります。
+fixturesというのがもともと仕組みとしてあるのですが、FactoryGirlなどのFactory系が主流になり、ただ最近はfixturesが見直されていたりしますが、ここではFactoryGirlを使ってみます。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">describe</span> <span class="no">User</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">create</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">email</span><span class="p">:</span> <span class="s1">&#39;tom@example.com&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">specify</span> <span class="s1">&#39;.find_by returns tom&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span> <span class="s1">&#39;tom@example.com&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span> <span class="s1">&#39;tom@example.com&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>おーシンプルになった。（nameの検証はもういらんので消した）
+普通にcreateメソッドで作るとpasswordとか指定しないとvalidation errorになるのに・・・</p>
+
+<p>Factory系は、設計図みたいなものを別途定義しておきます。</p>
+
+<ul>
+<li>spec/factories/users.rb</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">FactoryGirl</span><span class="o">.</span><span class="n">define</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">sequence</span> <span class="ss">:email</span> <span class="k">do</span> <span class="o">|</span><span class="n">n</span><span class="o">|</span>
+</span><span class='line'>    <span class="s2">&quot;test-</span><span class="si">#{</span><span class="n">n</span><span class="si">}</span><span class="s2">@example.com&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">factory</span> <span class="ss">:user</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">email</span>
+</span><span class='line'>    <span class="n">password</span> <span class="s1">&#39;password&#39;</span>
+</span><span class='line'>    <span class="nb">name</span> <span class="s1">&#39;Steve&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これにそって必要な値をいれてくれる。適当な値でいいときは</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">create</span> <span class="ss">:user</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これだけでOK。テストに必要なら別途指定する感じです。</p>
+
+<h1>共通で使う値をまとめる</h1>
+
+<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;&#x3a;&#116;&#x6f;&#x6d;&#64;&#101;&#120;&#97;&#109;&#x70;&#108;&#101;&#46;&#x63;&#x6f;&#x6d;">&#116;&#x6f;&#x6d;&#x40;&#101;&#120;&#x61;&#109;&#x70;&#108;&#x65;&#46;&#99;&#111;&#x6d;</a>&#8216;が3箇所で書かれている。
+後から値変更するとき3箇所弄るの辛いですね。まとめましょう。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">describe</span> <span class="no">User</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">create</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">email</span><span class="p">:</span> <span class="n">email</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:email</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;tom@example.com&#39;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">specify</span> <span class="s1">&#39;.find_by returns tom&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span> <span class="n">email</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span> <span class="n">email</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>letが使えます。遅延評価される変数的なものです。</p>
+
+<h1>describeをネストする</h1>
+
+<p>beforeとかletとかいろいろ出てきて要素がちょっとゴチャゴチャしてきましたね。</p>
+
+<p>いまexampleがひとつだからよいけど、別メソッドのexampleとか書きたいとき混じってわけわからなくなりそう・・・</p>
+
+<p>describeはexampleをまとめるものでした。そして実はいくらネストしてもOK。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">describe</span> <span class="no">User</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">describe</span> <span class="s1">&#39;.find_by&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">create</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">email</span><span class="p">:</span> <span class="n">email</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">let</span><span class="p">(</span><span class="ss">:email</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;tom@example.com&#39;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;returns tom&#39;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span> <span class="n">email</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span> <span class="n">email</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>すっ飛ばしましたが、一番外側に対象のクラス名書いたら、個別のテスト対象メソッドごとにdescribeわけるとよいです。メソッドごとにbeforeブロックとかもわけて書きやすくなるし、テスト対象がわかりやすくなりましたね。</p>
+
+<p>しれっとspecifyをitに変えました。処理的には同じなのですが、何のメソッドをテストしているかがdescribeに切りだされたので、重複して書く必要がありません。itの方が自然に読み下せますね。</p>
+
+<p>ちなみにこの状態でrspec -fdすると</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">User</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">find_by</span>
+</span><span class='line'>    <span class="n">returns</span> <span class="n">tom</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Finished</span> <span class="k">in</span> <span class="mi">0</span><span class="o">.</span><span class="mi">10705</span> <span class="n">seconds</span>
+</span><span class='line'><span class="mi">1</span> <span class="n">example</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failures</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな感じ。</p>
+
+<h1>まとめ</h1>
+
+<p>Railsのモデルspecを題材に、基礎的なRSpecの書き方でした。
+いきなり最後の例が出てくると、どこから見ればよいのかちょっと混乱するかもですが、
+慣れると結構わかりやすいのではないでしょうか。</p>
+
+<p>本当はletとlet!だったりsubjectだったりいろいろなmatcherとかも書きたかったのですが、
+思いの外長くなってきたので今回はこの辺で。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[First RSpec With Rails]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails/"/>
+    <updated>2014-07-27T14:29:18+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails</id>
+    <content type="html"><![CDATA[<p>こんにちは。adorechicです。
+まわりでRailsデビューした人が何人かいるのですが、
+「テストどうすりゃいいんだ」「RSpecわからん」
+といった歓喜の声があがっているため、はじめてそのへんを触る人がざっくり雰囲気がつかめるようなエントリを書いてみます。
+RSpecのセットアップとかそういうのは書きません。</p>
+
+<!-- more -->
+
+
+<h1>specの種類</h1>
+
+<p>specと一口に言ってもいろいろな種類があります。</p>
+
+<ul>
+<li>controller spec</li>
+<li>model spec</li>
+<li>view spec</li>
+<li>routing spec</li>
+<li>helper spec</li>
+<li>request spec</li>
+<li>feature spec</li>
+</ul>
+
+
+<p>まずこれどういう違いがあるのかーとかわからないですね。
+モデルとかのテストは良いとしても、controller specとrequest specってどっちも「あるアクション」に「GETリクエスト」みたいなリクエストがとんで「どうなる」というのをテストしているように見えて、何が違うねんとかあると思います。</p>
+
+<p>それぞれどういう違いがあるのかざっくり解説。
+の前に。</p>
+
+<h1>テストって何をテストするのか</h1>
+
+<p>原則として、</p>
+
+<ul>
+<li>テストの対象（主題）に対して</li>
+<li>ある「入力」を与えたとき</li>
+<li>どういった「出力」が得られるか</li>
+</ul>
+
+
+<p>これが基本です。これが全てです。
+といいたいところですがステートレスにはなりきれないところもあるわけで。
+必要に応じて、</p>
+
+<ul>
+<li>どういった「内部変化」があるか</li>
+</ul>
+
+
+<p>も見ます。
+ただしこの内部変化はいたずらにチェックすればよいわけではないです。
+ありがちなのが、テスト対象の実装に依存したテストを書いてしまうこと。</p>
+
+<p>例えば最終的に「このレコードが保存されること」が確認できればよいのに、別の「このメソッドが呼び出されていること」とかを無闇にテストしてしまったりします。
+そういうテストは実装が変わったときに大量にfailして、テスト書き直すはめになるという壊れやすいテストになってしまいます。これでは本末転倒です。</p>
+
+<p>あくまでテストは対象のインターフェイスに対して行います。</p>
+
+<p>この辺の話に興味ある場合は<a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">これ</a>とかオススメ。</p>
+
+<p>ということで何が「入力」で何が「出力」なのかをおさえると、それぞれのspecの役割がとりやすいと思います。</p>
+
+<h1>specの種類</h1>
+
+<p>本題。</p>
+
+<h2>controller spec</h2>
+
+<p>対象はコントローラー、と特定のアクション。</p>
+
+<p>勘違いしやすいところですが、「入力」はHTTPリクエストまんまではありません。
+paramsなどを入力としてactionメソッドが呼び出されているととらえた方がやりやすいと思います。</p>
+
+<p>同様に「出力」もHTTPレスポンスではありません。
+よくあるのが、response bodyのhtmlとかをチェックしてしまうこと。
+単体テストとして考えるとそれはviewの責務なので、controllerの責務ではないのです。</p>
+
+<p>対象のactionに、あるパラメータがわたされて、その結果200が返る、404が返る、リダイレクトされる・・・とか、その処理であるレコードが作成されるとかそういうのを見ます。</p>
+
+<h2>model spec</h2>
+
+<p>モデルに対するspec。なんかデータ作って保存したり検索したりするようなメソッドをテストします。
+いわゆるよくある単体テストっぽいのでわりとわかりやすいんですが、やりがちなのはrailsの機能までテストしてしまうこと。validate presenceのような、デフォルトで用意されているrailsのvalidatorの機能までテストする必要はないです。
+たとえばcontextによって発動するvalidatorが違うとか、そういう複雑なことをするときだけ。</p>
+
+<h2>view spec</h2>
+
+<p>ビューをテストするもの。コントローラーの処理後、必要な変数がアサインされた前提で、どういったものがレンダリングされるか、という観点。</p>
+
+<h2>routing spec</h2>
+
+<p>railsのroutingをテストするもの。結構複雑なrouting書いたりすると、このURLできたときどのアクションにふられるのかとかぱっと見わからないときとかも便利。</p>
+
+<h2>helper spec</h2>
+
+<p>実は一番わかりやすいかもしれない。railsのhelperに対するテスト。helperって基本入力とか条件に対してタグだったり文字列を整形して出すようなユースケースが多いので、一番入力と出力がわかりやすい。</p>
+
+<h2>request spec</h2>
+
+<p>request specとfeature specは一応Integration testと呼ばれるものに属します。ただIntegration testってコンテキストによってちょっと意味合いが違ってくるのですが、ここではrailsアプリケーションとして通してるというぐらい。request specの入出力はHTTPリクエスト・レスポンス。REST APIに対するテストに向いている。一方でfeature specは画面操作。普通にブラウザでアクセスして、何かボタンをクリックするとどうなる、というのをテストする。</p>
+
+<p>feature specでは、controller specなどと違いDBの状態がどうなった、とかリダイレクト先のURLがどうだというようなことはあまりみません。だってブラウザで操作してて見えないから。登録ボタンおしたら、画面の要素が増えたねーみたいにチェックしていきます。</p>
+
+<h1>どの種類のテストをどこまで書くのか</h1>
+
+<p>まずmodel specでいろいろテスト書いたんだけれども、それを呼び出すcontroller specでも同じようなテスト書いてくとすごい重複してないか、という疑問。
+これも、入出力がどう違うのかという意識で書いていくとやりやすいと思います。</p>
+
+<p>例えばmodelのメソッドは、そのときのレコードの状態や、わたされるパラメータによっていろいろなコンテキストがあって、それごとにテストを書いたとしましょう。
+しかしその結果の出力としてのケースはそれほど多くないのではないでしょうか。成功してレコードが保存される、失敗してエラーが返るぐらい。
+であれば結果として呼び出し側としては2ケースしかない。であればcontroller specではその2ケースのテストを書く、というイメージです。</p>
+
+<h1>specいろいろ種類あったけど、全部書くの？</h1>
+
+<p>全部書く必要はないです。必要なものだけ書けば良い。</p>
+
+<p>これはそのアプリケーションで必要とする要件であったり、チームの開発スタイルとかにかなり依存してくるところなので一概にいえないところですが、
+たとえば基本的なresourcesとかによるroutingしかないのであれば、頑張ってrouting spec書かなくてもよいと思います。</p>
+
+<p>viewにすごいこだわりを持っていたり、複雑なviewを持っているアプリケーションであれば、view specしっかり書くとよいし、
+そこまでではなく普通に操作できればよいやーぐらいであればfeature specがあればよさそう。</p>
+
+<p>逆にそういう前提にこだわらず、不安なところは普段書かないやつでも書いた方がよいです。</p>
+
+<p>よく書かれるのはmodel, controller, feature/request specあたりでしょうか。</p>
+
+<h1>まとめ</h1>
+
+<p>テストに正解はありません。</p>
+
+<p>テストはそのアプリケーションが価値を生み出す手助けをするものです。
+新しく追加したコードが既存の機能を壊していないことを確かめるために用いられることもあるし、開発者が開発を進める上での手助けをするために用いられることもあります。</p>
+
+<p>どういった目的で、どんな場面でテストを書くのかによって書き方はもちろん、ツール自体使い分けた方がよい場合もあります。</p>
+
+<p>また開発スタイルや対象とするアプリケーションの性質によっても異なります。ぶっちゃけ好みです。
+RailsプロジェクトではRSpecが多いような感じがしますが、お膝元のBasecampではtest/unitらしい。</p>
+
+<p>複雑な機能を作るときに、contextを分けながら考えを整理してから実装入るとやりやすかったりするし、
+逆にインターフェイスレベルでいろいろ試行錯誤しながら開発するときは最初からきっちり書いてると開発効率を落としてしまったりします。</p>
+
+<p>とはいえ慣れないうちはたくさん書くのが良いと思います。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdを複数起動したい]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/"/>
+    <updated>2014-07-22T22:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd</id>
+    <content type="html"><![CDATA[<h2>概要</h2>
+
+<hr />
+
+<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
+って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
+
+<h3>fluentdとは？</h3>
+
+<hr />
+
+<p>知らない人はいないね。はい。</p>
+
+<p><a href="http://www.fluentd.org/"><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></a></p>
+
+<p><a href="http://www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
+
+<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
+使うのが普通ですね、はい。</p>
+
+<p>ちなみに僕はインストールするの今回初です(笑)<br/>
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
+<p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
+
+<h3>前提</h3>
+
+<hr />
+
+<p>multiprocessといっても、</p>
+
+<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
+とか<br/>
+<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
+とは違う意味で。</p>
+
+<p>本当に、プロセスを別で起動したいんです！という話。<br/>
+ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>詳細</h2>
+
+<hr />
+
+<p>まず、fluentd自体、ubuntuだとprecise/lucidしかサポートしていないので、<br/>
+binaryで入れたい方は対応osお使いください。</p>
+
+<h3>fluentdに限らず</h3>
+
+<hr />
+
+<p>fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、<br/>
+ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。</p>
+
+<p>気をつけるのは、以下。</p>
+
+<ul>
+<li>IP address</li>
+<li>port</li>
+<li>other sharable resources(files/sockets)</li>
+</ul>
+
+
+<p>大体のアプリは、上記を専有して起動しちゃうので、それが被らないように<br/>
+configをいじったりすれば概ね同時に起動して問題なす。</p>
+
+<h3>fluentdの場合</h3>
+
+<hr />
+
+<p>で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。</p>
+
+<p>まず、インストール後、今回触るファイルたちのリストは以下。</p>
+
+<ul>
+<li>/etc/init.d/td-agent</li>
+<li>/etc/td-agent/td-agent.conf</li>
+<li>/etc/default/td-agent</li>
+</ul>
+
+
+<p>それぞれ軽く解説をつけると・・・</p>
+
+<ul>
+<li>/etc/init.d/td-agent
+
+<ul>
+<li>fluentdの起動スクリプト</li>
+<li>このファイルいじって、PIDファイルが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/td-agent/td-agent.conf
+
+<ul>
+<li>fluentdのconfigファイル</li>
+<li>これの設定をいじって、portが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/default/td-agent
+
+<ul>
+<li>fluentdの起動オプション設定ファイル</li>
+<li>これの設定をいじって、起動時に読み込むconfigを切り替える</li>
+</ul>
+</li>
+</ul>
+
+
+<p>こんな感じ。実際のところは上記の３ファイルをコピって、二つずつ作るのだ。がっはっは。</p>
+
+<p>と、いうわけで、まずは各ファイルのコピーだけ作っておきましょ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo cp /etc/init.d/td-agent /etc/init.d/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/default/td-agent /etc/default/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/td-agent/td-agent_nginx.conf /etc/td-agent/td-agent_nginx.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>suffinxにnginxっていれてるのは、特に意味はないす。<br/>
+ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。</p>
+
+<h3>各ファイルの詳細</h3>
+
+<hr />
+
+<h4>/etc/init.d/td-agent_nginx</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Introduce the short server's name here
+</span><span class='line'>NAME=td-agent_nginx ★ここ修正
+</span><span class='line'>
+</span><span class='line'># Read configuration variable file if it is present
+</span><span class='line'>[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+</span><span class='line'>
+</span><span class='line'># PATH should only include /usr/* if it runs after the mountnfs.sh script
+</span><span class='line'>PATH=/sbin:/usr/sbin:/bin:/usr/bin
+</span><span class='line'>USER=td-agent                   # Running user
+</span><span class='line'>GROUP=td-agent                  # Running group
+</span><span class='line'>DESC=td-agent_nginx             # Introduce a short description here★ここ修正
+</span><span class='line'>PIDFILE=/var/run/$NAME/$NAME.pid
+</span><span class='line'>DAEMON=/usr/lib/fluent/ruby/bin/ruby # Introduce the server's location here
+</span><span class='line'># Arguments to run the daemon with
+</span><span class='line'>#DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS --daemon $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>echo $DAEMON_ARGS
+</span><span class='line'>SCRIPTNAME=/etc/init.d/$NAME
+</span><span class='line'>START_STOP_DAEMON_ARGS=""</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/td-agent/td-agent_nginx.conf</h4>
+
+<p>インストール直後のconfigっす。コメントは邪魔なのでとっぱらってます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>####
+</span><span class='line'>## Output descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;match td.*.*&gt;
+</span><span class='line'>  type tdlog
+</span><span class='line'>  apikey YOUR_API_KEY
+</span><span class='line'>
+</span><span class='line'>  auto_create_table
+</span><span class='line'>  buffer_type file
+</span><span class='line'>  buffer_path /var/log/td-agent_nginx/buffer/td ★ここ修正(同じログファイル握らないように)
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;match debug.**&gt;
+</span><span class='line'>  type stdout
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>####
+</span><span class='line'>## Source descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type forward
+</span><span class='line'>  port 25224 ★defaultだと24224になってるので、明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'># HTTP input
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type http
+</span><span class='line'>  port 18888 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'>## live debugging agent
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type debug_agent
+</span><span class='line'>  bind 127.0.0.1
+</span><span class='line'>  port 25235 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/default/td-agent_nginx</h4>
+
+<p>起動時につけるオプションね。<br/>
+ここで読み込むconfig変更しますゆえお忘れなく。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># This file is sourced by /bin/sh from /etc/init.d/td-agent
+</span><span class='line'># Options to pass to td-agent
+</span><span class='line'>DAEMON_ARGS="--config /etc/td-agent/td-agent_nginx.conf" ★これ追記。違う設定ファイル読み込むように</span></code></pre></td></tr></table></div></figure>
+
+
+<p>このくらい修正をかけると、だ、下記コマンドで動くはず、だ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent start
+</span><span class='line'>% sudo /etc/init.d/td-agent_nginx start
+</span><span class='line'>% ps aux|grep td-agent
+</span><span class='line'>td-agent 11314  0.0  3.5  98888 17912 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11317  2.4  5.2 125704 26260 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11348  0.0  3.5  98888 17908 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
+</span><span class='line'>td-agent 11351  5.5  5.2 125704 26224 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぱちぱちぱちぱちーーー。いやまぁそらそーだ。<br/>
+で、ここまでは結構すぐいきましたわい。ところが、、、、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つって、止めようとすると、、、なんと！両方のプロセスが止まる！<br/>
+ひぎぃ・・・・/etc/init.d/td-agentの中身としばらくにらめっこ。</p>
+
+<p>debian系のinit scriptの中では、start-stop-daemonってのがdaemonの起動・停止に<br/>
+まつわるetc をやっていて、そのあたりをちょっと調べてみることに。</p>
+
+<ul>
+<li>fluentdのdo_stopでは、２回start-stop-daemonが呼ばれている
+
+<ul>
+<li>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</li>
+<li>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</li>
+</ul>
+</li>
+</ul>
+
+
+<p>と、いうのと、man start-stop-daemonの中身をみると。。。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Note: unless --pidfile is specified, start-stop-daemon behaves similar to killall(1).
+</span><span class='line'>start-stop-daemon will scan the process table looking for any processes which match
+</span><span class='line'>the process name, uid, and/or gid (if specified).
+</span><span class='line'>
+</span><span class='line'>Any matching process will prevent --start from starting the daemon. All matching processes
+</span><span class='line'>will be sent the TERM signal (or the one specified via --signal or --retry)
+</span><span class='line'>if --stop is specified.
+</span><span class='line'>
+</span><span class='line'>For  daemons  which  have  long-lived children which need to live through a --stop,
+</span><span class='line'>you must specify a pidfile.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つまり・・・&mdash;pidfileオプションが指定されてなければ、killallと同じように動く、と・・・<br/>
+おお・・・そりゃ両方のプロセス殺されるわけだ・・・<br/>
+逆に言えば、&mdash;pidfileを指定しとけばkillの動作なのかな・・・</p>
+
+<p>で、straceかけて、2パターン検証してみたYO。</p>
+
+<h4>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</h4>
+
+<p>やってることは、</p>
+
+<ol>
+<li>$PIDFILEの中のprocessidをとってくる(ここでは、$PIDとしよう)</li>
+<li>/proc/$PID/statが存在するか確認する</li>
+<li>存在しない場合は、終わり</li>
+<li>存在する場合は、3へ</li>
+<li>killする</li>
+<li>2に戻る</li>
+</ol>
+
+
+<p>をひたすら繰り返しております。<br/>
+なんで、基本的にはkillと同じ動きなのかな。retry付きで。</p>
+
+<h4>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</h4>
+
+<p>こっちは、まじkillallだったわ。</p>
+
+<ol>
+<li>/proc/&lt;全ProcessのPID>/exe のsymbolic link先 == $DAEMON か確認</li>
+<li>同じだったprocessにkillでsignal送信</li>
+<li>同じのがなくなるまで1と2を繰り返す</li>
+</ol>
+
+
+<p>killall。<br/>
+で、問題は、なんでこれを使う必要があるか・・・。<br/>
+きっと、本体殺しても、まだ生き残ってるプロセスがいる可能性があるから、<br/>
+なんだろうな・・・</p>
+
+<p>そこまでプロセスわけた上でやろうとすると、ちょいと今今時間がないので、<br/>
+一旦、各プロセスの本体を殺すinit scriptを書いてみたです。<br/>
+普通にkillコマンドで書いてます。start-stop-daemon、まだ使いこなせまてん。</p>
+
+<p>送るsignalは、<a href="http://docs.fluentd.org/articles/signals">ここ</a>に書いてあったので、INT/TERM。<br/>
+今回はINTでお送りいたします。</p>
+
+<p>/etc/init.d/td-agentの、do_stopを下記に書き換えてもらって、それコピーして、<br/>
+/etc/init.d/td-agent_nginxつくってもらえれば、それぞれに殺すことができまっせ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#
+</span><span class='line'># Function that stops the daemon/service
+</span><span class='line'>#
+</span><span class='line'>do_stop()
+</span><span class='line'>{
+</span><span class='line'>    # Return
+</span><span class='line'>    #   0 if daemon has been stopped
+</span><span class='line'>    #   1 if daemon was already stopped
+</span><span class='line'>    #   2 if daemon could not be stopped
+</span><span class='line'>    #   other if a failure occurred
+</span><span class='line'>    PID=`cat $PIDFILE`
+</span><span class='line'>    kill -INT $PID
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -ne 0 ]; then
+</span><span class='line'>        RETVAL="2"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    ps aux | grep $PIDFILE &gt;/dev/null 2&gt;&1
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -eq 0 ]; then
+</span><span class='line'>        rm -f $PIDFILE
+</span><span class='line'>        return "$RETVAL"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    return "2"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>終わりに</h3>
+
+<hr />
+
+<p>これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。<br/>
+(ご利用は各自の責任においてお願いします。Use at your own risk.)</p>
+
+<p>たぶん、改変自体は、ループ回して、待つ作戦＋ps 結果をgrepしてプロセス毎の<br/>
+PID取得する作戦かなー。</p>
+
+<p>ま、一旦はこれである程度まではいけるので、ブログはここまでで。</p>
+
+<p><a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/"/>
+    <updated>2014-07-12T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2</id>
+    <content type="html"><![CDATA[<p>はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア<a href="http://diary.risterlab.com">@risterlab</a>です。 <br/>
+来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！<br/>
+晴れますように。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="時計" /></p>
+
+<p>今回はちょっとした小ネタを。</p>
+
+<p>AWSのEC2のAmazon Linuxを立ち上げた人はまずUTCから日本時間に合わせるでしょう。<br/>
+しかし、大抵検索すると出てくる方法で合わせてしまうと、 <br/>
+再起動したときにたまに時間がUTCに戻っちゃって、困ってる人向けに。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>よくネットで出てくるEC2の時間の合わせ方</h3>
+
+<hr />
+
+<p><code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code></p>
+
+<p>だいたい、これがでてきますね。<br/>
+これをやるとすぐに日本時間になりますよ。じゃんじゃん。<br/>
+って。<br/>
+でもこれだとたまーに時間UTCに戻っちゃうので注意です。<br/>
+しかもたまーに戻るからこれがまた困るのです。<br/>
+私の場合実際にリリース前は何度再起動しても戻らなかったものが<br/>
+リリース後半年以上経ってから、再起動を機にしれっと戻っていました。</p>
+
+<p>cronとかアプリが時間見ていろいろやるから、大変でした。</p>
+
+<h3>時間がUTCに戻ってしまう理由</h3>
+
+<hr />
+
+<p>実は/etc/localtime はglibcパッケージが更新されると、<br/>
+パッケージ更新に含まれるスクリプトによりUTCに設定されます。<br/>
+Amazon Linuxの場合、cloud_initがインスタンスの起動時にセキュリティの更新を実行するので、<br/>
+そのタイミングで設定が初期化されてしまいます。</p>
+
+<p>なのでglibcパッケージが更新された後、インスタンスを再起動すると、<br/>
+glibcパッケージが更新され、/etc/localtimeが初期化されてしまう、<br/>
+というカラクリ。</p>
+
+<h3>時間が初期化されないようにするには</h3>
+
+<hr />
+
+<p>上記の防止策は２つ。</p>
+
+<ol>
+<li>/etc/localtimeではなく、/etc/sysconfig/clockを編集する</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ZONE="Asia/Tokyo"
+</span><span class='line'>UTC=False</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.cloud_initの設定ファイル（/etc/cloud/cloud.cfg）でセキュリティの更新を無効にする</p>
+
+<p>セキュリティの更新はしたいけど、<br/>
+時間は勝手に戻ってしまっては困る、っていうのが大抵の場合だと思いますし、<br/>
+セキュリティの更新を無効にするのはオススメできません。</p>
+
+<h3>まとめ</h3>
+
+<hr />
+
+<p>いろんなサイトに書いてる<br/>
+<code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code><br/>
+は今すぐ時間を合わせたいときには有効だけど<br/>
+そのインスタンスの時間の設定をFIXすることにはならないので注意。<br/>
+うっかりUTCに戻ってしまわないようにするには<br/>
+/etc/localtimeではなく、/etc/sysconfig/clockを編集すること。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ZONE="Asia/Tokyo"
+</span><span class='line'>UTC=False</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[What I Did After the Installation of Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress/"/>
+    <updated>2014-07-11T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/11/after-installing-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、おフランス帰りの<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+ほっほっほ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/seine.png" alt="セーヌ川" /></p>
+
+<p>パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、<br/>
+珍しく海外におりました。<br/>
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。<br/>
+セーヌ川と聞くと、いつも、セーム革ね、と思っているのは内緒です。</p>
+
+<p>さてさてまたしてもOctopress関連です。</p>
+
+<p>Octopressは、インストールしてすぐ公開できるけど、その状態はほんとに真っ新なわけで。<br/>
+サイドバーモジュール出したり、コメントつけられるようにしたり、と多少手をかけないと<br/>
+いけなかったりしたので、インストール後にやったことの作業メモ。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+インストール後にいまのところやったのは、</p>
+
+<ul>
+<li>記事にコメントをつけられるようにした</li>
+<li>google plusの+1モジュールを出した</li>
+<li>サイドバーにGoogle Adsense/Affiliateを出した</li>
+<li>github repositoryを出した、そして引っ込めた</li>
+<li>category generator/category listモジュールを導入した</li>
+<li>Google Analyticsで色々みれるようにした
+こんなもんだったかな？</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>今後やりたいなー、と思ってるのは、</p>
+
+<ul>
+<li>英語のブログと日本語のブログを分けて表示できるようにしたい</li>
+<li>code blockいけてない表示を変更したい<br/>
+くらいかな。</li>
+</ul>
+
+
+<h3>記事にコメントをつけるには</h3>
+
+<hr />
+
+<p>Octopress自体は、以前も紹介した通り、静的サイトGenerator Jekyllのラッパー的な<br/>
+存在なので、当然、コメントなんつー動的コンテンツ管理機能はないっす。</p>
+
+<p>そこは、<a href="https://disqus.com/">disqus</a>っつー外部サービスに依存してるので、disqusアカウントを作りましょう。<br/>
+disqusアカウントの作り方は、ぐぐればいいよ。</p>
+
+<p>作ったら、下図的な感じで、&#8221;Add Disqus to Site&#8221;を選択。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/add_disqus_to_site.png" alt="add disqus to site" /></p>
+
+<p>そんで、Site name入れたりする。例は適当にいれてみた。<br/>
+これでも問題ない。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/site_profile.png" alt="site profile" /></p>
+
+<p>次は、この画面の、&#8221;Install&#8221;タブが選択された状態で出てくるので、<br/>
+下図みたいに、&#8221;General&#8221;を選択する。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus1.png" alt="configure disqus1" /></p>
+
+<p>下の方にいくと、Your website&rsquo;s shortname is ikmenblog と出てくるので、<br/>
+これを覚えておく。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/configure_disqus2.png" alt="configure disqus2" /></p>
+
+<p>そして、_config.ymlを下記のように編集してちょ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>...
+</span><span class='line'>中略
+</span><span class='line'>...
+</span><span class='line'>disqus_short_name: 'ikemenblog'
+</span><span class='line'>disqus_show_comment_count: true
+</span><span class='line'>...
+</span><span class='line'>中略
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>short nameは、さっき覚えた名前ね。<br/>
+あとは、各postのmetadataに、下記を追記しておけばOK。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>comments: true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで投稿すれば漏れなくコメントがつけられるようになりますわ。Tre bien。</p>
+
+<h3>google plusの+1モジュールを出すには</h3>
+
+<hr />
+
+<p>ブログのPVを増やすには内容が面白くないと何やってもだめなんだろうけどね。<br/>
+このモジュール、簡単に出せるので出してみようかな、と。<br/>
+もうちょい記事が増えて、Fanpageにも投稿できるようになったらFacebookモジュールも<br/>
+出しますかね。</p>
+
+<p>まずは、_config.ymlにこんな行があるので探しましょう。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Google +1
+</span><span class='line'>google_plus_one: false
+</span><span class='line'>google_plus_one_size: medium
+</span><span class='line'>
+</span><span class='line'># Google Plus Profile
+</span><span class='line'># Hidden: No visible button, just add author information to search results
+</span><span class='line'>googleplus_user: 
+</span><span class='line'>googleplus_hidden: false</span></code></pre></td></tr></table></div></figure>
+
+
+<p>そんで、googleplus_userのところを埋めればOK。<br/>
+googleplus_userって何？という方は、<a href="http://gphangouts.com/googleplusurl.html">こちら</a>。<br/>
+ちなみに僕もなんのことかわからなかった。</p>
+
+<p>あとは、どういう仕組みで表示されるかというと、これをみると少しわかるかね。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls -l source/_includes/asides
+</span><span class='line'>-rw-r--r--  1 user  group  406  6 15 08:32 delicious.html
+</span><span class='line'>-rw-r--r--  1 user  group 1005  6 15 08:32 github.html
+</span><span class='line'>-rw-r--r--  1 user  group  360  6 15 08:32 googleplus.html
+</span><span class='line'>-rw-r--r--  1 user  group  799  6 15 08:32 pinboard.html
+</span><span class='line'>-rw-r--r--  1 user  group  329  6 15 08:32 recent_posts.html
+</span><span class='line'>
+</span><span class='line'>$ cat source/_includes/asides/googleplus.html
+</span><span class='line'>
+</span><span class='line'>&lt;section class="googleplus"&gt;
+</span><span class='line'>  &lt;h1&gt;
+</span><span class='line'>    &lt;a href="https://plus.google.com/106189997190821430505?rel=author"&gt;
+</span><span class='line'>      &lt;img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32"&gt;
+</span><span class='line'>        Google+
+</span><span class='line'>    &lt;/a&gt;
+</span><span class='line'>  &lt;/h1&gt;
+</span><span class='line'>&lt;/section&gt;
+</span><span class='line'></span></code></pre></td></tr></table></div></figure>
+
+
+<p>source/_includes/asidesにhtmlファイルがあって、それを読み込んで生成するというわけで。<br/>
+同じディレクトリに他にもファイルがあるけど、どれを表示するかは、_config.ymlに記載してありんす。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな感じで。<br/>
+これでgoogle plus +1モジュールは表示されるはず。</p>
+
+<h3>github repositoryを出して、そして引っ込めるには</h3>
+
+<hr />
+
+<p>これもgoogle plusモジュールと似たようなもん。<br/>
+さっきのlsの結果をみると、source/_includes/asides配下に、github.htmlがあったわけで。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls -l source/_includes/asides
+</span><span class='line'>cat source/_includes/asides/github.html
+</span><span class='line'>
+</span><span class='line'>&lt;section&gt;
+</span><span class='line'>  &lt;h1&gt;GitHub Repos&lt;/h1&gt;
+</span><span class='line'>  &lt;ul id="gh_repos"&gt;
+</span><span class='line'>    &lt;li class="loading"&gt;Status updating...&lt;/li&gt;
+</span><span class='line'>  &lt;/ul&gt;
+</span><span class='line'>  
+</span><span class='line'>    &lt;a href="https://github.com/root04"&gt;@root04&lt;/a&gt; on GitHub
+</span><span class='line'>  
+</span><span class='line'>  &lt;script type="text/javascript"&gt;
+</span><span class='line'>    $(document).ready(function(){
+</span><span class='line'>      if (!window.jXHR){
+</span><span class='line'>        var jxhr = document.createElement('script');
+</span><span class='line'>        jxhr.type = 'text/javascript';
+</span><span class='line'>        jxhr.src = '/javascripts/libs/jXHR.js';
+</span><span class='line'>        var s = document.getElementsByTagName('script')[0];
+</span><span class='line'>        s.parentNode.insertBefore(jxhr, s);
+</span><span class='line'>      }
+</span><span class='line'>
+</span><span class='line'>      github.showRepos({
+</span><span class='line'>        user: 'root04',
+</span><span class='line'>        count: 0,
+</span><span class='line'>        skip_forks: true,
+</span><span class='line'>        target: '#gh_repos'
+</span><span class='line'>      });
+</span><span class='line'>    });
+</span><span class='line'>  &lt;/script&gt;
+</span><span class='line'>  &lt;script src="http://blog.branch4.pw/javascripts/github.js" type="text/javascript"&gt; &lt;/script&gt;
+</span><span class='line'>&lt;/section&gt;
+</span><span class='line'></span></code></pre></td></tr></table></div></figure>
+
+
+<p>で、またどれを表示するかは、_config.ymlに記載してあります。<br/>
+(github.htmlを追加した)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>更に、_config.yml、下記箇所をあわせて編集。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Github repositories
+</span><span class='line'>github_user: xxxxxxxx
+</span><span class='line'>github_repo_count: 0
+</span><span class='line'>github_show_profile_link: true
+</span><span class='line'>github_skip_forks: true</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで表示される、と。非表示にしたい場合は、default_asidesから抜いてしまえばOK。</p>
+
+<h3>サイドバーにGoogle Adsense/Affiliateを出すには</h3>
+
+<hr />
+
+<p>せっかくブログ書くので、Adsense貼ったり、affiliate出したりして億万長者になろう！<br/>
+というわけで、こんな感じにすると貼れまっせ。<br/>
+ただ貼るだけだとaffiliateを貼ろうとすると、広告だらけの酷いサイトになっちゃうので、<br/>
+affiliate枠は一つにして、そこにランダムに複数affiliateを表示するようにしよう。<br/>
+そうすればABテストも兼ねられるし、一石二鳥。</p>
+
+<p>まずは、affiliateから。</p>
+
+<p>ざっくりやること。<br/>
+1. sidebarに読み込むhtmlの設定と設置
+2. 1のhtmlから読み込んで実行するjsファイルの設置
+3. jsファイルのinclude
+4. sidebarのwidth変更
+かな。</p>
+
+<p><a href="http://lblevery.com/sfn/aff/course/aff-banner-randomview/">ここ</a>参考にしましたね、私。</p>
+
+<h4>sidebarに読み込むhtmlの設定と設置</h4>
+
+<p>_config.ymlのいつもの行探しと追記。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html]
+</span><span class='line'>default_asides: [asides/recent_posts.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html, asides/github.html, custom/asides/affiliate.html] &lt;- 追記後</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上記で、custom/asides配下に、affiliate.htmlを設置することにしてるので、<br/>
+source/_include/custom/asides/affiliate.htmlを下記内容で設置。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat source/_includes/custom/asides/affiliate.html
+</span><span class='line'>&lt;script type="text/javascript" language="javascript"&gt;
+</span><span class='line'>  num = Math.floor( Math.random() * 6 );
+</span><span class='line'>  document.write( aff[ num ]);
+</span><span class='line'>&lt;/script&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Math.random() * 6 の、&#8221;6&#8221;は、何個のaffiliateバナーを回すかを書く。</p>
+
+<h4>1のhtmlから読み込んで実行するjsファイルの設置</h4>
+
+<p>次は、実行するjsファイルを設置。<br/>
+source/javascripts/affiliate.jsを、下記内容で設置。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>var aff = new Array();
+</span><span class='line'>aff[0] = 'affiliate tag1'
+</span><span class='line'>aff[1] = 'affiliate tag2'
+</span><span class='line'>aff[2] = 'affiliate tag3'
+</span><span class='line'>aff[3] = 'affiliate tag4'
+</span><span class='line'>aff[4] = 'affiliate tag5'
+</span><span class='line'>aff[5] = 'affiliate tag6'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>affiliate tagXのところに、表示したいaffiliateのtagを突っ込む。<br/>
+(ダブルクオーテーションは、backslashでエスケープ)</p>
+
+<h4>jsファイルのinclude</h4>
+
+<p>次は、html &lt;head&gt; &ndash; &lt;/head&gt;の中に、上記で設置したjsファイルをincludeするように、下記を追記する。<br/>
+僕は、source/_includes/head.html中に追記したです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;script type="text/javascript" src="http://xxx.yyy.zzz/javascripts/affiliate.js" charset="utf-8"&gt;&lt;/script&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>sidebarのwidth変更</h4>
+
+<p>最後に、affiliateのサイズに合わせて、sidebar widthの調整。<br/>
+僕は、全部 300 x 250 でそろえたので、sidebar widthを、310pxにしたですよ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi sass/base/_layout.scss
+</span><span class='line'>
+</span><span class='line'>...
+</span><span class='line'>略
+</span><span class='line'>...
+</span><span class='line'>// Sidebar widths used in media queries
+</span><span class='line'>$sidebar-width-medium: 310px !default;
+</span><span class='line'>$sidebar-pad-medium: 5px !default;
+</span><span class='line'>$sidebar-pad-wide: 5px !default;
+</span><span class='line'>$sidebar-width-wide: 310px !default;
+</span><span class='line'>...
+</span><span class='line'>略
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでいける、はず。</p>
+
+<h3>category generator/category listモジュールを導入するには</h3>
+
+<hr />
+
+<p>category generatorは、install直後から使えるpluginなので、_config.ymlを設定するだけで、<br/>
+category分けしたアーカイブページ作ってくれます。
+設定は簡単に<a href="http://octopress.org/docs/plugins/category-generator/">公式サイト</a>に説明あり。</p>
+
+<p>category generatorは、このブログでいうと、例えば、<br/>
+<a href="http://blog.branch4.pw/blog/categories/misc">こんな感じ</a>のアーカイブページを作ってくれますよ。</p>
+
+<p>category listは、<a href="http://qiita.com/amay077/items/3296fdf1ea11c7c9ace4">こっち</a>を参照。</p>
+
+<p>こんな感じのリストを作れますよ。<br/>
+<img src="http://blog.branch4.pw/images/2014/07/category_list.png" alt="category list" /></p>
+
+<h3>Google Analyticsで色々みれるようにするには</h3>
+
+<hr />
+
+<p>最後に、Google Analytics導入。</p>
+
+<p>これもあんまり書くことないんだけど、Analyticsアカウント登録して、<br/>
+tracking_id を、_config.ymlの下記箇所に書けばOK。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Google Analytics
+</span><span class='line'>google_analytics_tracking_id: UA-XXXXXX-Y</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Analyticsに数字が反映されるまで結構（24hr以上かかった）時間かかるけど、<br/>
+それを除けば、特に難しいことはないっす。</p>
+
+<p>と、いうわけで、いまのところ僕がoctopressインストール後にやったことをまとめてみましたです。</p>
+
+<p>色々間違ってメモってそうなので、その時はこっそり教えていただけるとうれしいです。<br/>
+Au revoir !</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[IT・インターネット・ゲーム業界の【転職】ノウハウ]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/30/changing-jobs-in-internet-gaming-business/"/>
+    <updated>2014-06-30T19:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/30/changing-jobs-in-internet-gaming-business</id>
+    <content type="html"><![CDATA[<p><img src="http://blog.branch4.pw/images/2014/06/ajisai.jpg" alt="紫陽花" /></p>
+
+<p>こんにちは、<a href="https://github.com/maringerz">@maringerz</a>です。<br/>
+紫陽花にはなんの意味もありません。</p>
+
+<p>この度、私もブログを書かせてもらうことになりましたぁ！！！<br/>
+私はIT・ネット・ゲーム業界の転職エージェントを数年やって、<br/>
+今は、ゲーム会社の人事（採用担当）してます。</p>
+
+<p>IT・ネット・ゲーム業界の細かい転職とか実態情報とか、<br/>
+あまりネット上に見当たらないので、思いつくままにのっけていきますね☆</p>
+
+<p>プライベートは、
+お酒とギャンブルと世界旅行に溺れている『自由で』『楽しい』ことのみを
+追求して生きたいと願う超堕落人間ですゆえ、
+大げさなテーマを掲げてみてるけど↓どうなるかわからん。</p>
+
+<h3>ブログを読んでもらえたらなぁーと思う希望読者層</h3>
+
+<hr />
+
+<p>IT・インターネット・ゲーム業界で</p>
+
+<ul>
+<li>転職したい方（職種不問）</li>
+<li>事業会社の採用担当の方</li>
+<li>IT・インターネット・ゲーム業界専門の転職エージェントの方</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>今回は、第1回目ということで、まずは今後のブログのテーマ出してみた！</p>
+
+<h3>こんなテーマはどうかね～</h3>
+
+<hr />
+
+<h4>&lt;IT・インターネット・ゲーム業界で転職したい方向け></h4>
+
+<h5>転職市場の特徴</h5>
+
+<p>IT・インターネット・ゲーム業界と言ってもとっても広いから<br/>
+ざっと並べても下記の分類があって、それぞれ、転職市場の動向も人材の大きく違うから、<br/>
+それぞれ細かく書いていこかな。</p>
+
+<ul>
+<li>ＷＥＢ/モバイルサービス提供会社（広告含む）</li>
+<li>ＷＥＢインテグレーター</li>
+<li>ゲーム会社（コンシューマ、ネットワーク、ソーシャル）</li>
+<li>ＩＴコンサルティングファーム</li>
+<li>システムインテグレータ（一次請け、二次請け）</li>
+<li>事業会社の社内ＳＥ</li>
+<li>ベンダー（ハードウェアベンダー、ミドルウェアベンダー、ソフトウェア）</li>
+</ul>
+
+
+<h5>職種ごとのキャリアの積み方</h5>
+
+<h5>転職活動の進め方（戦略的転職活動の計画の立て方）</h5>
+
+<h5>転職エージェントの活用方法と選び方</h5>
+
+<h5>自己分析</h5>
+
+<h5>履歴書・職務経歴書の書き方（書類選考通過率を上げる方法）</h5>
+
+<p>※ 業界、職種別</p>
+
+<h5>面接対策（この項目準備しておけばＯＫ！）※業界、職種別</h5>
+
+<h5>内定、最終的な転職先の選び方</h5>
+
+<h5>退職交渉と円満退職</h5>
+
+<p>↑この辺はネットを検索すれば、いくらでもノウハウは出て来るので、<br/>
+大して有益な情報を提供できる自信は無いけど、私なりの視点で書けたら書く。</p>
+
+<h4>&lt;IT・インターネット・ゲーム業界を専門の転職エージェント向け></h4>
+
+<p>エンジニア出身の転職エージェント、人事じゃないと、<br/>
+書類選考、面接で技術者のスキルレベルを把握することは非常に難しい。<br/>
+このキーワードはこんなことっていうのは何となくわかるけど、<br/>
+正直概念の理解とかちんぷんかんぷん。</p>
+
+<p>私もよくわかってないから、エンジニアのお友達に教わって書けたらいいな。</p>
+
+<h5>エンジニアの種類とその仕事内容</h5>
+
+<h5>エンジニアの技術力の見極め方</h5>
+
+<h5>志向性・人物タイプによる転職先の適正</h5>
+
+<h4>&lt;IT・インターネット・ゲーム業界で事業会社の採用担当向け></h4>
+
+<p>私も目下、事業会社での採用については鋭意（鈍意かも）勉強中。<br/>
+エージェントで感じてた色んなことが、人事で採用してみると全然違うことも多くてびっくり。<br/>
+事業会社での採用はとっても難しい。ただ採用すればよいってわけじゃないから、、<br/>
+会社の事業拡大に貢献してくれて、その人も転職してきてよかった採用って。</p>
+
+<ul>
+<li>採用手法とその選択</li>
+<li>転職エージェントとの付き合い方</li>
+<li>書類選考の見極めポイント</li>
+<li>面接での人材の見極め方（質問のポイントと質問集）</li>
+<li>スカウトメールの送り方</li>
+<li>エグゼクティブサーチ（ヘッドハンティング）での採用</li>
+<li>入社後の現場導入と人材の活用</li>
+<li>事業計画実現のための人材採用</li>
+<li>面接官の育成</li>
+</ul>
+
+
+<p>まずは来週から1個ずつ書いてみまーす☆ <br/>
+それから、それからこのブログ読んでくれた人で、一緒に書いてみてもええよという人募集してます！</p>
+
+<p><a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Posting a Blog With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/"/>
+    <updated>2014-06-19T16:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress</id>
+    <content type="html"><![CDATA[<p>※  内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。</p>
+
+<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+前回に引き続きOctopress関連です。</p>
+
+<p>今回は、実際投稿するときどうするか、という点を。<br/>
+投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、少しかぶり気味。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+そこまできてたらこのblogは読まなくても書け・・・ます、はい。<br/>
+強いて言えば、準備はできてるけど、なんかよくわからんうちに準備できた人用。<br/>
+それか、このブログみたいに、複数で更新してるので、セットアップした人と、<br/>
+書く人が違う場合用。</p>
+
+<!-- more -->
+
+
+<h3>Cloning</h3>
+
+<hr />
+
+<p>では、setupしたrepositoryを、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://github.com/xxxxxx/xxxxxx.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p>とした場合。まずは、repositoryをlocalにcloneします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/xxxxxx/xxxxxx.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p><del>この時点で、active branchは、source branchに設定されております。</del><br/>
+これは、うそでしたｗｗ<br/>
+clone直後は、master branchでした。<br/>
+cloneしたディレクトリに、cdして、下記を実行するとsource branchに変わるです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この時点で、active branchは、source branchに設定されております。<br/>
+が、正解であります！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git status</span></code></pre></td></tr></table></div></figure>
+
+
+<p>でみるとわかるよん。<br/>
+前回の記事でも書いたけど、記事書くときの実作業は、このままsource branchでやって、<br/>
+本番投稿は、master branchにする、てな手口。</p>
+
+<h3>deploy用設定</h3>
+
+<hr />
+
+<p>次はdeploy用の設定しときます。<br/>
+cloneしたdirectoryにcdして、下記コマンドを実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle exec rake setup_github_pages</span></code></pre></td></tr></table></div></figure>
+
+
+<p>前回の記事でも出てきたんだけど、簡単にいうと、<br/>
+<em>deploy directoryを作ってくれる。<br/>
+で、本番deployのときは、この </em>deploy directoryにあるmaster branchにpushするので、<br/>
+_deploy に、master branchをpullしとく、と。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd _deploy
+</span><span class='line'>$ git pull origin master</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでdeploy用の設定は完了。</p>
+
+<h3>しっぴつ！</h3>
+
+<hr />
+
+<p>ここでは２点紹介。</p>
+
+<ul>
+<li>どこに書く？</li>
+<li>画像はどうする？</li>
+</ul>
+
+
+<h4>どこに書くか。</h4>
+
+<p>例えば、この記事のファイルは下記に格納されておる。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls source/_post/2014-06-08-blog-on-github.io-with-octopress.markdown</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ポイントはファイル名。</p>
+
+<p>&lt;year&gt;&ndash;&lt;month&gt;&ndash;&lt;day&gt;-title.&lt;markdown/html&gt;</p>
+
+<p>的な。これ以外にすると静的ファイルが生成されまてん。<br/>
+内容は、こんな感じ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>---
+</span><span class='line'>layout: post
+</span><span class='line'>title: "Blog on Github Pages with Octopress"
+</span><span class='line'>date: 2014-06-06T23:20:00-07:00
+</span><span class='line'>comments: true
+</span><span class='line'>published: true
+</span><span class='line'>categories:
+</span><span class='line'> - misc
+</span><span class='line'>---
+</span><span class='line'>
+</span><span class='line'>ここから下に本文を書く</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上のほうに、meta-dataを突っ込んで、その下にコンテンツを書く感じでござい。<br/>
+meta-dataの意味は・・・みればすぐわかるような内容しか設定してないので解説なしで。<br/>
+他にも色々あるので使いたい人は調べてみてちょ。</p>
+
+<h4>画像はどうするか</h4>
+
+<p>はい、画像は、source/images配下にcommitします。<br/>
+で、commit/pushすると、</p>
+
+<p><a href="http://github.com/xxxxxx/images/yyyyyy.png">http://github.com/xxxxxx/images/yyyyyy.png</a></p>
+
+<p>でみれるようになります。<br/>
+markdownの場合は、以下な感じで書いとけば、deployしたときに見えるようになります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[test](http://github.com/xxxxxx/images/yyyyyy.png)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然のようにpreviewのときは見えないので、previewでみたい場合は、画像だけ<br/>
+先にpushしとかないとだめかと。(面倒なので僕は一発本番チェック派)</p>
+
+<p>たぶん、この２つがわかればコンテンツ作るとこまではできるはず。<br/>
+コンテンツ書いたら、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle exec rake generate; bundle exec rake preview</span></code></pre></td></tr></table></div></figure>
+
+
+<p>を実行すると、<a href="http://127.0.0.1:4000">http://127.0.0.1:4000</a> に、Webrickがあがるので、<br/>
+ブラウザで見た目チェックと修正を繰り返して、完成までがんばりましょう。</p>
+
+<h3>投稿！</h3>
+
+<hr />
+
+<p>そんな工程を経て記事が無事完成したら、本番公開と、作業ファイルのcommitをしましょう。<br/>
+Octopressは、Jekyllに作業ファイルを食わせて本番用ファイルを生成するので、作業ファイルを<br/>
+commitしとかないと、次回本番生成時に記事がなくなっちゃうので要注意。</p>
+
+<p>そんなわけで、下記で作業ファイルのcommitと本番deploy。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
+</span><span class='line'>$ git commit -m 'nanka message'
+</span><span class='line'>$ git push origin source
+</span><span class='line'>$ bundle exec rake deploy</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あとは無事投稿されてるかを本番で確認したら、完了！<br/>
+おつかれちゃん。</p>
+
+<h3>rake task for generatign new posts</h3>
+
+<hr />
+
+<p>はい、もう終わりなんだけど、新規投稿するときに、いちいちファイルを0から作るのは<br/>
+めんどくさいので、専用raketaskが用意されております。一応その共有。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post['title']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>を実行すると、下記ファイルができあがります、と。<br/>
+source/_posts/2014-06-19-title.markdown</p>
+
+<p>正直、そんなに重要じゃなさげにみえるんだけど、例えば、</p>
+
+<ul>
+<li>テンプレを用意しておきたい</li>
+<li>adsenseを毎回貼るのがめんどくさい</li>
+<li>&lt;!&mdash; more &mdash;&gt;を忘れないようにしたい</li>
+</ul>
+
+
+<p>などなどある人は、Rakefileのtaskに加筆するとスーパー便利になったり。<br/>
+そんな使い方もありますよ。</p>
+
+<p>今日はこの辺で。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Resize Temp File of Oracle on RDS]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/"/>
+    <updated>2014-06-16T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize</id>
+    <content type="html"><![CDATA[<p>どもども。<a href="http://portfolio.risterlab.com">saorister</a>です。<br/>
+野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。<br/>
+(統一性なさすぎw)</p>
+
+<p>今回は私がブログ記事担当！<br/>
+ということで、<br/>
+この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。</p>
+
+<h3>DBのディスク空き容量が!!!</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/figure_graph_down.png" alt="DBのディスク空き容量が!!!" /></p>
+
+<p>RDSのOracleさんでTEMP表領域サイズがめっちゃでっかくなっちゃって<br/>
+空き容量がほとんどなくなっちゃったよぉぉぉぉ！！！</p>
+
+<p>パニック！！！</p>
+
+<p>って時の対処法を。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>起きたこと</h3>
+
+<hr />
+
+<ol>
+<li>どこかのおばかさんがとんでもSQLを投げた</li>
+<li>コアDB(RDS)のディスク容量があと10%以下よーというアラートがCloudWatchから飛んできて異常に気づく</li>
+<li>怪しいセッションを発見。すぐにkill!KILL!!キル！！！</li>
+<li>とりあえずぐんぐん下がっていくディスクの空き容量のグラフはもうほぼ０のところでぎりぎり止まった。  はぁ。</li>
+<li>ひとまずディスク容量増やそうぜ！このためのRDSじゃないか！ってことでディスク容量を10%増量。(10%以上じゃないとあげられないのよ)</li>
+</ol>
+
+
+<p>退屈な毎日だとは思っていたけどこんなスリルは求めてない。</p>
+
+<h3>増えたTemp領域を小さくする</h3>
+
+<hr />
+
+<p>とんでもSQLってのはselect文だったわけだけど<br/>
+むちゃくちゃなjoinをしてTEMP表領域(一時領域)が膨れ上がっちゃったわけですね。<br/>
+こわいねー。<br/>
+で、慌ててセッションkillしたから、その一時領域は開放されずそのまま残っちゃった。<br/>
+ので、これを小さくしてあげないといけない。<br/>
+「oracle temp領域 resize」「oracle 一時領域 縮小」<br/>
+とかで検索するとやりかたはいっぱいでてきます。<br/>
+だけどそこに書いてあるこのコマンド</p>
+
+<p><code>SQL&gt; alter database tempfile ~</code></p>
+
+<p>ってのはRDSじゃ権限がなくてできないんですよ。<br/>
+はい、困った。</p>
+
+<p>ってわけで先に結論。</p>
+
+<h4>RDSのoracleのtemp領域(一時領域)を縮小する方法</h4>
+
+<p>1.TEMP表領域を新規作成します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; CREATE TEMPORARY TABLESPACE TEMP02;
+</span><span class='line'>Tablespace created.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.デフォルトのTEMP表領域を1.で作成したものに変更します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.元のTEMP表領域を削除します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>実際にやったこと Try &amp; Error編</h2>
+
+<p>上で書いた結論はたった３つだけど、そこにたどり着くまでの試行錯誤も書いちゃうよ。<br/>
+まず膨れ上がったのがTEMP表領域だったことの確認はこのSQLで。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT dt.file_name, dt.tablespace_name,
+</span><span class='line'>to_char(dt.bytes / 1024, '99999990.000') file_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / 1024, '99999990.000') used_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / dt.bytes * 100, '990.00') || '%' capacity
+</span><span class='line'>FROM sys.dba_temp_files dt, v$temp_extent_pool t, v$tempfile v
+</span><span class='line'>WHERE t.file_id(+)= dt.file_id AND dt.file_id = v.file#;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな状態でした。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/temp_30GB_masking.png" alt="temp30GB" /></p>
+
+<p>で、単純に縮小しようとしてもできません。</p>
+
+<p><code>SQL&gt; alter tablespace temp resize 100M</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQLエラー: ORA-03297: ファイルには、リクエストしたRESIZE値を超える使用中のデータが含まれています。
+</span><span class='line'>03297. 00000 -  "file contains used data beyond requested RESIZE value"
+</span><span class='line'>*Cause:    Some portion of the file in the region to be trimmed is
+</span><span class='line'>           currently in use by a database object
+</span><span class='line'>*Action:   Drop or move segments containing extents in this region prior to
+</span><span class='line'>           resizing the file, or choose a resize value such that only free
+</span><span class='line'>           space is in the trimmed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こう言われちゃいますね。使ってるのよって。<br/>
+じゃあ、ってことでオンプレのoracleで普通やる縮小方法を試してみると。</p>
+
+<p><code>SQL&gt; alter database tempfile '/path/to/temp/file1.tmp' resize 10M;</code><br/>
+&ndash;> はいalter databaseはRDSでうてませーん。権限ありませーん。</p>
+
+<p>じゃあお決まりの、新しくTEMP表領域を小さいのつくって、置き換える作成へ。</p>
+
+<p><code>SQL&gt; create temporary tablespace TEMP02 size 10M;</code><br/>
+&ndash;> だめ。これも権限ないって怒られる。<br/>
+でもこれはファイルサイズを決める権限がないってことらしく、これなら<br/>
+通った。<br/>
+<code>SQL&gt; create temporary tablespace TEMP02;</code></p>
+
+<p>さっきのSQLで確認するとtmpファイルが２つでてきて、<br/>
+新しいものは100MBでできていることがわかるはず。</p>
+
+<p>よし、ここでデフォルトのTEMP表領域を置き換える。<br/>
+そうalter databaseじゃなくてexec rdsadminを使ってね！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>よーしこれで用無しになったおデブちゃんを削除だ！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぐっばい、おでぶちゃん。<br/>
+勝利の美酒に浸りながらCloudWatchで空き容量が一気にもどってるのを見ようとしたら<br/>
+なんと！<br/>
+グラフ微動だにせず、、、、<br/>
+むしろ追加したTEMP表領域の分の100MB分減っとるやないかーい！<br/>
+くそ、結局再起動しないと消えへんオチかい。<br/>
+と調べてたら、こっちにするべきだったみたい。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; drop tablespace &lt;tablespace_name&gt; including contents and datafiles;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これじゃないとファイルも一緒に削除してくれないとな。<br/>
+もー先に教えてよー。時既に遅しじゃーん。まぁ今日は寝よ。<br/>
+ってことで次の日CloudWatchのグラフ見たらびっくり。<br/>
+半日遅れでディスクの空き増えてるよ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/CloudWatch_storagefreespace_edit.png" alt="CloudWatch ディスク空きグラフ" /></p>
+
+<p>なんでやねん！</p>
+
+<p>答えは単純でOracleのマイナーバージョンアップをONにしてると<br/>
+指定した時間にパッチをあててアップデートしてくれてるんですな。<br/>
+そのときに再起動がかかってると。<br/>
+そのマイナーバージョンアップの指定してる時間を見ると、</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/minorvirsionup_widdow.png" alt="Minor VersionUP Widdow" /></p>
+
+<p>UTCでAM1:00-1:30だから+9時間で朝の10時半ごろ、、、<br/>
+グラフみるとビンゴ！！<br/>
+そうゆうことですか、、、</p>
+
+<p>なんだかなぁ。すっきりせんなぁ。</p>
+
+<h2>あとがき</h2>
+
+<p>ちなみに上で書いてるのはテストDBでやったこと。  <br/>
+事情があってなかなかこの作業させてもらえなくてねぇ。<br/>
+だから本番でやるときはちゃんとincluding contents and datafilesもつけて<br/>
+ファイル削除してやろうと思うんです。<br/>
+その結果はまた続きとして書く予定です。</p>
+
+<p>ではでは、今日はこんなところで。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Blog on Github Pages With Octopress]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/"/>
+    <updated>2014-06-07T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress</id>
+    <content type="html"><![CDATA[<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer</a>です。<br/>
+twitterのアカウント出しておきながら、ほとんどつぶやきませんが。<br/>
+少し前から、Github Pagesでブログをはじめました。</p>
+
+<p>が、これ、いまのところ書きづらいす。<br/>
+githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
+「簡単ぽん！」ではない、という意味で。</p>
+
+<p>でもその辺がエンジニアぽくていいのかもしれない。
+(仕事はエンジニアではないけど、自称エンジニアです)</p>
+
+<!-- more -->
+
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>まずは、前提知識から。
+今回のエントリで使うざっくり知識を下記に。</p>
+
+<ul>
+<li><a href="https://pages.github.com/">Github Pages</a>
+
+<ul>
+<li>安心<br/>
+みなさんご存知github.com提供。</li>
+<li>repositoryから直接静的ページを配信してくれる<br/>
+つまり、配信するHTMLページの作成は全然手伝ってくれない(そこが大変)</li>
+<li>サービス/プロダクトに紐づいたサイトを配信できる<br/>
+github.com上に作成している個人/組織レポジトリに対応したwebsiteを立ち上げて公開できます。</li>
+<li>たぶん高速-
+Githubのレポジトリから直接配信されることのどこが嬉しいかというと、<br/>
+恐らく、世界中どこからでも使われてるサービスなので、<br/>
+　どこからアクセスされても、かなり高速に配信できるんじゃないか？という点。</li>
+</ul>
+</li>
+<li><a href="http://jekyllrb.com/">Jekyll</a>
+
+<ul>
+<li>静的サイト生成ツール。 <a href="http://middlemanapp.com/">middleman</a>的な</li>
+<li>Github PagesでやってくれないことをやってくれるYO !</li>
+<li>特にGithub Pages専用なわけではなく、どこでも使えるぽい</li>
+<li>ただ、素で使おうとすると、細かいところまで全部手作業で、複雑らしい</li>
+<li>Jekyllについては、<a href="http://melborne.github.io/2012/05/13/first-step-of-jekyll/">koko</a>がわかりやすかったので、リンクのみで</li>
+</ul>
+</li>
+<li><a href="http://octopress.org/">Octopress</a>
+
+<ul>
+<li>Jekyllを使ってブログサイトを構築するためのフレームワーク<br/>
+便利！らしい<br/>
+他にも、<a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>なるものもあるけど、<br/>
+違いは、Octopressのほうが、楽。でも自由度が低い。そうです。</li>
+</ul>
+</li>
+</ul>
+
+
+<p>ざっくりなイメージを図にまとめきれていないけども・・・図にすると・・・<br/>
+<img src="http://blog.branch4.pw/images/2014/06/jekyll_octopress_flow.png" alt="zakkuri flow" /></p>
+
+<p>こんな感じ。<br/>
+Octopressが、rakeで何から何まで出来るようにしてくれているので、<br/>
+rakeコマンド打ちまくって、
+&ndash; サイト生成
+&ndash; サイトプレビュー
+&ndash; サイトデプロイ（公開）
+する感じ。</p>
+
+<h3>how to setup github.io</h3>
+
+<hr />
+
+<p>まずは、github.ioでブログを公開するためのセットアップから。
+概ね、<a href="http://octopress.org/docs/setup/">koko</a>のパクリです。</p>
+
+<ol>
+<li>gitをinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li>ruby(>=1.9.3)をinstallする<br/>
+これができない人は<a href="http://ameba.jp">ameba blog</a>へどうぞ</li>
+<li><p>Octopressをdownloadしてsetupする</p>
+
+<pre><code> $ git clone git://github.com/imathis/octopress.git octopress  
+ $ cd octopress
+</code></pre>
+
+<p> この時点でのイメージ図。<br/>
+ <img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress1.png" alt="cloning" /></p>
+
+<p> octopress directory配下の、Gemfileをみると、octopressでやってくれる<br/>
+ 諸々の便利機能に必要なgemが列挙されている。</p>
+
+<pre><code> $ cat Gemfile
+ source ¥"https://rubygems.org  
+
+ group :development do  
+   gem 'rake', '~&gt; 0.9'  
+   gem 'jekyll', '~&gt; 0.12'  
+   gem 'rdiscount', '~&gt; 2.0.7'  
+   gem 'pygments.rb', '~&gt; 0.3.4'  
+   gem 'RedCloth', '~&gt; 4.2.9'  
+   gem 'haml', '~&gt; 3.1.7'  
+   gem 'compass', '~&gt; 0.12.2'  
+   gem 'sass', '~&gt; 3.2'  
+   gem 'sass-globbing', '~&gt; 1.0.0'  
+   gem 'rubypants', '~&gt; 0.2.0'  
+   gem 'rb-fsevent', '~&gt; 0.9'  
+   gem 'stringex', '~&gt; 1.4.0'  
+   gem 'liquid', '~&gt; 2.3.0'  
+   gem 'directory_watcher', '1.4.1'  
+ end  
+
+ gem 'sinatra', '~&gt; 1.4.2'  
+</code></pre>
+
+<p> なにはともあれinstall。</p>
+
+<pre><code> $ gem install bundler
+ $ rbenv rehash # rbenv使ってる場合のみ
+ $ bundle install
+ $ rake install # octopressのデフォルトテーマがinstallされる
+</code></pre></li>
+<li><p>githubに下記repositoryを作成する<br/>
+xxxx.github.io(xxxx:ユーザ名 or 組織名)</p></li>
+<li><p>下準備諸々<br/>
+ここがコマンド１個しか打たない割に重要。というか複雑。
+打つコマンドは、</p>
+
+<pre><code>$ rake setup_github_pages
+</code></pre>
+
+この時、さきほど作成した、repository情報を要求されます。(git@github.com:xxxx/xxxx.github.io.git的な)<br/>
+以下、色々事前情報説明(まだ読んでも意味わからんと思いますが)
+
+<ul>
+<li>xxxx.github.ioで一般公開されるのは、master branch</li>
+<li>つまり、誰かが、<a href="http://xxxx.github.io">http://xxxx.github.io</a> にアクセスすると、master branchがみえる</li>
+<li>公開前作業はsource branchで実施する</li>
+<li>今作業してるdirectoryとrepository
+octopressのdirectoryで、更に、repositoryとしても、imathis/octopressなので、このまま記事書いても、どこにcommitするんだ？になる</li>
+</ul>
+
+
+<p>上記を踏まえた作業を、rake setup_github_pagesがやってくれている、と。</p>
+
+<p>具体的には、</p>
+
+<ul>
+<li>実際に公開したいrepositoryを確認して、設定してくれる</li>
+<li>remote(imathis/octopress)をoriginではなくoctopressに設定してくれる</li>
+<li>originは、さっき確認したrepositoryに設定してくれる</li>
+<li>active branchをmasterではなくsourceにしてくれる</li>
+<li>さっき確認したrepositoryから、ブログのURLを設定してくれる</li>
+<li>master branchを、_deploy directoryに準備してくれる</li>
+</ul>
+
+
+<p>さて、ここまで来ると、ほとんど出来たも同然。</p>
+
+<ul>
+<li>コンテンツはない</li>
+<li>Jekyllに食わせるファイルは全部そろっている</li>
+<li>本番にpushするためのdirectory(_deploy)の準備は整っている</li>
+</ul>
+
+
+<p>なので、</p>
+
+<ul>
+<li>コンテンツを作って</li>
+<li>Jekyllに食わせて</li>
+<li>本番にpushすればOK!
+です。</li>
+</ul>
+
+
+<p>この時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress2.png" alt="github.io" /></p></li>
+<li><p>ブログ生成＆本番公開<br/>
+コンテンツを作るところは別途エントリを書こうと思うので、その後から。<br/>
+まずは、下記コマンドで、Jekyllに必要ファイルを食わせて、サイトを生成します。</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<p>で、生成はされてるものの、本番前に確認したいので、下記でpreviewします。</p>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<p>  上記で、webrickが立ち上がるので、適当なブラウザで、<br/>
+  <a href="http://127.0.0.1:4000  ">http://127.0.0.1:4000  </a>
+  にアクセスして確認。問題なければ、下記を実行してソースをsource branchにpushしておきます。</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre>
+
+<p>  そして、下記を実行して本番にpushします。</p>
+
+<pre><code>$ rake deploy
+</code></pre></li>
+</ol>
+
+
+<p>はい、これで晴れて公開完了！<br/>
+そしてこの時点でのイメージ図。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/detailed_figures_installing_octopress3.png" alt="github.io" /></p>
+
+<p>要点は、こんなところでしょうかな。</p>
+
+<ol>
+<li>octopressを持ってくる</li>
+<li>githubに専用repository作る</li>
+<li>repositoryのsource branchでoctopress/jekyll用のファイル編集をする</li>
+<li>ファイル編集が終わったら、サイトを生成する</li>
+<li>repositoryのmaster branchに本番用ファイルをpushする</li>
+</ol>
+
+
+<p>実はまだ謎なところが多いんですが、、、次回は、コンテンツの書き方について！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Excelの表を画像(png/jpeg/gif)で保存する方法]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/18/misc-excelpng/"/>
+    <updated>2014-04-18T15:20:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/18/misc-excelpng</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    PDFでしかexportできない・・・
+  </div>
+  さっきExcelの表をpngでexportしようと思ったら・・・なんと！PDFでしかexportできないではありませんか。 <br> <br>
+  <!-- more -->
+  うーん、、、と悩んだ結果、 <br> <br>
+  表をコピーして、偉大なるマイクロソフトの「ペイント」に貼り付けたら、、、、できた！！！ <br> <br>
+  やほーい。 <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://blog.branch4.pw/images/onlyredis.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://blog.branch4.pw/images/onlyredis.png"></a>
+  </div>
+  <br>
+  表は、Elasticacheで使える設定項目のリスト。次の記事用に作ってたのね。 <br> <br>
+  一件落着。 <br> <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Misc] Sluggish Google Chrome With Ubuntu]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu/"/>
+    <updated>2014-04-16T23:39:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/16/misc-sluggish-google-chrome-with-ubuntu</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Slow chrome
+  </div>
+  I&#8217;ve been suffering from quite sluggish response of google chrome installed on ubuntu for quite a while.  <br> <br>
+  Today, I&#8217;ve finally got that solved ! Maybe for a while &#8230;  <br> <br>
+  <!-- more -->
+  <div  style=border-left:10px solid #ff0000; border-bottom:2px solid #ff0000; padding-left:10px; font-weight:bold;>
+    Solution !!
+  </div>
+  Re intall !!!  <br>
+  That&#8217;s it.  <br> <br>
+  I didnt really take a note about the version info, but the former chrome definitely had major version of 34.  <br>
+  And so does the current one.  <br>
+  Before re installation, I&#8217;ve cleared the cache, deleted many bookmarks, which didn&#8217;t seem to have any effect.  <br> <br>
+  But reinstallation worked for me.  <br> <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Rails] Couldn't Find User With Id=sign_in]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin/"/>
+    <updated>2014-04-11T10:35:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/11/couldnt-find-user-with-idsignin</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Background
+  </h3>
+  While using devise on rails3, I got the following error message.  <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      Couldn't Find User With Id=sign_in Devise on Rails 3
+    </span> </pre>
+  It was working yesterday, but not today.  <br> <br>
+  <h3 >
+    Solution
+  </h3>
+  I checked config/routes.rb, and had <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      resources :users
+      devise_for :users
+    </span> </pre>
+  which seemed to be interupting each other.  <br>
+  So I commented out resources :users, and it started to work fine.  <br>
+  I don&#8217;t know why it kept working till yesterday&#8230;  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Web Development] Sending Post Request With Google Chrome]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/"/>
+    <updated>2014-04-10T15:01:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose of the entry
+  </h3>
+  It&#8217;s just an introduction of the tool I use for debugging purpose.  <br> 
+  I use it to check my APIs.  <br>
+  It can POST/GET/PUT/DELETE&#8230;send data in various HTTP method to any API.  <br><br>
+  <!-- more -->
+  <h3 >
+    Introduction
+  </h3>
+  Debugging APIs ?  <br>
+  It&#8217;s easy to debug using 
+  <a  href=https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm>Postman REST client</a>.  <br> <br>
+  Screenshot below.  <br>
+  You need to set required HTTP method/parameters/URL etc&#8230;  <br>
+  Then press send.  <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://1.bp.blogspot.com/-rl2WgUmISw4/U0YoBYabGYI/AAAAAAAAAx0/47qAmNS_uRw/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8215.png"></a>
+  </div>
+  <br> <br>
+  The response will be output below the settings part.  <br> <br>
+  <div  class=separator style=clear: both; text-align: center;>
+    <a  href=http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s1600/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png imageanchor=1 style=margin-left: 1em; margin-right: 1em;><img border="0" src="http://3.bp.blogspot.com/-PhwS70ZCcwI/U0Yn8MpaRAI/AAAAAAAAAxs/ANsKcNfrZSQ/s320/%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8216.png"></a>
+  </div>
+  <br> <br>
+  Easy.  <br> <br>
+  <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[1 Liner] Easily Replacing a Domain in Multiple Files]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/"/>
+    <updated>2014-04-07T16:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will&#8230;  <br> <br>
+  <ol>
+    <li>
+      find files that contains &#8220;xxxxx.yyyyy.jp:1080&#8221; <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] onClick Event With ImageView]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/"/>
+    <updated>2014-04-06T22:42:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose
+  </h3>
+  As said in the title.  <br>
+  It was my first shot using onClick event with ImageView, so just for memo.  <br>
+  (in fact it&#8217;s my first Android development) <br>
+  Keep in mind that this seem just to be one way of implementing onClick event with a view.  <br> <br>
+  <!-- more -->
+  <h3 >
+    Details
+  </h3>
+  <fieldset >
+    <legend >
+      Follow these 2steps
+    </legend>
+    <ol >
+      <li >
+        set a function name that should be called on onClick event in XML file(say it&#8217;s onClickEvent in this entry)
+      </li>
+      <li >
+        declare the onClickEvent in java file(Let&#8217;s say we just pop a toast)
+      </li>
+    </ol>
+  </fieldset>
+  This is part of the XML file.
+  <br>
+  <pre  class=prettyprint>
+    &lt;ImageView
+    android:id="@+id/imageview01"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/image"
+    android:layout_gravity="bottom"
+    android:scaleType="fitEnd"
+    android:onClick="onClickEvent" />***** <- this Line !!!!  </pre>
+  Now, declare onClickEvent in the activity.  <br>
+  I use SherlockActivity, and SlidingMenu so it&#8217;s a little messy, but it&#8217;s ok to remove those.  <br>
+  <br>
+  <pre  class=prettyprint>
+    public class MainActivity extends SherlockActivity {
+      @Override
+      protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_Sherlock);
+        setTitle(R.string.attach);
+        // set the content view
+        setContentView(R.layout.activity_main);
+        // configure the SlidingMenu
+        SlidingMenu menu = new SlidingMenu(this);
+        menu.setMode(SlidingMenu.LEFT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        menu.setShadowWidthRes(R.dimen.shadow_width);
+        menu.setShadowDrawable(R.drawable.shadow);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setFadeDegree(0.35f);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        menu.setMenu(R.layout.list);
+      }
+      public void onClickEntry(View v) {
+        Toast.makeText(MainActivity.this, "test", Toast.LENGTH_LONG).show();
+      }
+    }</pre>
+  And you should see the toast after the tap.
+</div>
+]]></content>
+  </entry>
+  
+</feed>

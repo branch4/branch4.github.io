@@ -1,0 +1,1389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Virtualization | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/virtualization/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-08-13T22:28:04+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/"/>
+    <updated>2014-08-11T05:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2</id>
+    <content type="html"><![CDATA[<p>こんにちは。前回の続きで、またVagrantのエントリ書いてる<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
+
+<h2>システム構成図</h2>
+
+<hr />
+
+<p>まずは今回作ろうとしてるシステムの構成図。</p>
+
+<p>Appサーバのapacheのログを fluentd(HA) に投げて、postgres insertくらいを一旦の目処にしようかね。<br/>
+最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
+と思ってはいるけどどこまで書けるやら・・・。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png" alt="mul2ti server01" /></p>
+
+<!-- more -->
+
+
+<h2>前回のあらすじ</h2>
+
+<p><a href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/">前回の記事</a>
+は、下記あたりの流れをざっくり紹介しました。</p>
+
+<ul>
+<li>Vagrantってなんですか？</li>
+<li>Vagrantのinstall</li>
+<li>Vagrantfileの書き方</li>
+<li>vagrantでソフトウェア関連設定</li>
+<li>vagrantでサーバのハードウェアスペック指定</li>
+</ul>
+
+
+<p>前回は、サーバ１台の場合についてだったんで、今回は複数台管理する場合について。<br/>
+この記事、本来の目的は、fluentdの検証をすることなんで、当然複数サーバあげたいわけで。</p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>今回はたぶん、</p>
+
+<p>1 Projectで複数サーバを管理する場合の、</p>
+
+<ul>
+<li>Vagrantfileの書き方</li>
+<li>networkについて</li>
+<li>provisioningについて</li>
+<li>vagrant commandの使い方</li>
+</ul>
+
+
+<p>こんなところになる予定。</p>
+
+<h2>各種バージョン</h2>
+
+<hr />
+
+<p>前回も書いたけど、このとおり。<br/>
+今回は fluentdのバージョンも追記しておこう。</p>
+
+<ul>
+<li>vagrant version 1.6.3</li>
+<li>Windows PC + VirtualBox 4.3.8r92456</li>
+<li>MintLinux17 + VirtualBox 4.3 ?</li>
+<li>MacOSX(Mavericks) + VirtualBox 4.3.14r95030</li>
+</ul>
+
+
+<h2>Vagrantfile複数サーバ対応</h2>
+
+<hr />
+
+<h3>１台のときは？</h3>
+
+<p>何はなくとも予習と復習は大切です。<br/>
+なので、前回の復習から。単体のサーバの場合の Vagrantfile はこんな感じでした。</p>
+
+<p>```
+$ cat Vagrantfile
+VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;</p>
+
+<p>  config.vm.provider :virtualbox do |v|</p>
+
+<pre><code>v.customize ["modifyvm", :id, "--memory", "512"]
+v.customize ["modifyvm", :id, "--cpus", "1"]
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>ほむほむ。思い出しました。</p>
+
+<h3>複数台のときは？</h3>
+
+<p>では、引き続き複数の場合はどうすりゃいいんかね・・・ vagrant の公式 website を物色。</p>
+
+<p><a href="https://docs.vagrantup.com/v2/multi-machine/index.html">ここ</a>ですよ。ドンピシャ。
+ではこれを参考に、システム構成図ぽく書いてみると・・・</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<h1>&ndash;<em>&ndash; mode: ruby &ndash;</em>&ndash;</h1>
+
+<h1>vi: set ft=ruby :</h1>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|</p>
+
+<p>  config.vm.define &ldquo;ap_server01&rdquo; do |ap_server01|</p>
+
+<pre><code>ap_server01.vm.box = "hashicorp/precise64"
+ap_server01.vm.hostname = "apserver01"
+ap_server01.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+ap_server01.vm.provision :shell, path: "bootstrap.sh"
+
+ap_server01.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;ap_server02&rdquo; do |ap_server02|</p>
+
+<pre><code>ap_server02.vm.box = "hashicorp/precise64"
+ap_server02.vm.hostname = "apserver02"
+ap_server02.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+ap_server02.vm.provision :shell, path: "bootstrap.sh"
+
+ap_server02.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;fluentd01&rdquo; do |fluentd01|</p>
+
+<pre><code>fluentd01.vm.box = "hashicorp/precise64"
+fluentd01.vm.hostname = "fluentd01"
+fluentd01.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+fluentd01.vm.provision :shell, path: "bootstrap.sh"
+
+fluentd01.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;fluentd02&rdquo; do |fluentd02|</p>
+
+<pre><code>fluentd02.vm.box = "hashicorp/precise64"
+fluentd02.vm.hostname = "fluentd02"
+fluentd02.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+fluentd02.vm.provision :shell, path: "bootstrap.sh"
+
+fluentd02.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;postgres&rdquo; do |postgres|</p>
+
+<pre><code>postgres.vm.box = "hashicorp/precise64"
+postgres.vm.hostname = "postgres"
+postgres.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+postgres.vm.provision :shell, path: "bootstrap.sh"
+
+postgres.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>な、、、ながいすな・・・これはさすがに短くできる予感しかしないけども、
+一旦起動するかどうか確認をば・・・</p>
+
+<p><code>
+$ vagrant up
+</code></p>
+
+<p>ってうつと・・・おお、、、起動した。結構時間かかった。
+あと今更だけど、network &ldquo;public_network"ってどういう IP 振られてるんだろう？</p>
+
+<p>ログインして確認しよう。ぬ、複数サーバあがってるときに、vagrant ssh つっても、
+どのサーバに ssh するかわからんだろ・・・とりあえずやってみる。</p>
+
+<p><code>
+$ vagrant ssh
+This command requires a specific VM name to target in a multi-VM environment.
+</code></p>
+
+<p>あ、、、やっぱり怒られるのね・・・。どうやら引数に、ssh したいサーバの識別子渡すそうです。</p>
+
+<p>config.vm.define &ldquo;ap_server01&rdquo; do |ap_server01| &lt;&ndash; &ldquo;ここの中の文字列&rdquo;</p>
+
+<p>```
+$ vagrant ssh ap_server01
+Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)</p>
+
+<ul>
+<li>Documentation:  <a href="https://help.ubuntu.com/">https://help.ubuntu.com/</a>
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@apserver01:~$ /sbin/ip a
+1: lo: &lt;LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue state UNKNOWN
+ link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+ inet 127.0.0.1/8 scope host lo
+ inet6 ::1/128 scope host
+    valid_lft forever preferred_lft forever
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
+ link/ether 08:00:27:88:0c:a6 brd ff:ff:ff:ff:ff:ff
+ inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0
+ inet6 fe80::a00:27ff:fe88:ca6/64 scope link
+    valid_lft forever preferred_lft forever
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
+ link/ether 08:00:27:01:26:5a brd ff:ff:ff:ff:ff:ff
+ inet 172.16.17.10/24 brd 172.16.17.255 scope global eth1
+ inet6 2408:27:bfff:28d:411a:c61a:be37:db7c/64 scope global temporary dynamic
+    valid_lft 604272sec preferred_lft 85272sec
+ inet6 2408:27:bfff:28d:a00:27ff:fe01:265a/64 scope global dynamic
+    valid_lft 2591957sec preferred_lft 604757sec
+ inet6 fe80::a00:27ff:fe01:265a/64 scope link
+    valid_lft forever preferred_lft forever
+vagrant@apserver01:~$ logout
+Connection to 127.0.0.1 closed.
+```</li>
+</ul>
+
+
+<p>IP は、そうか、うちの自宅内の DHCP が振られてるのね。
+検証環境には、完全 Private振りたいので、あとで変更しよっと。
+その前に、Vagrantfile の簡略化をしてみよう。これは長過ぎる・・・</p>
+
+<h3>Vagrantfile 短く！</h3>
+
+<p>さて、どうしたものか、まずはぐぐってみる。</p>
+
+<p><em>&ldquo;vagrantfile 簡略化&rdquo;</em></p>
+
+<p>はそれっぽいのがヒットせず。</p>
+
+<p><em>&ldquo;vagrantfile 複数&rdquo;</em></p>
+
+<p>で、<a href="http://nmbr8.com/blog/2014/05/22/how-to-define-and-control-multiple-guest-machines-per-Vagrantfile/">こんな記事</a>が。
+これだ！ruby で書けばいいからこう書けるのね。</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<h1>&ndash;<em>&ndash; mode: ruby &ndash;</em>&ndash;</h1>
+
+<h1>vi: set ft=ruby :</h1>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.provision :shell, path: &ldquo;bootstrap/all.sh&rdquo;             #1</p>
+
+<p>  not_dbs = { :apserver01 => &lsquo;192.168.101.1&rsquo;,</p>
+
+<pre><code>          :apserver02 =&gt; '192.168.101.2',
+          :fluentd01  =&gt; '192.168.102.1',
+          :fluentd02  =&gt; '192.168.102.2'
+          :postgres01 =&gt; '192.168.103.1'
+        }                                                      #2
+</code></pre>
+
+<p>  not_dbs.each do |not_db_name, not_db_ip|                         #3</p>
+
+<pre><code>config.vm.define not_db_name do |server_config|
+  bootstrap_path = "bootstrap/#{not_db_name}.sh"
+  server_config.vm.box = "hashicorp/precise64"
+  server_config.vm.hostname = not_db_name.to_s
+  server_config.vm.network "private_network", ip: not_db_ip    #4
+  server_config.vm.provision :shell, path: bootstrap_path
+
+  server_config.vm.provider :virtualbox do |v|
+    v.customize ["modifyvm", :id, "--memory", "384"]
+    v.customize ["modifyvm", :id, "--cpus", "1"]
+  end
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>なんかまとまってる感あり！
+行末に、コメントで番号付けてるとこを軽く説明しておこうかな。</p>
+
+<ul>
+<li>config.vm.provision :shell, path: &ldquo;bootstrap/all.sh&rdquo;
+
+<ul>
+<li>あれだわ。全部のサーバで実行する provisioning の shell を指定してます</li>
+<li>これとは別に、各サーバ毎に実行する shell もループ中で指定しております</li>
+</ul>
+</li>
+<li>not_dbs = { :apserver01 => &lsquo;192.168.101.1&rsquo;, &hellip; }
+
+<ul>
+<li>共通化してループにしてみた(not_dbs のネーミングは・・・最初 DB 以外にしてたから。最終的にまとめちゃった)</li>
+</ul>
+</li>
+<li>not_dbs.each do |not_db_name, not_db_ip|
+
+<ul>
+<li>そのループ。中の処理はみればわかる</li>
+</ul>
+</li>
+<li>server_config.vm.network &ldquo;private_network&rdquo;, ip: not_db_ip
+
+<ul>
+<li>networkはね、今回はプライベートにしました。IP も指定で</li>
+</ul>
+</li>
+</ul>
+
+
+<p>結構簡略化できてると思うけどどうでしょう。
+次は、provisioning 用の shellを覗いてみよう。</p>
+
+<p>shellは、apserver/fluentdは、複数台あるけど、今全部中身一緒なので、1台分だけみる。</p>
+
+<h4>全部のサーバで実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/all.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get update
+apt-get install -y vim
+apt-get install -y vim-common
+```</p>
+
+<h4>ap server でだけ実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/apserver01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/apserver.sh
+/vagrant/bootstrap/not_db.sh
+```</p>
+
+<h4>fluentd でだけ実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/fluentd01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/not_db.sh</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>Input</h1>
+
+<p><source>
+  type forward
+  port 24224
+</source></p>
+
+<h1>Output</h1>
+
+<p><match apache.**>
+  type file
+  path /var/log/td-agent/out_apachelog
+  time_slice_format %Y%m%d
+  time_slice_wait 10m
+  time_format %Y%m%dT%H%M%S%z
+  compress gzip
+  utc
+</match>
+EOF
+```</p>
+
+<h4>postgres でだけ実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/postgres01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y postgresql
+```</p>
+
+<p>大体見ればわかると思うので、一個だけ説明。</p>
+
+<p><code>
+/vagrant/bootstrap/apserver.sh
+/vagrant/bootstrap/not_db.sh
+</code>
+この二つだけ。</p>
+
+<p>/vagrant っていうのは、Hostサーバでいうところの、PROJECT_ROOTのディレクトリなのです。<br/>
+つまり、</p>
+
+<p>PROJECT_ROOT/bootstrap/apserver.sh<br/>
+PROJECT_ROOT/bootstrap/not_db.sh</p>
+
+<p>をそれぞれ実行しろよ、と。
+今回でいうと、apserverが一番実行される shell が多いのかな。</p>
+
+<ol>
+<li>まず、全体で、all.shを実行</li>
+<li>次に、apserver01.sh に書いてある何かを実行(今回は実は中身ほとんどないんだけど)</li>
+<li>で、bootstrap/apserver.sh と bootstrap/not_db.sh を実行</li>
+</ol>
+
+
+<p>なるほど。こんな感じにすれば、共通化もできるのねん。一旦、簡略化はこんなもんかな。</p>
+
+<p>apserver.sh と not_db.sh については、下記内容が書いてありますよ。</p>
+
+<p>```
+$ cat bootstrap/apserver.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y apache2
+rm -rf /var/www
+ln -fs /vagrant /var/www</p>
+
+<p>chmod o+x /var/log/apache2/
+chmod o+r /var/log/apache2/access.log</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>tail input</h1>
+
+<p><source>
+  type tail
+  path /var/log/apache2/access.log
+  pos_file /var/log/td-agent/tmp/httpd-access.log.pos
+  tag apache.access
+  format apache2
+</source></p>
+
+<h1>Log Forwarding</h1>
+
+<p><match apache.**>
+  type forward</p>
+
+<p>  # primary host
+  <server></p>
+
+<pre><code>host 192.168.102.1
+port 24224
+</code></pre>
+
+<p>  </server>
+  # use secondary host
+  <server></p>
+
+<pre><code>host 192.168.102.2
+port 24224
+standby
+</code></pre>
+
+<p>  </server></p>
+
+<p>  # use longer flush_interval to reduce CPU usage.
+  # note that this is a trade-off against latency.
+  flush_interval 60s
+</match>
+EOF
+```</p>
+
+<p>```
+$ cat bootstrap/not_db.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y curl
+curl -L <a href="http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh">http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh</a> | sh</p>
+
+<p>mkdir /var/log/td-agent/tmp/
+chown td-agent. /var/log/td-agent/tmp
+```</p>
+
+<h4>apserver.shの内容</h4>
+
+<p>見ればわかるけど、apache インストールと、fluentd の HA 設定してるくらい。</p>
+
+<h4>not_db.shの内容</h4>
+
+<p>ほぼ fluentd インストールしてるだけ。</p>
+
+<h3>Network について</h3>
+
+<p>network は、public/private で書き方だけわかったからいいや。</p>
+
+<h4>public(DHCP)</h4>
+
+<p>config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;</p>
+
+<h4>private(static)</h4>
+
+<p>config.vm.network &ldquo;private_network&rdquo;, ip: &lsquo;IP address&rsquo;</p>
+
+<p>たぶん、private で DHCP 振りたい場合は、ip: 以降削ればいける。</p>
+
+<h3>Provisioning について</h3>
+
+<p>shell でも、ここまで共通化したり、分けたりできれば結構楽にはいけると思うけど、
+そもそも、shell でやってるのはいかがなものか、という意見は認める。なので次は、ansible やろうかな。</p>
+
+<h3>vagrant command について</h3>
+
+<p>リストアップ＆説明。でも説明は、公式サイトから抜粋しただけ。</p>
+
+<h4>今のところよく使いそうなやーつ</h4>
+
+<ul>
+<li>halt
+
+<ul>
+<li>stops the vagrant machine</li>
+</ul>
+</li>
+<li>help
+
+<ul>
+<li>shows the help for a subcommand</li>
+</ul>
+</li>
+<li>provision
+
+<ul>
+<li>provisions the vagrant machine</li>
+</ul>
+</li>
+<li>reload
+
+<ul>
+<li>restarts vagrant machine, loads new Vagrantfile configuration</li>
+</ul>
+</li>
+<li>ssh
+
+<ul>
+<li>connects to machine via SSH</li>
+</ul>
+</li>
+<li>status
+
+<ul>
+<li>outputs status of the vagrant machine</li>
+<li>起動してるサーバのリストをみれるので、ちょいちょい使う</li>
+<li>statusみて、どのサーバに ssh するか決めて、みたいな</li>
+</ul>
+</li>
+<li>up
+
+<ul>
+<li>starts and provisions the vagrant environment</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>その次に使いそうなやーつ</h4>
+
+<ul>
+<li>init
+
+<ul>
+<li>initializes a new Vagrant environment by creating a Vagrantfile</li>
+</ul>
+</li>
+<li>destroy
+
+<ul>
+<li>stops and deletes all traces of the vagrant machine</li>
+</ul>
+</li>
+<li>resume
+
+<ul>
+<li>resume a suspended vagrant machine</li>
+</ul>
+</li>
+<li>suspend
+
+<ul>
+<li>suspends the machine</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>たまーに使うかもねなやーつ</h4>
+
+<ul>
+<li>login
+
+<ul>
+<li>log in to Vagrant Cloud</li>
+</ul>
+</li>
+<li>share
+
+<ul>
+<li>share your Vagrant environment with anyone in the world</li>
+</ul>
+</li>
+<li>plugin
+
+<ul>
+<li>manages plugins: install, uninstall, update, etc.</li>
+</ul>
+</li>
+<li>global-status
+
+<ul>
+<li>outputs status Vagrant environments for this user</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>そんなに使わなそうねなやーつ(box/packageあたりは、box 自作するようになると使うかな)</h4>
+
+<ul>
+<li>box
+
+<ul>
+<li>manages boxes: installation, removal, etc.</li>
+</ul>
+</li>
+<li>connect
+
+<ul>
+<li>connect to a remotely shared Vagrant environment</li>
+</ul>
+</li>
+<li>package
+
+<ul>
+<li>packages a running vagrant environment into a box</li>
+</ul>
+</li>
+<li>rdp
+
+<ul>
+<li>connects to machine via RDP</li>
+</ul>
+</li>
+<li>ssh-config
+
+<ul>
+<li>outputs OpenSSH valid configuration to connect to the machine</li>
+</ul>
+</li>
+<li>version
+
+<ul>
+<li>prints current and latest Vagrant version</li>
+</ul>
+</li>
+</ul>
+
+
+<h3>おわりに</h3>
+
+<p>はい、postgresに突っ込むところまではいきませんでした。
+なぜならpostgres使ったことなくてちょっとめんどくさくなったから。</p>
+
+<p>なので、現状だと、apache の log を tail で引っ張ってきて、fluentd01/02にファイル出力する、 まで。
+次はどこまでいけるかな・・・</p>
+
+<h2>次回予告</h2>
+
+<p>ansible 使った provisioning 。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdのテスト環境をvagrantでセットアップしてみるべ]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/"/>
+    <updated>2014-08-07T22:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant</id>
+    <content type="html"><![CDATA[<p>こんにちは。Vagrant使ってみよ。と思った<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>まぁ使ってみたかっただけです。<br/>
+fluentdの検証するし、今後も環境構築は何回もするし、ついでだから vagrant使ってみよ、<br/>
+なノリです。</p>
+
+<p>実際は、今回のエントリーでは fluentd の環境構築までいかなかったので、何回かに分けて書きますわ。</p>
+
+<h2>vagrantって？</h2>
+
+<hr />
+
+<p>どこでも同じ環境を寸分違わず再現できるセットアップツール、って感じなのかな。<br/>
+boxつくって、設定ファイル書いとけば、どこに持ってっても同じ環境が作れて、<br/>
+問題の再現とかもしやすい、ということです。便利だわー。<br/>
+今回は、数年ぶりに環境構築する用事があったので、使おうと思ったり。</p>
+
+<!-- more -->
+
+
+<h2>インストール</h2>
+
+<hr />
+
+<p><a href="http://www.vagrantup.com/downloads">こちら</a>からダウンロードしてインストール。<br/>
+簡単だから。ただし、ツール自体にGUIはないのでCLIに抵抗がある人はここでおかえりいただきます。</p>
+
+<h2>セットアップ</h2>
+
+<hr />
+
+<p>まずは、<a href="http://www.vagrantup.com/">公式サイト</a>のドキュメンツを辿ってみるべし。<br/>
+Getting Startedを一通りやれば結構わかる。</p>
+
+<h2>諸情報</h2>
+
+<p>今回使ったのは、</p>
+
+<ul>
+<li>vagrant version 1.6.3</li>
+<li>Windows PC + VirtualBox 4.3.8r92456</li>
+<li>MintLinux17 + VirtualBox 4.3 ?</li>
+<li>MacOSX(Mavericks) + VirtualBox 4.3 ?</li>
+</ul>
+
+
+<p>でございます。作った Vagrantfile 含めた設定は、全環境でちゃんと動いてるぽかったです。</p>
+
+<h3>Vagrantfile なる設定ファイルが肝</h3>
+
+<p>設定ファイルのこと。</p>
+
+<ul>
+<li>1つのプロジェクトあたり、1つ存在する。</li>
+<li>プロジェクト内に、どんなサーバが何台存在しているか</li>
+<li>ネットワーク構成どんな感じか</li>
+<li>各サーバに何インストールしとくか、設定どうなってるか</li>
+</ul>
+
+
+<p>などなど定義します。たぶん、流れ的には、</p>
+
+<ul>
+<li>Vagrantfileの書き方覚える</li>
+<li>Provisioningツールの使い方覚える or 既に覚えてれば不要</li>
+<li>Provider(VirtualBox/KVM/Docker etc&hellip;)の使い分け的なものを覚える</li>
+<li>Boxの作り方覚える</li>
+</ul>
+
+
+<p>この辺を覚えていくんでしょう。</p>
+
+<h3>Projectディレクトリと、Vagrantfile を作る！</h3>
+
+<p>下記コマンドを実行してね。<br/>
+(本Entryでは、以降Projectのルートディレクトリは、PROJECT_ROOTとします)
+<code>``
+$ mkdir &lt;PROJECT_ROOT&gt;
+$ cd &lt;PROJECT_ROOT&gt;
+$ vagrant init
+A</code>Vagrantfile<code>has been placed in this directory. You are now
+ready to</code>vagrant up<code>your first virtual environment! Please read
+the comments in the Vagrantfile as well as documentation on
+</code>vagrantup.com` for more information on using Vagrant.</p>
+
+<p>```</p>
+
+<p>やってることは、</p>
+
+<ol>
+<li>Projectディレクトリを作成</li>
+<li>Projectディレクトリに移動</li>
+<li>Projectを初期化(Vagrantfileが生成される)</li>
+</ol>
+
+
+<p>でございます。コマンドで生成された Vagrantfileから、コメントの行を消すと、、、</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;base&rdquo;
+end
+```
+こんな感じ。APIのバージョンは、"2" のようです。<br/>
+config.vm.box = &ldquo;base"は、よくわからないけど、今はいいや。<br/>
+Vagrantfile は、git,svn等の、VCSにcommitすべきものらしいので、commit。</p>
+
+<h3>Box とは？</h3>
+
+<p>生成された、Vagrantfile中にも出てくるけど、Boxとは？<br/>
+Vagrant では、box っていうのが、ひとつのベースイメージになるんだと。<br/>
+仮想イメージの呼び方をVagrant風に言うと &ldquo;Box&rdquo; なのです。</p>
+
+<h3>Box のインストール</h3>
+
+<p>まずは、自分のマシンに、Box(仮想イメージ)を追加します。<br/>
+下記コマンドを、実行。</p>
+
+<p>```
+$ vagrant box add hashicorp/precise64
+==> box: Loading metadata for box &lsquo;hashicorp/precise64&rsquo;</p>
+
+<pre><code>box: URL: https://vagrantcloud.com/hashicorp/precise64
+This box can work with multiple providers! The providers that it
+can work with are listed below. Please review the list and choose
+the provider you will be working with.
+
+1) hyperv
+2) virtualbox
+3) vmware_fusion
+
+Enter your choice: 2
+
+==&gt; box: Adding box 'hashicorp/precise64' (v1.1.0) for provider: virtualbox
+    box: Downloading: https://vagrantcloud.com/hashicorp/precise64/version/2/provider/virtualbox.box
+    ==&gt; box: Successfully added box 'hashicorp/precise64' (v1.1.0) for 'virtualbox'!
+</code></pre>
+
+<p>```</p>
+
+<p>今回使用してる、hashicorp さん謹製の box、precise64 は、</p>
+
+<ul>
+<li>hyperv</li>
+<li>virtualbox</li>
+<li>vmware_fusion</li>
+</ul>
+
+
+<p>に対応してるみたいだけど、2番の virtualbox を選択。<br/>
+そうすると、下記ディレクトリ配下に、VirtualBox のイメージがダウンロードされたり、<br/>
+Vagrantfileのような諸情報が格納されます。(結構時間かかる)</p>
+
+<p>${HOME}/.vagrant.d<br/>
+${HOME}/.vagrant.d/boxes<br/>
+${HOME}/.vagrant.d/data<br/>
+${HOME}/.vagrant.d/gems<br/>
+${HOME}/.vagrant.d/rgloader<br/>
+${HOME}/.vagrant.d/tmp</p>
+
+<p>たぶん大事なのは、boxes 配下なのかな？きっとそうだろう。<br/>
+イメージのダウンロード元は、<a href="https://vagrantcloud.com/">ここ</a>からみたい。</p>
+
+<p>初期化完了した状態で、</p>
+
+<p><code>
+$ vagrant up
+</code>
+実行すると、今追加したほやほやのboxがすぐ起動。<br/>
+ただ、諸々未設定なので、一旦落として設定しましょ。</p>
+
+<ul>
+<li>ネットワーク設定</li>
+<li>ホスト名の設定</li>
+<li>起動時にインストールするアプリがあるのかどうか</li>
+</ul>
+
+
+<p>などなど、設定していきます。<br/>
+まずは、停止。</p>
+
+<p><code>
+$ vagrant destroy
+</code></p>
+
+<h3>Vagrantfile設定</h3>
+
+<p>設定自体は、初期化時に生成された、Vagrantfileを編集していく。</p>
+
+<p>Vagrantfile では、下記なんかを定義できる</p>
+
+<ul>
+<li>起動するマシンスペック</li>
+<li>インストールするアプリケーション</li>
+<li>どうやってアクセスするか</li>
+</ul>
+
+
+<p>今回は、こんなマシンにしようかな。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/guestserver01.png" alt="guestserver" /></p>
+
+<ul>
+<li>CPU x 1 個</li>
+<li>Memory 512 MB</li>
+<li>HDD 15 GB</li>
+<li>Ubuntu12.04</li>
+<li>Network(DHCP/public)</li>
+<li>hostname: testserver</li>
+<li>apache pre-install</li>
+</ul>
+
+
+<p><a href="http://docs.vagrantup.com/v2/getting-started/index.html">ここ</a>とか、
+<a href="http://docs.vagrantup.com/v2/virtualbox/configuration.html">ここ</a>を参照して、書いていく。<br/>
+ハードのスペック関連は、VirtualBoxのAPI経由なので、<a href="http://www.virtualbox.org/manual/ch08.html">ここ</a>
+からやりたいことを探すんだーね。<br/>
+そして出来上がったVagrantfile。(まだスペック関連入れてない版)
+```
+$ cat Vagrantfile</p>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;
+end
+```
+順番に説明。</p>
+
+<h4>config.vm.box = &ldquo;hashicorp/precise64&rdquo;</h4>
+
+<p>このBoxは、このイメージですよ！と、いうこと。</p>
+
+<h4>config.vm.hostname = &ldquo;testserver&rdquo;</h4>
+
+<p>Host名は、testserverですよ！と、いうこと。</p>
+
+<h4>config.vm.network &ldquo;public_network&rdquo;</h4>
+
+<p>Public、といっても、グローバルIPが必ず振られるわけではない。<br/>
+たぶん、下記環境だったらグローバルが来るんじゃないか？</p>
+
+<ul>
+<li>Network IF が 1 つ</li>
+<li>DHCP でグローバルが割り当てられる</li>
+</ul>
+
+
+<p>VirtualBox では、NAT になる。</p>
+
+<p>Network IF が複数ある場合は、こんな感じに指定するそうな。
+<code>
+config.vm.network "public_network", bridge: 'en1: Wi-Fi(AirPort)'
+</code></p>
+
+<h4>config.vm.provision :shell, path: bootstrap.sh</h4>
+
+<p>ゲストサーバ起動時に、PROJECT_ROOT/bootstrap.sh を実行しろ、ということ。<br/>
+なので、ここに、</p>
+
+<p>```</p>
+
+<h1>!/usr/bin/evn bash</h1>
+
+<p>apt-get update
+apt-get install -y apache2
+```</p>
+
+<p>って書いておくと、起動時に、apache2 が入った状態になります。<br/>
+さて、準備は整ったはずなので、いざ起動！！</p>
+
+<p>```
+$ vagrant up
+Bringing machine &lsquo;default&rsquo; up with &lsquo;virtualbox&rsquo; provider&hellip;
+==> default: Importing base box &lsquo;hashicorp/precise64&rsquo;&hellip;
+==> default: Matching MAC address for NAT networking&hellip;
+==> default: Checking if box &lsquo;hashicorp/precise64&rsquo; is up to date&hellip;
+==> default: Setting the name of the VM: project_blog_default_1407340802923_76317
+==> default: Fixed port collision for 22 => 2222. Now on port 2204.
+==> default: Clearing any previously set network interfaces&hellip;
+==> default: Available bridged network interfaces:
+1) en0: Wi-Fi (AirPort)
+2) en1: Thunderbolt 1
+3) en2: Thunderbolt 2
+4) bridge0
+5) p2p0</p>
+
+<p>```
+あ、NIC だけじゃなくて色々あるから指定しないとだめなんですね・・・<br/>
+一旦とめて、Vagrantfile を編集。</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;
+end
+```</p>
+
+<p>気を取り直して、再度実行。</p>
+
+<p>```
+$ vagrant up
+Bringing machine &lsquo;default&rsquo; up with &lsquo;virtualbox&rsquo; provider&hellip;
+==> default: Checking if box &lsquo;hashicorp/precise64&rsquo; is up to date&hellip;
+==> default: Fixed port collision for 22 => 2222. Now on port 2205.
+==> default: Clearing any previously set network interfaces&hellip;
+==> default: Preparing network interfaces based on configuration&hellip;</p>
+
+<pre><code>default: Adapter 1: nat
+default: Adapter 2: bridged
+</code></pre>
+
+<p>==> default: Forwarding ports&hellip;</p>
+
+<pre><code>default: 22 =&gt; 2205 (adapter 1)
+</code></pre>
+
+<p>==> default: Booting VM&hellip;
+==> default: Waiting for machine to boot. This may take a few minutes&hellip;</p>
+
+<pre><code>default: SSH address: 127.0.0.1:2205
+default: SSH username: vagrant
+default: SSH auth method: private key
+</code></pre>
+
+<p>==> default: Machine booted and ready!
+==> default: Checking for guest additions in VM&hellip;</p>
+
+<pre><code>default: The guest additions on this VM do not match the installed version of
+default: VirtualBox! In most cases this is fine, but in rare cases it can
+default: prevent things such as shared folders from working properly. If you see
+default: shared folder errors, please make sure the guest additions within the
+default: virtual machine match the version of VirtualBox you have installed on
+default: your host and reload your VM.
+default:
+default: Guest Additions Version: 4.2.0
+default: VirtualBox Version: 4.3
+</code></pre>
+
+<p>==> default: Setting hostname&hellip;
+==> default: Configuring and enabling network interfaces&hellip;
+==> default: Mounting shared folders&hellip;</p>
+
+<pre><code>default: /vagrant =&gt; /Users/nemoto_hideaki/work/vagrant/project_blog
+</code></pre>
+
+<p>==> default: Running provisioner: shell&hellip;</p>
+
+<pre><code>default: Running: /var/folders/kn/k_t_9_cs0yjd5q44m9w8b8wh0000gn/T/vagrant-shell20140807-3962-19neoc2.sh
+</code></pre>
+
+<p>==> default: stdin: is not a tty
+==> default: bash: /tmp/vagrant-shell: /usr/bin/evn: bad interpreter: No such file or directory
+The following SSH command responded with a non-zero exit status.
+Vagrant assumes that this means the command failed!</p>
+
+<p>chmod +x /tmp/vagrant-shell &amp;&amp; /tmp/vagrant-shell</p>
+
+<p>Stdout from the command:</p>
+
+<p>Stderr from the command:</p>
+
+<p>stdin: is not a tty
+bash: /tmp/vagrant-shell: /usr/bin/evn: bad interpreter: No such file or directory
+```</p>
+
+<p>はい、再度失敗orz<br/>
+なんだなんだ・・・bootstrap.shを確認確認・・・</p>
+
+<p>&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash</p>
+
+<p>evn ね・・・修正いたしまして・・・
+```
+&#35;!/usr/bin/env bash</p>
+
+<p>apt-get update
+apt-get install -y apache2
+```
+修正して、再度実行。</p>
+
+<p><code>
+$ vagrant up
+Bringing machine 'default' up with 'virtualbox' provider...
+==&gt; default: Checking if box 'hashicorp/precise64' is up to date...
+==&gt; default: VirtualBox VM is already running.
+</code>
+あ、さっき実行してるから実行中なのか。もしかして今回は bootstrap.sh が実行されてないかも。<br/>
+なので、下記コマンドどっちかで強制実行。</p>
+
+<p><code>
+$ vagrant reload --provision
+$ vagrant provision
+</code></p>
+
+<p>違いは、stdoutみる限り、たぶん・・・</p>
+
+<h4>$ vagrant reload &mdash;provision</h4>
+
+<p>こっちは一旦マシン再起動かけてからの強制実行。</p>
+
+<h4>$ vagrant provision</h4>
+
+<p>こっちは起動したままbootstrap.shだけ強制実行。</p>
+
+<p>どっちか実行すると、ちゃんと apache がインストールされます。</p>
+
+<h3>ログイン！</h3>
+
+<p>次は実際にログインアクセスしますよと。
+```
+$ vagrant ssh
+Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)</p>
+
+<ul>
+<li>Documentation:  <a href="https://help.ubuntu.com/">https://help.ubuntu.com/</a>
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@testserver:~$
+```</li>
+</ul>
+
+
+<p>おーいえす。ちゃんとホスト名も設定されてる。</p>
+
+<p>ちなみに起動時の標準出力じっくりみると色々わかるんだけど、起動時に、guestのssh port(22)と、<br/>
+hostの何番かを紐づけてくれてるので、そこにアクセスしてもいいのかも。<br/>
+```
+Hideaki-no-MacBook-Pro:project_blog nemoto_hideaki$ vagrant reload &mdash;provision
+==> default: Attempting graceful shutdown of VM&hellip;
+==> default: Checking if box &lsquo;hashicorp/precise64&rsquo; is up to date&hellip;
+==> default: Clearing any previously set forwarded ports&hellip;
+==> default: Fixed port collision for 22 => 2222. Now on port 2204.
+==> default: Clearing any previously set network interfaces&hellip;
+==> default: Preparing network interfaces based on configuration&hellip;</p>
+
+<pre><code>default: Adapter 1: nat
+default: Adapter 2: bridged
+</code></pre>
+
+<p>==> default: Forwarding ports&hellip;</p>
+
+<pre><code>default: 22 =&gt; 2204 (adapter 1) &lt;--ここ！！★
+</code></pre>
+
+<p>==> default: Booting VM&hellip;
+==> default: Waiting for machine to boot. This may take a few minutes&hellip;</p>
+
+<pre><code>default: SSH address: 127.0.0.1:2204
+default: SSH username: vagrant
+default: SSH auth method: private key
+</code></pre>
+
+<p>==> default: Machine booted and ready!
+==> default: Checking for guest additions in VM&hellip;
+```</p>
+
+<p>というわけで、localhostの 2204 番にアクセスしてみるも・・・
+<code>
+$ ssh -p 2204 vagrant@127.0.0.1
+vagrant@127.0.0.1's password:
+</code>
+private key 設定すればよさげだけど・・・どの key だ？面倒なんでパス。<br/>
+つまり、こんな設定をして、vagrant up/vagrant ssh すればつながるよ！<br/>
+という話でした。</p>
+
+<p>はっ！マシンスペック！変えるんだった。とりあえず、default のままのスペックは下記。<br/>
+```
+$ cat /proc/cpuinfo | grep -E &lsquo;processor|model name&rsquo;
+processor: 0
+model name: Intel&reg; Core&trade; i5-4258U CPU @ 2.40GHz
+processor: 1
+model name: Intel&reg; Core&trade; i5-4258U CPU @ 2.40GHz</p>
+
+<p>$ free -m</p>
+
+<pre><code>         total       used       free     shared    buffers     cached
+         Mem:           365        321         43          0         11        248
+         -/+ buffers/cache:         61        303
+         Swap:          767          0        767
+</code></pre>
+
+<p>$ df -h
+Filesystem                  Size  Used Avail Use% Mounted on
+/dev/mapper/precise64-root   79G  2.3G   73G   4% /
+udev                        174M  4.0K  174M   1% /dev
+tmpfs                        74M  288K   73M   1% /run
+none                        5.0M     0  5.0M   0% /run/lock
+none                        183M     0  183M   0% /run/shm
+/dev/sda1                   228M   25M  192M  12% /boot
+vagrant                     233G   92G  142G  40% /vagrant
+```
+CPU : 2個
+Memory : 384MB
+HDD : 80GB
+(VirtualBox の GUI から引っ張って来てるスペック)</p>
+
+<ul>
+<li>CPU : 1個</li>
+<li>Memory 512MB</li>
+<li>HDD 15GB</li>
+</ul>
+
+
+<p>やることは、</p>
+
+<ul>
+<li>CPUを一個に減らす</li>
+<li>Memoryを512MBに増やす</li>
+<li>HDDを15GBに減らす</li>
+</ul>
+
+
+<p><a href="http://docs.vagrantup.com/v2/virtualbox/configuration.html">参考サイト１</a><br/>
+<a href="http://www.virtualbox.org/manual/ch08.html">参考サイト２</a><br/>
+上記２サイトを見比べた結果・・・
+```
+$ cat Vagrantfile
+VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;</p>
+
+<p>  # ここから下を追記した
+  config.vm.provider :virtualbox do |v|</p>
+
+<pre><code>v.customize ["modifyvm", :id, "--memory", "512"]
+v.customize ["modifyvm", :id, "--cpus", "1"]
+v.customize ["modifyhd", "b5fc9c57-f008-4118-a03f-e535f25deea4", "--resize", "1024"]
+</code></pre>
+
+<p>  end
+end
+<code>
+こう。こんな感じでいけるはず。  
+modifyhd の横の、"b5fc9c57-f008-4118-a03f-e535f25deea4"は、VirtualBox イメージのイメージファイルの UUID。  
+下記コマンド実行すればみれるです。
+</code>
+$ VBoxManage list -l vms
+Name:            project_blog_default_1407343357247_93821
+Groups:          /
+Guest OS:        Ubuntu (64 bit)
+UUID:            7819729d-541f-47b8-8607-ec50965f4901
+&hellip;
+(中略)
+&hellip;
+SATA Controller (0, 0): /Users/nemoto_hideaki/VirtualBox VMs/project_blog_default_1407343357247_93821/box-disk1.vmdk (UUID: b5fc9c57-f008-4118-a03f-e535f25deea4) &lt;&mdash; これ！！
+&hellip;
+(中略)
+&hellip;
+```</p>
+
+<p>よし！実行！
+```
+$ vagrant up
+Bringing machine &lsquo;default&rsquo; up with &lsquo;virtualbox&rsquo; provider&hellip;
+&hellip;
+(中略)
+&hellip;
+A customization command failed:</p>
+
+<p>[&ldquo;modifyhd&rdquo;, &ldquo;b5fc9c57-f008-4118-a03f-e535f25deea4&rdquo;, &ldquo;&mdash;resize&rdquo;, &ldquo;1024&rdquo;]</p>
+
+<p>The following error was experienced:</p>
+
+<h1>&lt;Vagrant::Errors::VBoxManageError: There was an error while executing <code>VBoxManage</code>, a CLI used by Vagrant</h1>
+
+<p>for controlling VirtualBox. The command and stderr is shown below.</p>
+
+<p>Command: [&ldquo;modifyhd&rdquo;, &ldquo;b5fc9c57-f008-4118-a03f-e535f25deea4&rdquo;, &ldquo;&mdash;resize&rdquo;, &ldquo;1024&rdquo;]</p>
+
+<p>Stderr: 0%&hellip;
+Progress state: VBOX_E_NOT_SUPPORTED
+VBoxManage: error: Resize hard disk operation for this format is not implemented yet!</p>
+
+<blockquote></blockquote>
+
+<p>Please fix this customization and try again.
+```</p>
+
+<p>はい、まただめ・・・orz<br/>
+VBoxManage: error: Resize hard disk operation for this format is not implemented yet!<br/>
+まだ実装してねーってよ。あきらめよう。</p>
+
+<p>HDD の件を削って実行して、スペック確認した結果。
+```
+vagrant@testserver:~$ cat /proc/cpuinfo | grep -E &lsquo;processor|model name&rsquo;
+processor   : 0
+model name  : Intel&reg; Core&trade; i5-4258U CPU @ 2.40GHz
+vagrant@testserver:~$ free -m</p>
+
+<pre><code>         total       used       free     shared    buffers     cached
+</code></pre>
+
+<p>Mem:           491        338        153          0         15        260
+&ndash;/+ buffers/cache:         61        429
+Swap:          767          0        767
+vagrant@testserver:~$ df -h
+Filesystem                  Size  Used Avail Use% Mounted on
+/dev/mapper/precise64-root   79G  2.3G   73G   4% /
+udev                        237M  4.0K  237M   1% /dev
+tmpfs                        99M  288K   99M   1% /run
+none                        5.0M     0  5.0M   0% /run/lock
+none                        246M     0  246M   0% /run/shm
+/dev/sda1                   228M   25M  192M  12% /boot
+vagrant                     233G   92G  142G  40% /vagrant
+```</p>
+
+<p>HDD リサイズとかは、たぶん Box 定義からいじる、とかなのかな？<br/>
+その辺の深追いはまた今度。<br/>
+まず今日の課題はクリアで。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/guestserver01_nohdd.png" alt="guestserver_hddstay" /></p>
+
+<h2>次回予告</h2>
+
+<p>複数サーバをぼこぼこあげるとき。</p>
+
+<p>続きの複数サーバ編は
+<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">ここ</a>だよ。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+</feed>
