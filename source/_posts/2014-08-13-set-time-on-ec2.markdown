@@ -3,11 +3,11 @@ layout: post
 title: “Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~"
 date: 2014-08-12 01:30:00 +0900
 comments: true
-published: false
+published: true
 author: risterlab
 categories: 
  - AWS
-EC2
+ - EC2
 ---
 
 Hi, I’m [risterlab](http://diary.risterlab.com), a web infrastructural engineer who love vegetables.   
