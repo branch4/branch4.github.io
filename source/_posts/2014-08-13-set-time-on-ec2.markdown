@@ -1,6 +1,6 @@
 ---
 layout: post
-title: “Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~"
+title: Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~
 date: 2014-08-12 01:30:00 +0900
 comments: true
 published: true
@@ -12,13 +12,13 @@ categories:
 
 Hi, I’m [risterlab](http://diary.risterlab.com), a web infrastructural engineer who love vegetables.   
   
-![時計](http://blog.branch4.pw/images/2014/07/degital_clock.jpg)  
+![digital clock](http://blog.branch4.pw/images/2014/07/degital_clock.jpg)  
   
-Today, I give some tips about  setting the time on EC2 of AWS.  
+Today, I give some tips about setting the time on EC2 of AWS.  
   
-If you set the time from UTC to your local time by following the information which you usually could get when you google,  
-the time of EC2 would be back to UTC after the server reboots,   
-not every time but sometimes…  
+If you set the time from UTC to your local time by following the instruction you usually get from googling,  
+the time of EC2 might be reverted to UTC after the server reboots,   
+not every time but sometimes...  
 
 <!-- more --> 
 
@@ -27,20 +27,20 @@ not every time but sometimes…
   
 `cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime`  
   
-You generally get the way like above.  
-The time will soon be your local time.    
+You usually could find the instruction like above.  
+The time setting will soon become your local time.    
 It’s so easy! Done!  
   
-But by this way, the time will get back to UTC.  
+But by this way, the time might get back to UTC.  
 You need to be careful, because it would happen not every time you reboot the server, but sometimes.  
   
-For me, it was after almost a year of service release that the time was back to UTC.   
-That was so troublesome as cron and application see the time.  
+For me, it was after almost a year of service release that the time was reverted to UTC.   
+That was so troublesome since cron and application see the time.  
     
 ### Why the time gets back to UTC  
 ----------
   
-The thing is…when glibc package gets updated,  
+The thing is... when glibc package gets updated,  
 /etc/localtime will be set to UTC by the script included in the glibc package.  
   
 In the case of Amazon Linux, cloud_init exec the security updates as the server starts.  
@@ -90,3 +90,8 @@ UTC=False
   
 日本人の方は[日本語の記事](http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/
 )もあります。
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
