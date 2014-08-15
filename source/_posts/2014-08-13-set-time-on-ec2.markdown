@@ -56,7 +56,7 @@ This is why the time gets back to UTC.
   
 There are two ways of dealing with the issue above.  
   
-Edit not "/etc/localtime”, but “/etc/sysconfig/clock”  
+#####1.Edit not "/etc/localtime”, but “/etc/sysconfig/clock”  
 
 ```
 ZONE="Asia/Tokyo"
@@ -65,7 +65,7 @@ UTC=False
 to ZONE, you need to set your local identifier.  
 It’s the case for Tokyo, Japan.  
   
-Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg"
+#####2.Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg"
   
 It’s not recommended.  
 Usually the security updates are necessary though it is troublesome if the time would get back sometimes after the reboots.   
