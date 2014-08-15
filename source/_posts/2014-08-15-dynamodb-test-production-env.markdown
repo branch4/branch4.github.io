@@ -1,9 +1,9 @@
 ---
 layout: post
-title: “DynamoDBの本番とテスト環境の分け方"
+title: DynamoDBの本番とテスト環境の分け方
 date: 2014-08-15 01:30:00 +0900
 comments: true
-published: false
+published: true
 author: risterlab
 categories: 
  - AWS
@@ -15,12 +15,15 @@ categories:
 もはやナンいらなくてカレーだけでも飲めます。うそです。チャパティ派です。  
   
 戯言はその辺にして、今回はDynamoDBでの本番環境とテスト環境の分け方を。  
+![test-and-production-mistaken](http://blog.branch4.pw/images/2014/08/test-and-production-mistaken.gif)  
+  
 うちではテスト環境としてDynamoが使えるかは下記２つの条件がありました。  
   
 1. 同じテーブル名のものを複数作成できること  
-1. テスト環境へのクエリが本番環境へ発行されてしまう危険性がない、またはとても低いこと  
+1. テスト環境へのクエリが本番環境へ発行されてしまう危険性がない、またはとても低いこと
   
 <!-- more —> 
+  
 ### 同じテーブル名を複数つくるには  
 ----------
   
