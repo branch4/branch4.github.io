@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Hashicorpの新プロダクト、Terraformを使ってみようかね
+title: Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！
 date: 2014-08-13 22:46:05 +0900
 comments: true
 published: false
@@ -11,11 +11,26 @@ categories:
 はい、前回の宣言を無視して、Terraformエントリを書く[@xengineer01](https://twitter.com/xengineer01)です。  
 (前回は、「次は Ansible」って言ってた)
 
-## 目的
+## 目的と概要
 ---
-タイトルそのままですわ。  
-まぁ、Ansibleとかそんなに目新しいものでもないし、ちょい前に出た Terraform のほうが
-需要あるかなと思って。(つーか PV 取れるかな、という邪な気持ちで)  
+タイトルそのままです。  
+ほんとに読んだだけなんです！w
+
+ちなみに、ドキュメント読みながらエントリ書いてみて、最終 terraform を実際使ってみるには至りませんでした。
+結局こんなことに使うのね、というところまでは行ったものの、まだProviderサポートが弱いのと、
+AWS をサポートしてるものの、EBS は作れなそうだったり、CloudFrontもこれからぽいので、
+時間かけて使ってみても、僕が実用するのは先かな、ということで、  
+
+- ドキュメント読んでみた感想
+
+のみ！にとどまってますw
+
+<!-- more -->  
+
+一応ね、terraform インストールして、実行計画見たり、グラフみたりはしましたけど、
+普通に公式ドキュメントに載ってるやつなので、ここでは割愛。  
+
+全体的な感想としては、もうちょっと Providerが充実したら、使いどころによってはいいツールなんだろうなー。
 
 ## Terraform とは？
 ---
@@ -31,7 +46,6 @@ Terraform is a tool for building, changing, and combining infrastructure safely 
 と・・・。Hashicorpさん！いまいち伝わらないっす！
 海外のサイトの説明ってこんな感じな気がする。他のも調べてみよう・・・ 
 
-<!-- more -->  
 
 #### ansible
 Ansible is the simplest way to automate IT.  
@@ -112,57 +126,51 @@ Vagrant を自由自在に使いこなしてる場合と、どう違うのかよ
 そのままだけど。何が違うんだろうね、と思ったので、まとめてみましたよ。
 勘違いしてるところは、誰か教えて。
 
-Vagrantの特徴
--  Development environments made easy
-  - 元々、開発環境、サンドボックス環境構築用のツール
-- 構築したいインフラ環境を、コードとして記述できるので、ビルドアンドスクラップしまくれて、すげー便利
-- Provider は、下記から一つ、選択できる
-  - VirtualBox
-  - VMware
-  - Docker
-  - KVM
-  - Hyper-V
-  - AWS
-  - Rackspaceなどなど
-- Provisioning はかなり柔軟
-  - script execution
-  - ansible/chef などのprovisioning toolも利用可能
-- destroy が結構気軽に打てる(実行までのステップが超短い)
-- 統合的な管理はできない(Load balancer/DNS/storage等の管理は現状できない)
+items| Vagrant  | Terraform 
+:-----: | :------ | :-----
+Catch copy | Development environments made easy | Terraform is a tool for building, changing, and combining infrastructure safely and efficiently.
+Provider | VirtualBox | AWS
+         | VMware     | CloudFlare
+         | Docker     | Consul
+         | KVM        | DigitalOcean
+         | Hyper-V    | DNSimple
+         | AWS        | Heroku
+         | RackSpace  | 
+Provisioning | File Upload      | たぶんなんでもござれ
+             | script execution | 
+             | Ansible          | 
+             | CFengine         | 
+             | Chef Solo        | 
+             | Chef Client      | 
+             | Docker           | 
+             | Puppet Apply     | 
+             | Puppet Agent     | 
+             | Salt             | 
+Others | Destroy が結構気軽に実行できる(実行までのステップが超短い！) | Destroy を間違えて実行する確率は、Vagrant に比べたら相当低い
+       | 統合的な管理はできない(Load balancer/DNS/Storege等の管理は現状できない) | AWS は、ELB/RDS/EIP/EC2/VPC/Route53/S3/Security Groupなどなど、結構いじれるので、かなり統合的管理ができる
+       | 元々の思想が、開発環境/サンドボックス環境構築用のツール | 特に開発環境用、とは銘打ってないから本番用なんだ、きっと
+       | インフラ環境をコードで記述して、Build & Scrap しまくれて、すげー便利 | インフラ環境を設定で記述して、構築できるので便利(destroy はVagrantのほうが気軽)
 
-Terraformの特徴
-- Terraform is a tool for building, changing, and combining infrastructure safely and efficiently.
-  - 特に開発環境用、とは銘打ってないから本番用なんだ、きっと
-  - しかも、安全で効率的に、って書いてある
-- 構築したいインフラ環境を、コードとして記述できるので、ビルドアンドスクラップしまくれて、すげー便利
-  - でも Vagrant より少し destroy が面倒
+こんな感じなのかなぁ。  
+Terraform に関しては、ちょっと作業フローも付け加えておこうかな。
+きっとこんな感じになるんじゃないかなぁ、ってレベルなので、実際はわからんけど。
+
 - たぶん作業フローが
   - 設定ファイルを書く
   - 実行プランを確認する
   - 実行する
   - 実行結果を確認する
   になるので、Vagrant よりも、いちいち確認するために止まる箇所をコマンドベースで置いてるのが違う気がする
-- Provider は、下記から複数選択できる
-  - AWS
-  - CloudFlare
-  - Consul
-  - DigitalOcean
-  - DNSimple
-  - Heroku
-- Provisioning はたぶんかなり柔軟
-  - Vagrant ほど、オプションやらdirective的なものが揃ってはいないけど、
-    remote_execで任意コマンドキックできるので、柔軟性でいえば、同等
-- destroy を間違えて実行する確率は、Vagrant に比べたら相当低い
-- AWS は、ELB/RDS/EIP/EC2/VPC/Route53/S3/Security Groupなどなど、結構いじれるので、かなり統合的管理ができる
 
 という感じで、Terraform vs Vagrant だと、
+
 - そもそも最初の思想が違ってたり、
 - 環境破壊の容易さが違ったり、
 - 作業フローもたぶん違ったり、
 - multi providerへの対応有無が違ったり、
 - 統合管理できる/できないがあったり
 
-ということを考えるとやっぱり、  
+っていう違いがあるのかな。だとするとやっぱり、  
 
 - 開発環境 == Vagrant  
 - 本番環境 == Terraform  
@@ -173,9 +181,9 @@ Terraformの特徴
 でかい環境が必要な場合とか、小さい環境が何個も必要な場合とかは、うまく使い分けるのがええだろね。
 provisioning のステージングを Vagrant でやってみて、うまくいったら、それ commit して Terraform 環境で適用、みたいな。
 でもterraformは、初期構築ツールで、運営開始後に全部実行することはないのかも？
-その辺まだわからん。
+その辺まだわからん。まぁとりあえず、CloudFormation の進化版になりうるやーつだ。やっと理解できたw  
 
-ま、なんとなくな違いを書いてみたところで、実際に書いてみようか。
+ではインストール。
 
 ### terraform インストール
 ----------
@@ -194,7 +202,7 @@ Terraform v0.1.1
 ```
 なるほど、僕が今回使うのは、v0.1.1 だそうです。
 
-### terraform のルール
+### terraform 使う時のざっくりフロー
 ----------
 まずは、登場用語リストとその説明から。
 
@@ -208,35 +216,71 @@ Terraform v0.1.1
   - 各Provider で設定できる項目のこと
   - aws だったら、eipとか、elbが一つのresource になってる
 
-そして次はやること。
+そして次は、実際 terraform 使うかー、ってなったら踏みそうな手順。
+きっと、僕はこんな感じなんだろう。
 
 1. システム構成検討
 これはそのまんま。まずはどんなシステム作りたいかを考えようよ。
-2. tfファイル記述
+2. tf ファイル記述
 これもそのまんま。考えたシステム構成図に則って書くだけといえば書くだけ。
 3. 実行計画確認
-下記コマンド実行。
-```
-$ terraform plan
-```
 
-で実行計画が表示されるので、OKかを確認する。
+   下記コマンド実行。
 
+   ```
+   $ terraform plan
+   ```
+
+   で実行計画が表示されるので、OKかを確認する。
+  
 4. 実行
-計画が OK だったら、下記コマンドで実行。
 
-```
-$ terraform apply
-```
+   計画が OK だったら、下記コマンドで実行。
 
-実行、というより、適用のほうがしっくりくる。
+   ```
+   $ terraform apply
+   ```
+
+   実行、というより、適用のほうがしっくりくる。
 
 5. 結果確認
-で、結果を下記コマンドで確認。
 
-```
-$ terraform show hogehoge.tfstatus
-```
+   で、結果を下記コマンドで確認。
+
+   ```
+   $ terraform show hogehoge.tfstatus
+   ```
+
+ほむほむ。
+なんとなくこんな感じなのね。
+
+と、ここまで書いて、実際使おうかな、という段で、一旦 Provider の種類を
+みてみよう、というわけで、公式ドキュメントに載ってるのをざっと表にしてみた。
+
+Service name|Terraform name|Attribute
+:---|:---:|:---
+AWS|Basic|aws_autoscaling_group
+|RDS|aws_db_instance
+||aws_db_security_group
+||aws_eip
+||aws_elb
+||aws_security_group
+||aws_subnet
+|EC2|aws_instance
+||aws_internet_gateway
+||aws_launch_configuration
+|Route53|aws_route_table
+||aws_route_table_association
+||aws_route53_record
+||aws_route53_zone
+|S3|aws_s3_bucket
+|VPC|aws_vpc
+
+な、なにぃ・・・EBS ないのかな・・・CloudFront ないのかな・・・。
+残念だなぁ・・・ちょっと動作みてみるのめんどくさくなってきたなぁ・・・
+などなど、色々と去来する思いもあり、今回はこの辺でやめて、Ansible に戻ろうかなー、
+ってなりましたw
+
   
 
 <script type="text/javascript" language="javascript">
