@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！
-date: 2014-08-13 22:46:05 +0900
+date: 2014-08-23 01:00:00 +0900
 comments: true
 published: false
 author: xengineer
@@ -25,6 +25,9 @@ AWS をサポートしてるものの、EBS は作れなそうだったり、Clo
 
 のみ！にとどまってますw
 
+![readonly](http://blog.branch4.pw/images/2014/08/medium_2044819979.jpg)
+photo credit: <a href="https://www.flickr.com/photos/takomabibelot/2044819979/">takomabibelot</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a>
+
 <!-- more -->  
 
 一応ね、terraform インストールして、実行計画見たり、グラフみたりはしましたけど、
@@ -34,6 +37,10 @@ AWS をサポートしてるものの、EBS は作れなそうだったり、Clo
 
 ## Terraform とは？
 ---
+
+![terraform](http://blog.branch4.pw/images/2014/08/medium_4575417487.jpg)
+photo credit: <a href="https://www.flickr.com/photos/torley/4575417487/">▓▒░ TORLEY ░▒▓</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">cc</a>
+
 Serf/Consul/Vagrant/Packer を出してる、[Hashicorp](http://www.hashicorp.com)の新プロダクト。  
 製品紹介には、、、  
 
@@ -78,6 +85,9 @@ Build software better, together.
 コードでインフラを表現するためのテンプレ的なのを用意してくれてる、な感じぽい。
 Vagrant を自由自在に使いこなしてる場合と、どう違うのかよくわからない。(Vagrantも使いこなせてないし)
 
+![infra](http://blog.branch4.pw/images/2014/08/medium_8106189987.jpg)
+photo credit: <a href="https://www.flickr.com/photos/andrewfhart/8106189987/">andrewfhart</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">cc</a>
+
 ### COMBINE MULTIPLE PROVIDERS
 ほほう。なんかここは、Vagrant と違いそうじゃないか？
 そもそも Vagrant の Provider をまだ勉強してないからなんとも言えないけど。。。  
@@ -92,6 +102,9 @@ Vagrant を自由自在に使いこなしてる場合と、どう違うのかよ
 ### EVOLVE YOUR INFRASTRUCTURE
 設定ファイルを、VCS に登録して、インフラをどんどん進化させていけるよ！
 って・・・Vagrant でも Ansible でも、Chef でもなんでもそうだからな・・・  
+
+![evolve](http://blog.branch4.pw/images/2014/08/medium_2922128673.jpg)
+photo credit: <a href="https://www.flickr.com/photos/spidermandragon5/2922128673/">bryanwright5@gmail.com</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a>
 
 まだ凄さがわかりまてん。。。  
 
@@ -152,6 +165,10 @@ Others | Destroy が結構気軽に実行できる(実行までのステップ�
        | インフラ環境をコードで記述して、Build & Scrap しまくれて、すげー便利 | インフラ環境を設定で記述して、構築できるので便利(destroy はVagrantのほうが気軽)
 
 こんな感じなのかなぁ。  
+
+![compare](http://blog.branch4.pw/images/2014/08/medium_12157565465.jpg)
+photo credit: <a href="https://www.flickr.com/photos/wwworks/12157565465/">woodleywonderworks</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a>
+
 Terraform に関しては、ちょっと作業フローも付け加えておこうかな。
 きっとこんな感じになるんじゃないかなぁ、ってレベルなので、実際はわからんけど。
 
