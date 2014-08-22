@@ -3,7 +3,7 @@ layout: post
 title: Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！
 date: 2014-08-23 01:00:00 +0900
 comments: true
-published: false
+published: true
 author: xengineer
 categories: 
   - Infra
