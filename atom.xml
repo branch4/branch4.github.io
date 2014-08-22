@@ -4,7 +4,7 @@
   <title><![CDATA[branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-13T22:28:04+09:00</updated>
+  <updated>2014-08-23T01:22:09+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,239 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[DynamoDBの本番とテスト環境の分け方]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/15/dynamodb-test-production-env/"/>
+    <updated>2014-08-15T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/15/dynamodb-test-production-env</id>
+    <content type="html"><![CDATA[<p>はい、こんばんみー。最近カレーにますますハマってる<a href="http://diary.risterlab.com">risterlab</a>です。<br/>
+南インドより北インドカレー派ってことが最近わかりました。<br/>
+もはやナンいらなくてカレーだけでも飲めます。うそです。チャパティ派です。</p>
+
+<p>戯言はその辺にして、今回はDynamoDBでの本番環境とテスト環境の分け方を。<br/>
+<img src="http://blog.branch4.pw/images/2014/08/test-and-production-mistaken.gif" alt="test-and-production-mistaken" /></p>
+
+<p>うちではテスト環境としてDynamoが使えるかは下記２つの条件がありました。</p>
+
+<ol>
+<li>同じテーブル名のものを複数作成できること</li>
+<li>テスト環境へのクエリが本番環境へ発行されてしまう危険性がない、またはとても低いこと</li>
+</ol>
+
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>同じテーブル名を複数つくるには</h3>
+
+<hr />
+
+<p>これがDynamoDBでは意外にやっかい。<br/>
+結論申しますと、同じテーブル名については、別リージョンという制限付きで可能。</p>
+
+<p>オンプレだと本番DBとテストDBは大体違う筐体、DB、スキーマにのってるからテーブル名は同じにできるんだけど<br/>
+DynamoDBの場合は<br/>
+１つのリージョンが１つのDBで、AWSのアカウントがスキーマ。<br/>
+というイメージだとわかりやすい。<br/>
+つまりAWSのあるアカウントでTokyoリージョンにDynamoDBのテーブルを作るということは<br/>
+ひとつのDBのあるスキーマ内にテーブルを作るということ。</p>
+
+<p>つまりもちろん同じテーブル名はだめですね。<br/>
+じゃあ別のアカウントにするかって、そんなにアカウント作りたくないし、それは現実的ではなし。<br/>
+一番簡単なのはリージョンを変えることでしょう。</p>
+
+<p>本番をもちろん東京に。テストは適当に一番安いVirginiaってのがよい。</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">AWSアカウントID </th>
+<th align="center"> リージョン </th>
+<th align="center"> テーブル     </th>
+<th align="center"> 環境</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">432156781234    </td>
+<td align="center"> TOKYO      </td>
+<td align="center"> TBL_HOGEHOGE </td>
+<td align="center"> 本番</td>
+</tr>
+<tr>
+<td align="center">432156781234    </td>
+<td align="center"> VIRGINA    </td>
+<td align="center"> TBL_HOGEHOGE </td>
+<td align="center"> テスト</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>これでそれぞれのスループット数を設定すればOK</p>
+
+<h3>本番とテストのアクセス制限</h3>
+
+<hr />
+
+<p>DynamoDBへのアクセスにはリソースネーム（ARN）を使います。<br/>
+たとえばこんなの。<br/>
+<code>arn:aws:dynamodb:us-east-1:432156781234:table/TBL_HOGEHOGE</code></p>
+
+<p>これにはリージョンが含まれているから、アクセス先の設定ミスなど人為的なミスを除けば、間違える危険性は低い。<br/>
+とはいえ、その人為的ミスが起こっちゃう訳ですね。<br/>
+だからそもそもアクセス制限をしたいところですが、そこで使うのがIAM。</p>
+
+<p>IAMでアプリが使うユーザーをテスト用と本番用で作って<br/>
+そこでさっきのリソースネームを使ってアクセス制限をかけましょう。<br/>
+そうすれば、さらにACCESSKEYとSECRETKEYがそれぞれ違うので、<br/>
+本当に最初のKEYの設定さえ間違えなければ、アプリが間違えて本番用のARNで本番用のテーブルに繋ごうとしても、権限なしではじいてくれるというわけです。</p>
+
+<p>IAMで設定するDynamoDBのPolicyはこんな感じ。<br/>
+さっきの表の例でいくと</p>
+
+<h5>テスト用のユーザーにつけるPolicy　　</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "Version": "2012-10-17",
+</span><span class='line'>  "Statement": [
+</span><span class='line'>    {
+</span><span class='line'>      "Sid": "Stmt1399538126123",
+</span><span class='line'>      "Effect": "Allow",
+</span><span class='line'>      "Action": [
+</span><span class='line'>        "dynamodb:BatchGetItem",
+</span><span class='line'>        "dynamodb:BatchWriteItem",
+</span><span class='line'>        "dynamodb:CreateTable",
+</span><span class='line'>        "dynamodb:DeleteItem",
+</span><span class='line'>        "dynamodb:DescribeTable",
+</span><span class='line'>        "dynamodb:GetItem",
+</span><span class='line'>        "dynamodb:ListTables",
+</span><span class='line'>        "dynamodb:PutItem",
+</span><span class='line'>        "dynamodb:Query",
+</span><span class='line'>        "dynamodb:Scan",
+</span><span class='line'>        "dynamodb:UpdateItem",
+</span><span class='line'>        "dynamodb:UpdateTable"
+</span><span class='line'>      ],
+</span><span class='line'>      "Resource": [
+</span><span class='line'>        "arn:aws:dynamodb:us-east-1: 432156781234:table/TBL_HOGEHOGE"
+</span><span class='line'>      ]
+</span><span class='line'>    }
+</span><span class='line'>  ]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>本番用のユーザーにつけるPolicy　　</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "Version": "2012-10-17",
+</span><span class='line'>  "Statement": [
+</span><span class='line'>    {
+</span><span class='line'>      "Sid": "Stmt1399538126123",
+</span><span class='line'>      "Effect": "Allow",
+</span><span class='line'>      "Action": [
+</span><span class='line'>        "dynamodb:BatchGetItem",
+</span><span class='line'>        "dynamodb:BatchWriteItem",
+</span><span class='line'>        "dynamodb:CreateTable",
+</span><span class='line'>        "dynamodb:DeleteItem",
+</span><span class='line'>        "dynamodb:DescribeTable",
+</span><span class='line'>        "dynamodb:GetItem",
+</span><span class='line'>        "dynamodb:ListTables",
+</span><span class='line'>        "dynamodb:PutItem",
+</span><span class='line'>        "dynamodb:Query",
+</span><span class='line'>        "dynamodb:Scan",
+</span><span class='line'>        "dynamodb:UpdateItem",
+</span><span class='line'>        "dynamodb:UpdateTable"
+</span><span class='line'>      ],
+</span><span class='line'>      "Resource": [
+</span><span class='line'>        "arn:aws:dynamodb:ap-northeast-1: 432156781234:table/TBL_HOGEHOGE"
+</span><span class='line'>      ]
+</span><span class='line'>    }
+</span><span class='line'>  ]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>まとめ</h3>
+
+<hr />
+
+<p>DynamoDBでテスト環境と本番環境を作る時、<br/>
+下記のようにすればよし。</p>
+
+<ol>
+<li>同じテーブル名を複数作成する<br/>
+別リージョンで同名のテーブルを作成することが可能。</li>
+<li>テスト環境へのクエリが本番環境へ発行されてしまわないようにする<br/>
+ARNだけの区別では不十分。<br/>
+ユーザーをわけてIAMでPolicyを設定しアクセス制限をすべし。  　</li>
+</ol>
+
+
+<p>もちろん性能評価とか負荷試験には別リージョンのテスト環境は使ってはだめですよ。レイテンシー違いますからね。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~]]></title>
@@ -70,7 +303,7 @@ cloud_init update the package and /etc/localtime will be initialized.</p>
 
 <p>There are two ways of dealing with the issue above.</p>
 
-<p>Edit not &ldquo;/etc/localtime”, but “/etc/sysconfig/clock”</p>
+<p>1.Edit not &ldquo;/etc/localtime”, but “/etc/sysconfig/clock”</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -81,7 +314,7 @@ cloud_init update the package and /etc/localtime will be initialized.</p>
 <p>to ZONE, you need to set your local identifier.<br/>
 It’s the case for Tokyo, Japan.</p>
 
-<p>Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg&#8221;</p>
+<p>2.Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg&#8221;</p>
 
 <p>It’s not recommended.<br/>
 Usually the security updates are necessary though it is troublesome if the time would get back sometimes after the reboots.</p>
@@ -2611,7 +2844,7 @@ fixturesというのがもともと仕組みとしてあるのですが、Factor
 
 <h1>共通で使う値をまとめる</h1>
 
-<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;&#x3a;&#116;&#x6f;&#x6d;&#64;&#101;&#120;&#97;&#109;&#x70;&#108;&#101;&#46;&#x63;&#x6f;&#x6d;">&#116;&#x6f;&#x6d;&#x40;&#101;&#120;&#x61;&#109;&#x70;&#108;&#x65;&#46;&#99;&#111;&#x6d;</a>&#8216;が3箇所で書かれている。
+<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#109;&#x61;&#x69;&#108;&#116;&#111;&#58;&#116;&#x6f;&#109;&#64;&#x65;&#120;&#x61;&#109;&#112;&#x6c;&#101;&#46;&#99;&#111;&#x6d;">&#x74;&#x6f;&#109;&#x40;&#x65;&#x78;&#97;&#x6d;&#x70;&#108;&#101;&#46;&#99;&#x6f;&#109;</a>&#8216;が3箇所で書かれている。
 後から値変更するとき3箇所弄るの辛いですね。まとめましょう。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -4811,79 +5044,6 @@ git push origin source
       replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
     </li>
   </ol>
-</div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[[Android] onClick Event With ImageView]]></title>
-    <link href="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/"/>
-    <updated>2014-04-06T22:42:00+09:00</updated>
-    <id>http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview</id>
-    <content type="html"><![CDATA[<div  class=post>
-  <h3 >
-    Purpose
-  </h3>
-  As said in the title.  <br>
-  It was my first shot using onClick event with ImageView, so just for memo.  <br>
-  (in fact it&#8217;s my first Android development) <br>
-  Keep in mind that this seem just to be one way of implementing onClick event with a view.  <br> <br>
-  <!-- more -->
-  <h3 >
-    Details
-  </h3>
-  <fieldset >
-    <legend >
-      Follow these 2steps
-    </legend>
-    <ol >
-      <li >
-        set a function name that should be called on onClick event in XML file(say it&#8217;s onClickEvent in this entry)
-      </li>
-      <li >
-        declare the onClickEvent in java file(Let&#8217;s say we just pop a toast)
-      </li>
-    </ol>
-  </fieldset>
-  This is part of the XML file.
-  <br>
-  <pre  class=prettyprint>
-    &lt;ImageView
-    android:id="@+id/imageview01"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:src="@drawable/image"
-    android:layout_gravity="bottom"
-    android:scaleType="fitEnd"
-    android:onClick="onClickEvent" />***** <- this Line !!!!  </pre>
-  Now, declare onClickEvent in the activity.  <br>
-  I use SherlockActivity, and SlidingMenu so it&#8217;s a little messy, but it&#8217;s ok to remove those.  <br>
-  <br>
-  <pre  class=prettyprint>
-    public class MainActivity extends SherlockActivity {
-      @Override
-      protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setTheme(R.style.Theme_Sherlock);
-        setTitle(R.string.attach);
-        // set the content view
-        setContentView(R.layout.activity_main);
-        // configure the SlidingMenu
-        SlidingMenu menu = new SlidingMenu(this);
-        menu.setMode(SlidingMenu.LEFT);
-        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-        menu.setShadowWidthRes(R.dimen.shadow_width);
-        menu.setShadowDrawable(R.drawable.shadow);
-        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        menu.setFadeDegree(0.35f);
-        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-        menu.setMenu(R.layout.list);
-      }
-      public void onClickEntry(View v) {
-        Toast.makeText(MainActivity.this, "test", Toast.LENGTH_LONG).show();
-      }
-    }</pre>
-  And you should see the toast after the tap.
 </div>
 ]]></content>
   </entry>

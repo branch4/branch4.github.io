@@ -152,15 +152,19 @@
     </url>
     <url>
         <loc>http://blog.branch4.pw/blog/2014/08/12/set-time-on-ec2/</loc>
-        <lastmod>2014-08-13T22:26:21+09:00</lastmod>
+        <lastmod>2014-08-15T22:37:54+09:00</lastmod>
+    </url>
+    <url>
+        <loc>http://blog.branch4.pw/blog/2014/08/15/dynamodb-test-production-env/</loc>
+        <lastmod>2014-08-15T23:28:22+09:00</lastmod>
     </url>
     <url>
         <loc>http://blog.branch4.pw/blog/archives/</loc>
-        <lastmod>2014-08-13T22:26:21+09:00</lastmod>
+        <lastmod>2014-08-15T23:28:22+09:00</lastmod>
     </url>
     <url>
         <loc>http://blog.branch4.pw/</loc>
-        <lastmod>2014-08-13T22:26:21+09:00</lastmod>
+        <lastmod>2014-08-15T23:28:22+09:00</lastmod>
     </url>
     <url>
         <loc>http://blog.branch4.pw/robots.txt</loc>

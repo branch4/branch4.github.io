@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EC2 | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/ec2/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-13T22:28:04+09:00</updated>
+  <updated>2014-08-23T01:22:09+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -70,7 +70,7 @@ cloud_init update the package and /etc/localtime will be initialized.</p>
 
 <p>There are two ways of dealing with the issue above.</p>
 
-<p>Edit not &ldquo;/etc/localtime”, but “/etc/sysconfig/clock”</p>
+<p>1.Edit not &ldquo;/etc/localtime”, but “/etc/sysconfig/clock”</p>
 
 <p><code>
 ZONE="Asia/Tokyo"
@@ -79,7 +79,7 @@ UTC=False
 to ZONE, you need to set your local identifier.<br/>
 It’s the case for Tokyo, Japan.</p>
 
-<p>Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg"</p>
+<p>2.Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg"</p>
 
 <p>It’s not recommended.<br/>
 Usually the security updates are necessary though it is troublesome if the time would get back sometimes after the reboots.</p>
