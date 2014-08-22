@@ -6,6 +6,8 @@ comments: true
 published: false
 author: xengineer
 categories: 
+  - Infra
+  - Web Development
 ---
 
 はい、前回の宣言を無視して、Terraformエントリを書く[@xengineer01](https://twitter.com/xengineer01)です。  
