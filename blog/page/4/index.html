@@ -9,7 +9,7 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content=" Webの画面に表示されてるテキストとかを、クリックしてその場で編集できるやつ。 を、In place editor、というらしい。 ">
+  <meta name="description" content="railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,56 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/04/infra-dnatrails-devise/">[Infra] DNAT環境下でのrails + Devise</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-04T02:19:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/03/04/infra-dnatrails-devise/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/03/04/infra-dnatrails-devise/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  railsとdeviseを組み合わせて使うことはよくあることです。たぶん。 <br>
+  んで、DNAT環境下で使うと、最初に認証できなかったら、認証画面に <br>
+  リダイレクトする、っていうとこで困っちゃう。というか僕は困っちゃった。 <br> <br>
+  deviseのサイトに、認証失敗時のリダイレクトを任意画面にする、的な方法が <br>
+  出てたけど、そこだけが対応箇所なのかもようわからんので、nginx側で、 <br>
+  30x系リダイレクト時の、Locationヘッダを書き換える方法にしてみた話。 <br>
+  いえ、全然難しくないんだけどね。。。 <br>
+  </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/04/infra-dnatrails-devise/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -538,6 +588,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/08/15/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
       </li>
     
@@ -551,10 +605,6 @@
     
       <li class="post">
         <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/09/required-person1/">求められる人材(前半)</a>
       </li>
     
   </ul>
@@ -572,7 +622,7 @@
 
 <section>
   <h1>Top Categories</h1>
-  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/infra'>Infra (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/web-development'>Web Development (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
 </section>
 
   

@@ -9,9 +9,9 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content="はい、こんばんみー。最近カレーにますますハマってるristerlabです。
-南インドより北インドカレー派ってことが最近わかりました。
-もはやナンいらなくてカレーだけでも飲めます。うそです。チャパティ派です。 戯言はその辺にして、今回はDynamoDBでの本番環境とテスト環境の分け方を。 &hellip;">
+  <meta name="description" content="はい、前回の宣言を無視して、Terraformエントリを書く@xengineer01です。
+(前回は、「次は Ansible」って言ってた) 目的と概要 タイトルそのままです。
+ほんとに読んだだけなんです！w ちなみに、ドキュメント読みながらエントリ書いてみて、最終 terraform &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +82,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-23T01:00:00+09:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2014</time>
+        
+           | <a href="/blog/2014/08/23/using-hashicorp-terraform/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>はい、前回の宣言を無視して、Terraformエントリを書く<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+(前回は、「次は Ansible」って言ってた)</p>
+
+<h2>目的と概要</h2>
+
+<hr />
+
+<p>タイトルそのままです。<br/>
+ほんとに読んだだけなんです！w</p>
+
+<p>ちなみに、ドキュメント読みながらエントリ書いてみて、最終 terraform を実際使ってみるには至りませんでした。
+結局こんなことに使うのね、というところまでは行ったものの、まだProviderサポートが弱いのと、
+AWS をサポートしてるものの、EBS は作れなそうだったり、CloudFrontもこれからぽいので、
+時間かけて使ってみても、僕が実用するのは先かな、ということで、</p>
+
+<ul>
+<li>ドキュメント読んでみた感想</li>
+</ul>
+
+
+<p>のみ！にとどまってますw</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_2044819979.jpg" alt="readonly" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/takomabibelot/2044819979/">takomabibelot</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/08/23/using-hashicorp-terraform/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -612,60 +679,6 @@ RSpecのセットアップとかそういうのは書きません。</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-12T01:30:00+09:00" pubdate data-updated="true">Jul 12<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/12/fix-the-time-on-ec2/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア<a href="http://diary.risterlab.com">@risterlab</a>です。 <br/>
-来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！<br/>
-晴れますように。</p>
-
-<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="時計" /></p>
-
-<p>今回はちょっとした小ネタを。</p>
-
-<p>AWSのEC2のAmazon Linuxを立ち上げた人はまずUTCから日本時間に合わせるでしょう。<br/>
-しかし、大抵検索すると出てくる方法で合わせてしまうと、 <br/>
-再起動したときにたまに時間がUTCに戻っちゃって、困ってる人向けに。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/07/12/fix-the-time-on-ec2/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -693,6 +706,10 @@ RSpecのセットアップとかそういうのは書きません。</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/08/15/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
       </li>
     
@@ -706,10 +723,6 @@ RSpecのセットアップとかそういうのは書きません。</p>
     
       <li class="post">
         <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/09/required-person1/">求められる人材(前半)</a>
       </li>
     
   </ul>
@@ -727,7 +740,7 @@ RSpecのセットアップとかそういうのは書きません。</p>
 
 <section>
   <h1>Top Categories</h1>
-  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/infra'>Infra (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/web-development'>Web Development (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
 </section>
 
   
