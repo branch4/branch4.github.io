@@ -4,7 +4,7 @@
   <title><![CDATA[branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-23T01:37:20+09:00</updated>
+  <updated>2014-08-23T14:15:20+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -131,7 +131,7 @@ photo credit: <a href="https://www.flickr.com/photos/andrewfhart/8106189987/">an
 って・・・Vagrant でも Ansible でも、Chef でもなんでもそうだからな・・・</p>
 
 <p><img src="http://blog.branch4.pw/images/2014/08/medium_2922128673.jpg" alt="evolve" /><br/>
-photo credit: <a href="https://www.flickr.com/photos/spidermandragon5/2922128673/"><a href="&#109;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#98;&#x72;&#121;&#x61;&#x6e;&#119;&#x72;&#105;&#x67;&#x68;&#x74;&#x35;&#x40;&#103;&#x6d;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#109;">&#98;&#114;&#121;&#97;&#x6e;&#x77;&#x72;&#x69;&#103;&#x68;&#116;&#x35;&#64;&#x67;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#x6f;&#109;</a></a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a></p>
+photo credit: <a href="https://www.flickr.com/photos/spidermandragon5/2922128673/"><a href="&#109;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#x62;&#x72;&#121;&#x61;&#x6e;&#x77;&#x72;&#x69;&#103;&#104;&#x74;&#x35;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;&#x2e;&#x63;&#111;&#x6d;">&#x62;&#x72;&#x79;&#97;&#110;&#x77;&#114;&#x69;&#103;&#x68;&#x74;&#x35;&#64;&#103;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#x6f;&#109;</a></a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a></p>
 
 <p>まだ凄さがわかりまてん。。。</p>
 
@@ -562,239 +562,6 @@ $ terraform show hogehoge.tfstatus
   num = Math.floor( Math.random() * 6 );
   document.write( aff[ num ]);
 </script>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[DynamoDBの本番とテスト環境の分け方]]></title>
-    <link href="http://blog.branch4.pw/blog/2014/08/15/dynamodb-test-production-env/"/>
-    <updated>2014-08-15T01:30:00+09:00</updated>
-    <id>http://blog.branch4.pw/blog/2014/08/15/dynamodb-test-production-env</id>
-    <content type="html"><![CDATA[<p>はい、こんばんみー。最近カレーにますますハマってる<a href="http://diary.risterlab.com">risterlab</a>です。<br/>
-南インドより北インドカレー派ってことが最近わかりました。<br/>
-もはやナンいらなくてカレーだけでも飲めます。うそです。チャパティ派です。</p>
-
-<p>戯言はその辺にして、今回はDynamoDBでの本番環境とテスト環境の分け方を。<br/>
-<img src="http://blog.branch4.pw/images/2014/08/test-and-production-mistaken.gif" alt="test-and-production-mistaken" /></p>
-
-<p>うちではテスト環境としてDynamoが使えるかは下記２つの条件がありました。</p>
-
-<ol>
-<li>同じテーブル名のものを複数作成できること</li>
-<li>テスト環境へのクエリが本番環境へ発行されてしまう危険性がない、またはとても低いこと</li>
-</ol>
-
-
-<!-- more -->
-
-
-<p></p>
-
-<h3>同じテーブル名を複数つくるには</h3>
-
-<hr />
-
-<p>これがDynamoDBでは意外にやっかい。<br/>
-結論申しますと、同じテーブル名については、別リージョンという制限付きで可能。</p>
-
-<p>オンプレだと本番DBとテストDBは大体違う筐体、DB、スキーマにのってるからテーブル名は同じにできるんだけど<br/>
-DynamoDBの場合は<br/>
-１つのリージョンが１つのDBで、AWSのアカウントがスキーマ。<br/>
-というイメージだとわかりやすい。<br/>
-つまりAWSのあるアカウントでTokyoリージョンにDynamoDBのテーブルを作るということは<br/>
-ひとつのDBのあるスキーマ内にテーブルを作るということ。</p>
-
-<p>つまりもちろん同じテーブル名はだめですね。<br/>
-じゃあ別のアカウントにするかって、そんなにアカウント作りたくないし、それは現実的ではなし。<br/>
-一番簡単なのはリージョンを変えることでしょう。</p>
-
-<p>本番をもちろん東京に。テストは適当に一番安いVirginiaってのがよい。</p>
-
-<table>
-<thead>
-<tr>
-<th align="center">AWSアカウントID </th>
-<th align="center"> リージョン </th>
-<th align="center"> テーブル     </th>
-<th align="center"> 環境</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">432156781234    </td>
-<td align="center"> TOKYO      </td>
-<td align="center"> TBL_HOGEHOGE </td>
-<td align="center"> 本番</td>
-</tr>
-<tr>
-<td align="center">432156781234    </td>
-<td align="center"> VIRGINA    </td>
-<td align="center"> TBL_HOGEHOGE </td>
-<td align="center"> テスト</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>これでそれぞれのスループット数を設定すればOK</p>
-
-<h3>本番とテストのアクセス制限</h3>
-
-<hr />
-
-<p>DynamoDBへのアクセスにはリソースネーム（ARN）を使います。<br/>
-たとえばこんなの。<br/>
-<code>arn:aws:dynamodb:us-east-1:432156781234:table/TBL_HOGEHOGE</code></p>
-
-<p>これにはリージョンが含まれているから、アクセス先の設定ミスなど人為的なミスを除けば、間違える危険性は低い。<br/>
-とはいえ、その人為的ミスが起こっちゃう訳ですね。<br/>
-だからそもそもアクセス制限をしたいところですが、そこで使うのがIAM。</p>
-
-<p>IAMでアプリが使うユーザーをテスト用と本番用で作って<br/>
-そこでさっきのリソースネームを使ってアクセス制限をかけましょう。<br/>
-そうすれば、さらにACCESSKEYとSECRETKEYがそれぞれ違うので、<br/>
-本当に最初のKEYの設定さえ間違えなければ、アプリが間違えて本番用のARNで本番用のテーブルに繋ごうとしても、権限なしではじいてくれるというわけです。</p>
-
-<p>IAMで設定するDynamoDBのPolicyはこんな感じ。<br/>
-さっきの表の例でいくと</p>
-
-<h5>テスト用のユーザーにつけるPolicy　　</h5>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>{
-</span><span class='line'>  "Version": "2012-10-17",
-</span><span class='line'>  "Statement": [
-</span><span class='line'>    {
-</span><span class='line'>      "Sid": "Stmt1399538126123",
-</span><span class='line'>      "Effect": "Allow",
-</span><span class='line'>      "Action": [
-</span><span class='line'>        "dynamodb:BatchGetItem",
-</span><span class='line'>        "dynamodb:BatchWriteItem",
-</span><span class='line'>        "dynamodb:CreateTable",
-</span><span class='line'>        "dynamodb:DeleteItem",
-</span><span class='line'>        "dynamodb:DescribeTable",
-</span><span class='line'>        "dynamodb:GetItem",
-</span><span class='line'>        "dynamodb:ListTables",
-</span><span class='line'>        "dynamodb:PutItem",
-</span><span class='line'>        "dynamodb:Query",
-</span><span class='line'>        "dynamodb:Scan",
-</span><span class='line'>        "dynamodb:UpdateItem",
-</span><span class='line'>        "dynamodb:UpdateTable"
-</span><span class='line'>      ],
-</span><span class='line'>      "Resource": [
-</span><span class='line'>        "arn:aws:dynamodb:us-east-1: 432156781234:table/TBL_HOGEHOGE"
-</span><span class='line'>      ]
-</span><span class='line'>    }
-</span><span class='line'>  ]
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<h5>本番用のユーザーにつけるPolicy　　</h5>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>{
-</span><span class='line'>  "Version": "2012-10-17",
-</span><span class='line'>  "Statement": [
-</span><span class='line'>    {
-</span><span class='line'>      "Sid": "Stmt1399538126123",
-</span><span class='line'>      "Effect": "Allow",
-</span><span class='line'>      "Action": [
-</span><span class='line'>        "dynamodb:BatchGetItem",
-</span><span class='line'>        "dynamodb:BatchWriteItem",
-</span><span class='line'>        "dynamodb:CreateTable",
-</span><span class='line'>        "dynamodb:DeleteItem",
-</span><span class='line'>        "dynamodb:DescribeTable",
-</span><span class='line'>        "dynamodb:GetItem",
-</span><span class='line'>        "dynamodb:ListTables",
-</span><span class='line'>        "dynamodb:PutItem",
-</span><span class='line'>        "dynamodb:Query",
-</span><span class='line'>        "dynamodb:Scan",
-</span><span class='line'>        "dynamodb:UpdateItem",
-</span><span class='line'>        "dynamodb:UpdateTable"
-</span><span class='line'>      ],
-</span><span class='line'>      "Resource": [
-</span><span class='line'>        "arn:aws:dynamodb:ap-northeast-1: 432156781234:table/TBL_HOGEHOGE"
-</span><span class='line'>      ]
-</span><span class='line'>    }
-</span><span class='line'>  ]
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>まとめ</h3>
-
-<hr />
-
-<p>DynamoDBでテスト環境と本番環境を作る時、<br/>
-下記のようにすればよし。</p>
-
-<ol>
-<li>同じテーブル名を複数作成する<br/>
-別リージョンで同名のテーブルを作成することが可能。</li>
-<li>テスト環境へのクエリが本番環境へ発行されてしまわないようにする<br/>
-ARNだけの区別では不十分。<br/>
-ユーザーをわけてIAMでPolicyを設定しアクセス制限をすべし。  　</li>
-</ol>
-
-
-<p>もちろん性能評価とか負荷試験には別リージョンのテスト環境は使ってはだめですよ。レイテンシー違いますからね。</p>
-
-<script type="text/javascript" language="javascript">
-  num = Math.floor( Math.random() * 6 );
-  document.write( aff[ num ]);
-</script>
-
-
 
 ]]></content>
   </entry>
@@ -3397,7 +3164,7 @@ fixturesというのがもともと仕組みとしてあるのですが、Factor
 
 <h1>共通で使う値をまとめる</h1>
 
-<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#58;&#x74;&#x6f;&#109;&#64;&#x65;&#x78;&#97;&#109;&#x70;&#108;&#101;&#x2e;&#99;&#x6f;&#x6d;">&#x74;&#111;&#x6d;&#64;&#x65;&#120;&#x61;&#109;&#x70;&#x6c;&#101;&#x2e;&#99;&#x6f;&#109;</a>&#8216;が3箇所で書かれている。
+<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#58;&#x74;&#111;&#x6d;&#64;&#101;&#x78;&#x61;&#109;&#x70;&#108;&#x65;&#46;&#x63;&#111;&#x6d;">&#x74;&#111;&#x6d;&#x40;&#101;&#120;&#x61;&#x6d;&#x70;&#x6c;&#101;&#x2e;&#99;&#111;&#x6d;</a>&#8216;が3箇所で書かれている。
 後から値変更するとき3箇所弄るの辛いですね。まとめましょう。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -5569,6 +5336,34 @@ git push origin source
   <br> <br>
   Easy.  <br> <br>
   <br>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[1 Liner] Easily Replacing a Domain in Multiple Files]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/"/>
+    <updated>2014-04-07T16:07:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will&#8230;  <br> <br>
+  <ol>
+    <li>
+      find files that contains &#8220;xxxxx.yyyyy.jp:1080&#8221; <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
 </div>
 ]]></content>
   </entry>

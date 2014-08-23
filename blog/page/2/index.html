@@ -9,8 +9,11 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content="はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア@risterlabです。 来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！
-晴れますように。 今回はちょっとした小ネタを。 AWSのEC2のAmazon &hellip;">
+  <meta name="description" content="こんちには、おフランス帰りの@xengineer01です。
+ほっほっほ。 パリで開催されている、Japan Expoに、僕が所属している青空応援団が参加してたので、
+珍しく海外におりました。
+ほとんどExpo会場にいたからあんまり観光的なことはしてないけどね。
+セーヌ川と聞くと、いつも、セーム革ね &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,60 +84,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/12/fix-the-time-on-ec2/">EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-12T01:30:00+09:00" pubdate data-updated="true">Jul 12<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/12/fix-the-time-on-ec2/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア<a href="http://diary.risterlab.com">@risterlab</a>です。 <br/>
-来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！<br/>
-晴れますように。</p>
-
-<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="時計" /></p>
-
-<p>今回はちょっとした小ネタを。</p>
-
-<p>AWSのEC2のAmazon Linuxを立ち上げた人はまずUTCから日本時間に合わせるでしょう。<br/>
-しかし、大抵検索すると出てくる方法で合わせてしまうと、 <br/>
-再起動したときにたまに時間がUTCに戻っちゃって、困ってる人向けに。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/07/12/fix-the-time-on-ec2/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
   
   
     <article>
@@ -677,6 +626,64 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/07/1-liner-line-editing/">[1 Liner] Easily Replacing a Domain in Multiple Files</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-07T16:07:00+09:00" pubdate data-updated="true">Apr 7<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/04/07/1-liner-line-editing/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/07/1-liner-line-editing/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Just 1 liner I sometimes use.<br><br>
+  <pre  class=prettyprint>
+    for i in `find -type f`;
+    do
+    grep "xxxxx.yyyyy.jp:1080" >& /dev/null $i;
+    if [ $? -eq 0 ]; then
+      sed -i.bak -e s,http://xxxxx.yyyyy.jp:1080,https://aaa.bbb.com, $i;
+    fi
+    done </pre>
+  This will&#8230;  <br> <br>
+  <ol>
+    <li>
+      find files that contains &#8220;xxxxx.yyyyy.jp:1080&#8221; <br>
+    </li>
+    <li>
+      replace http://xxxxx.yyyyy.jp:1080 => https://aaa.bbb.com <br> <br>
+    </li>
+  </ol>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -710,10 +717,6 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/08/15/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
-      </li>
-    
-      <li class="post">
         <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
       </li>
     
@@ -723,6 +726,10 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
     
       <li class="post">
         <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/09/required-person1/">求められる人材(前半)</a>
       </li>
     
   </ul>
@@ -740,7 +747,7 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
 
 <section>
   <h1>Top Categories</h1>
-  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li></ul>
 </section>
 
   
