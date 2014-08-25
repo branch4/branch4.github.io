@@ -12,6 +12,8 @@ categories:
 ---
 
 こんにちは。前回の続きで、またVagrantのエントリ書いてる[@xengineer01](https://twitter.com/xengineer01)です。  
+Vagrant は、前回も書いた通り、開発環境構築用の application で、色んな仮想化ソリューションに対応してて便利なツールでございます。
+今回はそんなツールで、複数サーバを簡単に管理しちゃおうぜ！的なエントリ。
 
 ![vagrant logo](http://blog.branch4.pw/images/2014/08/logo_vagrant.png)
 
