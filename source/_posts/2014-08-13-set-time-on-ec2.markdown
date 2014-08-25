@@ -15,6 +15,7 @@ Hi, I’m [risterlab](http://diary.risterlab.com), a web infrastructural enginee
 ![digital clock](http://blog.branch4.pw/images/2014/07/degital_clock.jpg)  
   
 Today, I give some tips about setting the time on EC2 of AWS.  
+(AWS, is a cloud hosting service of Amazon)
   
 If you set the time from UTC to your local time by following the instruction you usually get from googling,  
 the time of EC2 might be reverted to UTC after the server reboots,   
