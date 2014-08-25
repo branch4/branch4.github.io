@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Virtualization | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/virtualization/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-23T14:15:20+09:00</updated>
+  <updated>2014-08-26T00:57:58+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -18,7 +18,9 @@
     <link href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/"/>
     <updated>2014-08-11T05:00:00+09:00</updated>
     <id>http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2</id>
-    <content type="html"><![CDATA[<p>こんにちは。前回の続きで、またVagrantのエントリ書いてる<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+    <content type="html"><![CDATA[<p>こんにちは。前回の続きで、またVagrantのエントリ書いてる<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+Vagrant は、前回も書いた通り、開発環境構築用の application で、色んな仮想化ソリューションに対応してて便利なツールでございます。
+今回はそんなツールで、複数サーバを簡単に管理しちゃおうぜ！的なエントリ。</p>
 
 <p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
 
@@ -1377,6 +1379,8 @@ vagrant                     233G   92G  142G  40% /vagrant
 
 <p>続きの複数サーバ編は
 <a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">ここ</a>だよ。</p>
+
+<p>基本vagrantのproviderは、主要な仮想化に対応してるから便利だな・・・</p>
 
 <script type="text/javascript" language="javascript">
   num = Math.floor( Math.random() * 6 );

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: AWS | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/aws/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-08-23T14:15:20+09:00</updated>
+  <updated>2014-08-26T00:57:58+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -22,7 +22,8 @@
 
 <p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="digital clock" /></p>
 
-<p>Today, I give some tips about setting the time on EC2 of AWS.</p>
+<p>Today, I give some tips about setting the time on EC2 of AWS.<br/>
+(AWS, is a cloud hosting service of Amazon)</p>
 
 <p>If you set the time from UTC to your local time by following the instruction you usually get from googling,<br/>
 the time of EC2 might be reverted to UTC after the server reboots, <br/>
