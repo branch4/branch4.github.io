@@ -252,6 +252,8 @@ photo credit: <a href="https://www.flickr.com/photos/42961083@N06/3955995684/">q
 個人的にはソーシャルゲームはユーザーとして愛しておりますので、
 これからもわくわくする面白いゲームが沢山生み出させれますように！！
 
+・・・大手転職サイトではなかなか網羅できないところまで書けるといいんだけど、、、難しいね！
+
 <script type="text/javascript" language="javascript">
   num = Math.floor( Math.random() * 6 );
   document.write( aff[ num ]);

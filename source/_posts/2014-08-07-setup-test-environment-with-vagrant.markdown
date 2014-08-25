@@ -560,6 +560,8 @@ HDD リサイズとかは、たぶん Box 定義からいじる、とかなの�
 続きの複数サーバ編は
 [ここ](http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/)だよ。
 
+基本vagrantのproviderは、主要な仮想化に対応してるから便利だな・・・
+
 <script type="text/javascript" language="javascript">
   num = Math.floor( Math.random() * 6 );
   document.write( aff[ num ]);
