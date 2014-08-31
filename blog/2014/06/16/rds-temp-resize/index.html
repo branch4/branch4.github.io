@@ -1,0 +1,489 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Resize Temp File of Oracle on RDS - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="どもども。saoristerです。
+野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。
+(統一性なさすぎw) 今回は私がブログ記事担当！
+ということで、
+この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。 DBのディスク空き容量が!!! &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Resize Temp File of Oracle on RDS</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-16T15:20:00+09:00" pubdate data-updated="true">Jun 16<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>どもども。<a href="http://portfolio.risterlab.com">saorister</a>です。<br/>
+野菜大好き、刺繍大好き、将来は書道の先生になりたーい、そんなインフラエンジニアです。<br/>
+(統一性なさすぎw)</p>
+
+<p>今回は私がブログ記事担当！<br/>
+ということで、<br/>
+この前ちと困ったのに、あんまりネットにヒントがなかったことをひとつご紹介。</p>
+
+<h3>DBのディスク空き容量が!!!</h3>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/figure_graph_down.png" alt="DBのディスク空き容量が!!!" /></p>
+
+<p>RDSのOracleさんでTEMP表領域サイズがめっちゃでっかくなっちゃって<br/>
+空き容量がほとんどなくなっちゃったよぉぉぉぉ！！！</p>
+
+<p>パニック！！！</p>
+
+<p>って時の対処法を。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>起きたこと</h3>
+
+<hr />
+
+<ol>
+<li>どこかのおばかさんがとんでもSQLを投げた</li>
+<li>コアDB(RDS)のディスク容量があと10%以下よーというアラートがCloudWatchから飛んできて異常に気づく</li>
+<li>怪しいセッションを発見。すぐにkill!KILL!!キル！！！</li>
+<li>とりあえずぐんぐん下がっていくディスクの空き容量のグラフはもうほぼ０のところでぎりぎり止まった。  はぁ。</li>
+<li>ひとまずディスク容量増やそうぜ！このためのRDSじゃないか！ってことでディスク容量を10%増量。(10%以上じゃないとあげられないのよ)</li>
+</ol>
+
+
+<p>退屈な毎日だとは思っていたけどこんなスリルは求めてない。</p>
+
+<h3>増えたTemp領域を小さくする</h3>
+
+<hr />
+
+<p>とんでもSQLってのはselect文だったわけだけど<br/>
+むちゃくちゃなjoinをしてTEMP表領域(一時領域)が膨れ上がっちゃったわけですね。<br/>
+こわいねー。<br/>
+で、慌ててセッションkillしたから、その一時領域は開放されずそのまま残っちゃった。<br/>
+ので、これを小さくしてあげないといけない。<br/>
+「oracle temp領域 resize」「oracle 一時領域 縮小」<br/>
+とかで検索するとやりかたはいっぱいでてきます。<br/>
+だけどそこに書いてあるこのコマンド</p>
+
+<p><code>SQL&gt; alter database tempfile ~</code></p>
+
+<p>ってのはRDSじゃ権限がなくてできないんですよ。<br/>
+はい、困った。</p>
+
+<p>ってわけで先に結論。</p>
+
+<h4>RDSのoracleのtemp領域(一時領域)を縮小する方法</h4>
+
+<p>1.TEMP表領域を新規作成します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; CREATE TEMPORARY TABLESPACE TEMP02;
+</span><span class='line'>Tablespace created.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.デフォルトのTEMP表領域を1.で作成したものに変更します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.元のTEMP表領域を削除します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>実際にやったこと Try &amp; Error編</h2>
+
+<p>上で書いた結論はたった３つだけど、そこにたどり着くまでの試行錯誤も書いちゃうよ。<br/>
+まず膨れ上がったのがTEMP表領域だったことの確認はこのSQLで。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT dt.file_name, dt.tablespace_name,
+</span><span class='line'>to_char(dt.bytes / 1024, '99999990.000') file_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / 1024, '99999990.000') used_kbytes,
+</span><span class='line'> to_char(t.bytes_cached / dt.bytes * 100, '990.00') || '%' capacity
+</span><span class='line'>FROM sys.dba_temp_files dt, v$temp_extent_pool t, v$tempfile v
+</span><span class='line'>WHERE t.file_id(+)= dt.file_id AND dt.file_id = v.file#;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな状態でした。<br/>
+<img src="http://blog.branch4.pw/images/2014/06/temp_30GB_masking.png" alt="temp30GB" /></p>
+
+<p>で、単純に縮小しようとしてもできません。</p>
+
+<p><code>SQL&gt; alter tablespace temp resize 100M</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQLエラー: ORA-03297: ファイルには、リクエストしたRESIZE値を超える使用中のデータが含まれています。
+</span><span class='line'>03297. 00000 -  "file contains used data beyond requested RESIZE value"
+</span><span class='line'>*Cause:    Some portion of the file in the region to be trimmed is
+</span><span class='line'>           currently in use by a database object
+</span><span class='line'>*Action:   Drop or move segments containing extents in this region prior to
+</span><span class='line'>           resizing the file, or choose a resize value such that only free
+</span><span class='line'>           space is in the trimmed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こう言われちゃいますね。使ってるのよって。<br/>
+じゃあ、ってことでオンプレのoracleで普通やる縮小方法を試してみると。</p>
+
+<p><code>SQL&gt; alter database tempfile '/path/to/temp/file1.tmp' resize 10M;</code><br/>
+&ndash;> はいalter databaseはRDSでうてませーん。権限ありませーん。</p>
+
+<p>じゃあお決まりの、新しくTEMP表領域を小さいのつくって、置き換える作成へ。</p>
+
+<p><code>SQL&gt; create temporary tablespace TEMP02 size 10M;</code><br/>
+&ndash;> だめ。これも権限ないって怒られる。<br/>
+でもこれはファイルサイズを決める権限がないってことらしく、これなら<br/>
+通った。<br/>
+<code>SQL&gt; create temporary tablespace TEMP02;</code></p>
+
+<p>さっきのSQLで確認するとtmpファイルが２つでてきて、<br/>
+新しいものは100MBでできていることがわかるはず。</p>
+
+<p>よし、ここでデフォルトのTEMP表領域を置き換える。<br/>
+そうalter databaseじゃなくてexec rdsadminを使ってね！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; exec rdsadmin.rdsadmin_util.ALTER_DEFAULT_TEMP_TABLESPACE('TEMP02')
+</span><span class='line'>PL/SQL procedure successfully completed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>よーしこれで用無しになったおデブちゃんを削除だ！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; DROP TABLESPACE temp;
+</span><span class='line'>Tablespace dropped.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぐっばい、おでぶちゃん。<br/>
+勝利の美酒に浸りながらCloudWatchで空き容量が一気にもどってるのを見ようとしたら<br/>
+なんと！<br/>
+グラフ微動だにせず、、、、<br/>
+むしろ追加したTEMP表領域の分の100MB分減っとるやないかーい！<br/>
+くそ、結局再起動しないと消えへんオチかい。<br/>
+と調べてたら、こっちにするべきだったみたい。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SQL&gt; drop tablespace &lt;tablespace_name&gt; including contents and datafiles;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これじゃないとファイルも一緒に削除してくれないとな。<br/>
+もー先に教えてよー。時既に遅しじゃーん。まぁ今日は寝よ。<br/>
+ってことで次の日CloudWatchのグラフ見たらびっくり。<br/>
+半日遅れでディスクの空き増えてるよ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/CloudWatch_storagefreespace_edit.png" alt="CloudWatch ディスク空きグラフ" /></p>
+
+<p>なんでやねん！</p>
+
+<p>答えは単純でOracleのマイナーバージョンアップをONにしてると<br/>
+指定した時間にパッチをあててアップデートしてくれてるんですな。<br/>
+そのときに再起動がかかってると。<br/>
+そのマイナーバージョンアップの指定してる時間を見ると、</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/06/minorvirsionup_widdow.png" alt="Minor VersionUP Widdow" /></p>
+
+<p>UTCでAM1:00-1:30だから+9時間で朝の10時半ごろ、、、<br/>
+グラフみるとビンゴ！！<br/>
+そうゆうことですか、、、</p>
+
+<p>なんだかなぁ。すっきりせんなぁ。</p>
+
+<h2>あとがき</h2>
+
+<p>ちなみに上で書いてるのはテストDBでやったこと。  <br/>
+事情があってなかなかこの作業させてもらえなくてねぇ。<br/>
+だから本番でやるときはちゃんとincluding contents and datafilesもつけて<br/>
+ファイル削除してやろうと思うんです。<br/>
+その結果はまた続きとして書く予定です。</p>
+
+<p>ではでは、今日はこんなところで。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-16T15:20:00+09:00" pubdate data-updated="true">Jun 16<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/aws/'>aws</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/06/07/blog-on-github.io-with-octopress/" title="Previous Post: Blog on Github Pages with Octopress">&laquo; Blog on Github Pages with Octopress</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/06/19/posting-blog-with-octopress/" title="Next Post: Posting a Blog with Octopress">Posting a Blog with Octopress &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/15/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/06/16/rds-temp-resize/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

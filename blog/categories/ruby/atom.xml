@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-08-31T23:16:56+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RSpecでの基本的な書き方（前編）]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/30/basic-test-with-rspec/"/>
+    <updated>2014-07-30T20:54:43+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/30/basic-test-with-rspec</id>
+    <content type="html"><![CDATA[<p>こんにちは。adorechicです。
+<a href="http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails/">前回</a> ざっくりRSpecの概要みたいなところで終わってしまったので、今回は基本的な書き方みたいなところを書いてみます。
+とはいえPOROなサンプルコードへのテスト、っていうのはよく見かけるので、Railsのモデルをテーマにやってみます。</p>
+
+<p>RSpecって結構独特な感じあって、RSpec Wayみたいなものがある。
+割と好みわかれたりもするのだけれど、べたべたな感じの書き方からはじめていきます。</p>
+
+<!-- more -->
+
+
+<h1>ファイル</h1>
+
+<p>まあよくあるUserモデルに対するテストを書いてみます。
+app/models/user.rb ってやつ。</p>
+
+<p>これに対応するspecは、spec/models/user_spec.rb です。</p>
+
+<p>Rails使ってるとgeneratorが作ってくれたりする。</p>
+
+<p>実はこのディレクトリ構造みてspecのタイプが判定されたりするのですがRSpec3からデフォルトオフっぽいのであんまり気にしなくてよいかも。</p>
+
+<h1>find_byメソッドをテストしてみる</h1>
+
+<p>実際はActiveRecordのメソッドなんでいちいちテストする必要ないですが、わかりやすいので。</p>
+
+<p>```ruby
+require &lsquo;spec_helper&rsquo;</p>
+
+<p>describe User do
+  before do</p>
+
+<pre><code>User.create!(
+  email: 'tom@example.com',
+  password: 'password',
+  name: 'tom'
+)
+</code></pre>
+
+<p>  end</p>
+
+<p>  specify &lsquo;.find_by returns tom&rsquo; do</p>
+
+<pre><code>user = User.find_by(email: 'tom@example.com')
+user.email.should eq 'tom@example.com'
+expect(user.name).to eq 'tom'
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>どうでしょうか。tomというユーザーを作成して、find_byメソッドでそのモデルインスタンスが取得できることをテストしています。なんとなく雰囲気はつかめるのでは。</p>
+
+<h2>specify</h2>
+
+<p>specifyブロックがひとつのテストになっていて、RSpecではexampleと呼ばれます。
+ちなみにitとspecifyは同じです。itと書くほうが多い。理由はだんだんわかってくるはず。
+specifyの引数には、検証内容を書く。たまにshould returnとか書く人もいるけど、returnsと書くのが一般的です。</p>
+
+<p>内容としては、User.createしてfind_byしたもののメアドと名前が意図したものか検証している。
+この検証してるところをexpectationとか言ったりします。</p>
+
+<p>あえてshouldとexpectの2パターン書いたのですが、意味合い的には同じです。
+もともとはshouldでしたが、RSpec3からは非推奨になってexpectになっています。（ただし例外あり）
+RSpec2の途中からexpectは使える。</p>
+
+<h2>before</h2>
+
+<p>beforeブロックは名前のとおり、exampleが実行される前に実行されるブロックです。
+このコードのように事前にテストデータ作ったりとかの前処理に使えます。</p>
+
+<h2>describe</h2>
+
+<p>一番外側のdescribeは、そういうexampleをまとめたもの。beforeブロックは同じdescribeブロックでは全てに適用されます。describeの引数にUserクラスをわたしているけど、文字列でもOK。ただそのspecファイルが対象としているクラスを引数にしたdescribeを一番外側に置く場合が多い。</p>
+
+<h2>実行してみる</h2>
+
+<p>-fdオプションつけるのオススメです。</p>
+
+<p><code>
+rspec -fd spec/models/user_spec.rb
+</code></p>
+
+<p>するとこういう出力になるはず。</p>
+
+<p>```
+User
+  .find_by returns tom</p>
+
+<p>Finished in 0.08805 seconds
+1 example, 0 failures
+```</p>
+
+<p>describeの引数とspecifyの引数のメッセージが表示されている。
+これだけでなんとなく何のテストをしているかわかりますね。</p>
+
+<h2>寄り道：ここで作ったデータってどうなるの？残るの？</h2>
+
+<p>まあそのまんまにしてたら残りますよね。
+でも前回のテストで作られたゴミが残ってると意図せずテストこけたりして辛い。
+毎回クリーンな状態でやりたい。</p>
+
+<p>ということで、都度データをきれいにしてくれるツールがあります。
+<a href="https://github.com/DatabaseCleaner/database_cleaner">DatabaseCleaner</a> とかが有名ですが、
+<a href="https://github.com/amatsuda/database_rewinder">DatabaseRewinder</a> が速いしオススメです。</p>
+
+<h1>テストデータを簡単に用意する</h1>
+
+<p>とりあえずはテストデータ普通にcreateメソッドで作ったわけですが、これ毎回必要なパラメータ設定してcreateするとかダルいですね。ここでもpasswordとかなんでもよいのに指定している。</p>
+
+<p>そういうテストデータを用意するツールもあります。
+fixturesというのがもともと仕組みとしてあるのですが、FactoryGirlなどのFactory系が主流になり、ただ最近はfixturesが見直されていたりしますが、ここではFactoryGirlを使ってみます。</p>
+
+<p>```ruby
+describe User do
+  before do</p>
+
+<pre><code>create :user, email: 'tom@example.com'
+</code></pre>
+
+<p>  end</p>
+
+<p>  specify &lsquo;.find_by returns tom&rsquo; do</p>
+
+<pre><code>user = User.find_by(email: 'tom@example.com')
+expect(user.email).to eq 'tom@example.com'
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>おーシンプルになった。（nameの検証はもういらんので消した）
+普通にcreateメソッドで作るとpasswordとか指定しないとvalidation errorになるのに・・・</p>
+
+<p>Factory系は、設計図みたいなものを別途定義しておきます。</p>
+
+<ul>
+<li><p>spec/factories/users.rb
+```ruby
+FactoryGirl.define do
+sequence :email do |n|
+  &ldquo;test-#{n}@example.com&rdquo;
+end</p>
+
+<p>factory :user do
+  email
+  password &lsquo;password&rsquo;
+  name &lsquo;Steve&rsquo;
+end
+end
+```</p></li>
+</ul>
+
+
+<p>これにそって必要な値をいれてくれる。適当な値でいいときは</p>
+
+<p><code>ruby
+create :user
+</code></p>
+
+<p>これだけでOK。テストに必要なら別途指定する感じです。</p>
+
+<h1>共通で使う値をまとめる</h1>
+
+<p>すっきりしてくると重複してるのが目立ちますね。'<a href="&#109;&#x61;&#105;&#108;&#x74;&#111;&#58;&#x74;&#111;&#x6d;&#x40;&#x65;&#x78;&#x61;&#x6d;&#x70;&#108;&#101;&#46;&#99;&#x6f;&#x6d;">&#116;&#111;&#x6d;&#64;&#101;&#x78;&#x61;&#109;&#112;&#x6c;&#x65;&#46;&#x63;&#111;&#109;</a>'が3箇所で書かれている。
+後から値変更するとき3箇所弄るの辛いですね。まとめましょう。</p>
+
+<p>```ruby
+describe User do
+  before do</p>
+
+<pre><code>create :user, email: email
+</code></pre>
+
+<p>  end</p>
+
+<p>  let(:email) { &lsquo;<a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#111;&#x3a;&#116;&#x6f;&#109;&#x40;&#101;&#120;&#x61;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#x6f;&#109;">&#116;&#111;&#109;&#x40;&#x65;&#120;&#97;&#109;&#112;&#108;&#x65;&#x2e;&#99;&#111;&#109;</a>&rsquo; }</p>
+
+<p>  specify &lsquo;.find_by returns tom&rsquo; do</p>
+
+<pre><code>user = User.find_by(email: email)
+expect(user.email).to eq email
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>letが使えます。遅延評価される変数的なものです。</p>
+
+<h1>describeをネストする</h1>
+
+<p>beforeとかletとかいろいろ出てきて要素がちょっとゴチャゴチャしてきましたね。</p>
+
+<p>いまexampleがひとつだからよいけど、別メソッドのexampleとか書きたいとき混じってわけわからなくなりそう・・・</p>
+
+<p>describeはexampleをまとめるものでした。そして実はいくらネストしてもOK。</p>
+
+<p>```ruby
+describe User do
+  describe &lsquo;.find_by&rsquo; do</p>
+
+<pre><code>before do
+  create :user, email: email
+end
+
+let(:email) { 'tom@example.com' }
+
+it 'returns tom' do
+  user = User.find_by(email: email)
+  expect(user.email).to eq email
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>すっ飛ばしましたが、一番外側に対象のクラス名書いたら、個別のテスト対象メソッドごとにdescribeわけるとよいです。メソッドごとにbeforeブロックとかもわけて書きやすくなるし、テスト対象がわかりやすくなりましたね。</p>
+
+<p>しれっとspecifyをitに変えました。処理的には同じなのですが、何のメソッドをテストしているかがdescribeに切りだされたので、重複して書く必要がありません。itの方が自然に読み下せますね。</p>
+
+<p>ちなみにこの状態でrspec -fdすると</p>
+
+<p>```
+User
+  .find_by</p>
+
+<pre><code>returns tom
+</code></pre>
+
+<p>Finished in 0.10705 seconds
+1 example, 0 failures
+```</p>
+
+<p>こんな感じ。</p>
+
+<h1>まとめ</h1>
+
+<p>Railsのモデルspecを題材に、基礎的なRSpecの書き方でした。
+いきなり最後の例が出てくると、どこから見ればよいのかちょっと混乱するかもですが、
+慣れると結構わかりやすいのではないでしょうか。</p>
+
+<p>本当はletとlet!だったりsubjectだったりいろいろなmatcherとかも書きたかったのですが、
+思いの外長くなってきたので今回はこの辺で。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[First RSpec With Rails]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails/"/>
+    <updated>2014-07-27T14:29:18+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/07/27/first-rspec-with-rails</id>
+    <content type="html"><![CDATA[<p>こんにちは。adorechicです。
+まわりでRailsデビューした人が何人かいるのですが、
+「テストどうすりゃいいんだ」「RSpecわからん」
+といった歓喜の声があがっているため、はじめてそのへんを触る人がざっくり雰囲気がつかめるようなエントリを書いてみます。
+RSpecのセットアップとかそういうのは書きません。</p>
+
+<!-- more -->
+
+
+<h1>specの種類</h1>
+
+<p>specと一口に言ってもいろいろな種類があります。</p>
+
+<ul>
+<li>controller spec</li>
+<li>model spec</li>
+<li>view spec</li>
+<li>routing spec</li>
+<li>helper spec</li>
+<li>request spec</li>
+<li>feature spec</li>
+</ul>
+
+
+<p>まずこれどういう違いがあるのかーとかわからないですね。
+モデルとかのテストは良いとしても、controller specとrequest specってどっちも「あるアクション」に「GETリクエスト」みたいなリクエストがとんで「どうなる」というのをテストしているように見えて、何が違うねんとかあると思います。</p>
+
+<p>それぞれどういう違いがあるのかざっくり解説。
+の前に。</p>
+
+<h1>テストって何をテストするのか</h1>
+
+<p>原則として、</p>
+
+<ul>
+<li>テストの対象（主題）に対して</li>
+<li>ある「入力」を与えたとき</li>
+<li>どういった「出力」が得られるか</li>
+</ul>
+
+
+<p>これが基本です。これが全てです。
+といいたいところですがステートレスにはなりきれないところもあるわけで。
+必要に応じて、</p>
+
+<ul>
+<li>どういった「内部変化」があるか</li>
+</ul>
+
+
+<p>も見ます。
+ただしこの内部変化はいたずらにチェックすればよいわけではないです。
+ありがちなのが、テスト対象の実装に依存したテストを書いてしまうこと。</p>
+
+<p>例えば最終的に「このレコードが保存されること」が確認できればよいのに、別の「このメソッドが呼び出されていること」とかを無闇にテストしてしまったりします。
+そういうテストは実装が変わったときに大量にfailして、テスト書き直すはめになるという壊れやすいテストになってしまいます。これでは本末転倒です。</p>
+
+<p>あくまでテストは対象のインターフェイスに対して行います。</p>
+
+<p>この辺の話に興味ある場合は<a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">これ</a>とかオススメ。</p>
+
+<p>ということで何が「入力」で何が「出力」なのかをおさえると、それぞれのspecの役割がとりやすいと思います。</p>
+
+<h1>specの種類</h1>
+
+<p>本題。</p>
+
+<h2>controller spec</h2>
+
+<p>対象はコントローラー、と特定のアクション。</p>
+
+<p>勘違いしやすいところですが、「入力」はHTTPリクエストまんまではありません。
+paramsなどを入力としてactionメソッドが呼び出されているととらえた方がやりやすいと思います。</p>
+
+<p>同様に「出力」もHTTPレスポンスではありません。
+よくあるのが、response bodyのhtmlとかをチェックしてしまうこと。
+単体テストとして考えるとそれはviewの責務なので、controllerの責務ではないのです。</p>
+
+<p>対象のactionに、あるパラメータがわたされて、その結果200が返る、404が返る、リダイレクトされる・・・とか、その処理であるレコードが作成されるとかそういうのを見ます。</p>
+
+<h2>model spec</h2>
+
+<p>モデルに対するspec。なんかデータ作って保存したり検索したりするようなメソッドをテストします。
+いわゆるよくある単体テストっぽいのでわりとわかりやすいんですが、やりがちなのはrailsの機能までテストしてしまうこと。validate presenceのような、デフォルトで用意されているrailsのvalidatorの機能までテストする必要はないです。
+たとえばcontextによって発動するvalidatorが違うとか、そういう複雑なことをするときだけ。</p>
+
+<h2>view spec</h2>
+
+<p>ビューをテストするもの。コントローラーの処理後、必要な変数がアサインされた前提で、どういったものがレンダリングされるか、という観点。</p>
+
+<h2>routing spec</h2>
+
+<p>railsのroutingをテストするもの。結構複雑なrouting書いたりすると、このURLできたときどのアクションにふられるのかとかぱっと見わからないときとかも便利。</p>
+
+<h2>helper spec</h2>
+
+<p>実は一番わかりやすいかもしれない。railsのhelperに対するテスト。helperって基本入力とか条件に対してタグだったり文字列を整形して出すようなユースケースが多いので、一番入力と出力がわかりやすい。</p>
+
+<h2>request spec</h2>
+
+<p>request specとfeature specは一応Integration testと呼ばれるものに属します。ただIntegration testってコンテキストによってちょっと意味合いが違ってくるのですが、ここではrailsアプリケーションとして通してるというぐらい。request specの入出力はHTTPリクエスト・レスポンス。REST APIに対するテストに向いている。一方でfeature specは画面操作。普通にブラウザでアクセスして、何かボタンをクリックするとどうなる、というのをテストする。</p>
+
+<p>feature specでは、controller specなどと違いDBの状態がどうなった、とかリダイレクト先のURLがどうだというようなことはあまりみません。だってブラウザで操作してて見えないから。登録ボタンおしたら、画面の要素が増えたねーみたいにチェックしていきます。</p>
+
+<h1>どの種類のテストをどこまで書くのか</h1>
+
+<p>まずmodel specでいろいろテスト書いたんだけれども、それを呼び出すcontroller specでも同じようなテスト書いてくとすごい重複してないか、という疑問。
+これも、入出力がどう違うのかという意識で書いていくとやりやすいと思います。</p>
+
+<p>例えばmodelのメソッドは、そのときのレコードの状態や、わたされるパラメータによっていろいろなコンテキストがあって、それごとにテストを書いたとしましょう。
+しかしその結果の出力としてのケースはそれほど多くないのではないでしょうか。成功してレコードが保存される、失敗してエラーが返るぐらい。
+であれば結果として呼び出し側としては2ケースしかない。であればcontroller specではその2ケースのテストを書く、というイメージです。</p>
+
+<h1>specいろいろ種類あったけど、全部書くの？</h1>
+
+<p>全部書く必要はないです。必要なものだけ書けば良い。</p>
+
+<p>これはそのアプリケーションで必要とする要件であったり、チームの開発スタイルとかにかなり依存してくるところなので一概にいえないところですが、
+たとえば基本的なresourcesとかによるroutingしかないのであれば、頑張ってrouting spec書かなくてもよいと思います。</p>
+
+<p>viewにすごいこだわりを持っていたり、複雑なviewを持っているアプリケーションであれば、view specしっかり書くとよいし、
+そこまでではなく普通に操作できればよいやーぐらいであればfeature specがあればよさそう。</p>
+
+<p>逆にそういう前提にこだわらず、不安なところは普段書かないやつでも書いた方がよいです。</p>
+
+<p>よく書かれるのはmodel, controller, feature/request specあたりでしょうか。</p>
+
+<h1>まとめ</h1>
+
+<p>テストに正解はありません。</p>
+
+<p>テストはそのアプリケーションが価値を生み出す手助けをするものです。
+新しく追加したコードが既存の機能を壊していないことを確かめるために用いられることもあるし、開発者が開発を進める上での手助けをするために用いられることもあります。</p>
+
+<p>どういった目的で、どんな場面でテストを書くのかによって書き方はもちろん、ツール自体使い分けた方がよい場合もあります。</p>
+
+<p>また開発スタイルや対象とするアプリケーションの性質によっても異なります。ぶっちゃけ好みです。
+RailsプロジェクトではRSpecが多いような感じがしますが、お膝元のBasecampではtest/unitらしい。</p>
+
+<p>複雑な機能を作るときに、contextを分けながら考えを整理してから実装入るとやりやすかったりするし、
+逆にインターフェイスレベルでいろいろ試行錯誤しながら開発するときは最初からきっちり書いてると開発効率を落としてしまったりします。</p>
+
+<p>とはいえ慣れないうちはたくさん書くのが良いと思います。</p>
+]]></content>
+  </entry>
+  
+</feed>

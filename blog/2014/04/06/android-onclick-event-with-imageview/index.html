@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[Android] onClick Event With ImageView - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="Purpose As said in the title. It was my first shot using onClick event with ImageView, so just for memo. (in fact it&#8217;s my first Android &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[Android] onClick Event With ImageView</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-06T22:42:00+09:00" pubdate data-updated="true">Apr 6<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div  class=post>
+  <h3 >
+    Purpose
+  </h3>
+  As said in the title.  <br>
+  It was my first shot using onClick event with ImageView, so just for memo.  <br>
+  (in fact it&#8217;s my first Android development) <br>
+  Keep in mind that this seem just to be one way of implementing onClick event with a view.  <br> <br>
+  <!-- more -->
+  <h3 >
+    Details
+  </h3>
+  <fieldset >
+    <legend >
+      Follow these 2steps
+    </legend>
+    <ol >
+      <li >
+        set a function name that should be called on onClick event in XML file(say it&#8217;s onClickEvent in this entry)
+      </li>
+      <li >
+        declare the onClickEvent in java file(Let&#8217;s say we just pop a toast)
+      </li>
+    </ol>
+  </fieldset>
+  This is part of the XML file.
+  <br>
+  <pre  class=prettyprint>
+    &lt;ImageView
+    android:id="@+id/imageview01"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/image"
+    android:layout_gravity="bottom"
+    android:scaleType="fitEnd"
+    android:onClick="onClickEvent" />***** <- this Line !!!!  </pre>
+  Now, declare onClickEvent in the activity.  <br>
+  I use SherlockActivity, and SlidingMenu so it&#8217;s a little messy, but it&#8217;s ok to remove those.  <br>
+  <br>
+  <pre  class=prettyprint>
+    public class MainActivity extends SherlockActivity {
+      @Override
+      protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_Sherlock);
+        setTitle(R.string.attach);
+        // set the content view
+        setContentView(R.layout.activity_main);
+        // configure the SlidingMenu
+        SlidingMenu menu = new SlidingMenu(this);
+        menu.setMode(SlidingMenu.LEFT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        menu.setShadowWidthRes(R.dimen.shadow_width);
+        menu.setShadowDrawable(R.drawable.shadow);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setFadeDegree(0.35f);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        menu.setMenu(R.layout.list);
+      }
+      public void onClickEntry(View v) {
+        Toast.makeText(MainActivity.this, "test", Toast.LENGTH_LONG).show();
+      }
+    }</pre>
+  And you should see the toast after the tap.
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-06T22:42:00+09:00" pubdate data-updated="true">Apr 6<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/03/rails-rails80/" title="Previous Post: [rails] railsサーバを80番ポートで立ち上げちゃう">&laquo; [rails] railsサーバを80番ポートで立ち上げちゃう</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/04/07/1-liner-line-editing/" title="Next Post: [1 liner] easily replacing a domain in multiple files">[1 liner] easily replacing a domain in multiple files &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/15/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

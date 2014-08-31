@@ -1,0 +1,827 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！ - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="はい、前回の宣言を無視して、Terraformエントリを書く@xengineer01です。
+(前回は、「次は Ansible」って言ってた) 目的と概要 タイトルそのままです。
+ほんとに読んだだけなんです！w ちなみに、ドキュメント読みながらエントリ書いてみて、最終 terraform &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-23T01:00:00+09:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>はい、前回の宣言を無視して、Terraformエントリを書く<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+(前回は、「次は Ansible」って言ってた)</p>
+
+<h2>目的と概要</h2>
+
+<hr />
+
+<p>タイトルそのままです。<br/>
+ほんとに読んだだけなんです！w</p>
+
+<p>ちなみに、ドキュメント読みながらエントリ書いてみて、最終 terraform を実際使ってみるには至りませんでした。
+結局こんなことに使うのね、というところまでは行ったものの、まだProviderサポートが弱いのと、
+AWS をサポートしてるものの、EBS は作れなそうだったり、CloudFrontもこれからぽいので、
+時間かけて使ってみても、僕が実用するのは先かな、ということで、</p>
+
+<ul>
+<li>ドキュメント読んでみた感想</li>
+</ul>
+
+
+<p>のみ！にとどまってますw</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_2044819979.jpg" alt="readonly" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/takomabibelot/2044819979/">takomabibelot</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<!-- more -->
+
+
+<p></p>
+
+<p>一応ね、terraform インストールして、実行計画見たり、グラフみたりはしましたけど、
+普通に公式ドキュメントに載ってるやつなので、ここでは割愛。</p>
+
+<p>全体的な感想としては、もうちょっと Providerが充実したら、使いどころによってはいいツールなんだろうなー。</p>
+
+<h2>Terraform とは？</h2>
+
+<hr />
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_4575417487.jpg" alt="terraform" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/torley/4575417487/">▓▒░ TORLEY ░▒▓</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">cc</a></p>
+
+<p>Serf/Consul/Vagrant/Packer を出してる、<a href="http://www.hashicorp.com">Hashicorp</a>の新プロダクト。<br/>
+製品紹介には、、、</p>
+
+<p>Terraform is a tool for building, changing, and combining infrastructure safely and efficiently.</p>
+
+<p>って書いてある。つまり・・・</p>
+
+<p>「Terraform は、安全で、効率的にインフラを構築/変更/組み合わせることができるツールですよこれ」</p>
+
+<p>と・・・。Hashicorpさん！いまいち伝わらないっす！
+海外のサイトの説明ってこんな感じな気がする。他のも調べてみよう・・・</p>
+
+<h4>ansible</h4>
+
+<p>Ansible is the simplest way to automate IT.<br/>
+つまり、IT を自動化する、一番簡単な方法だよーん。と。</p>
+
+<p>・・・ちょっとわかりづらい・・・かな。</p>
+
+<h4>chef</h4>
+
+<p>Automation for Web-Scale IT.<br/>
+お、ちょっとわかりやすい。</p>
+
+<h4>apache</h4>
+
+<p>The Number One HTTP Server On The Internet<br/>
+あ、すごい直球だった。</p>
+
+<h4>MySQL</h4>
+
+<p>The world&rsquo;s most popular open source database<br/>
+うむ。ちょっと有名どころすぎるとわかりやすくなりすぎる。</p>
+
+<h4>github</h4>
+
+<p>Build software better, together.<br/>
+コンセプトわかりやすい。</p>
+
+<p>さて、茶番はこの辺にして本題へ。</p>
+
+<p>結局、Terraform が何者か、よくわからないので、&#8221;learn more&#8221; ボタンをぽちっとな。</p>
+
+<h2>ざっくり概要</h2>
+
+<h3>INFRASTRUCTURE AS CODE</h3>
+
+<p>コードでインフラを表現するためのテンプレ的なのを用意してくれてる、な感じぽい。
+Vagrant を自由自在に使いこなしてる場合と、どう違うのかよくわからない。(Vagrantも使いこなせてないし)</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_8106189987.jpg" alt="infra" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/andrewfhart/8106189987/">andrewfhart</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">cc</a></p>
+
+<h3>COMBINE MULTIPLE PROVIDERS</h3>
+
+<p>ほほう。なんかここは、Vagrant と違いそうじゃないか？
+そもそも Vagrant の Provider をまだ勉強してないからなんとも言えないけど。。。</p>
+
+<p>ちょっと戻ってみる限り、Vagrantは、単一 Provider にしか対応してなし。</p>
+
+<p>つまり、AWS でサーバ起動して、お名前に登録してる DNS を修正してくれる、的なこと？
+(AWS と、お名前の 2 Provider)</p>
+
+<p>それか、AWS/GCP 両方で使ってるインフラ管理できる？ま、使ってみればわかるかもしれないので、次を読んでいこう。</p>
+
+<h3>EVOLVE YOUR INFRASTRUCTURE</h3>
+
+<p>設定ファイルを、VCS に登録して、インフラをどんどん進化させていけるよ！
+って・・・Vagrant でも Ansible でも、Chef でもなんでもそうだからな・・・</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_2922128673.jpg" alt="evolve" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/spidermandragon5/2922128673/"><a href="&#109;&#x61;&#105;&#108;&#116;&#111;&#x3a;&#98;&#x72;&#x79;&#97;&#x6e;&#119;&#114;&#x69;&#x67;&#104;&#116;&#53;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#109;">&#x62;&#x72;&#121;&#97;&#x6e;&#119;&#114;&#x69;&#x67;&#104;&#x74;&#53;&#x40;&#103;&#x6d;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;</a></a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a></p>
+
+<p>まだ凄さがわかりまてん。。。</p>
+
+<h2>Terraform で何ができる？</h2>
+
+<p>いきなり飛びますが、ざーーーーーっと、ドキュメントを読んでみました。
+読み進めても、使いどころが、ふわっ、としてて、ちゃんと落ちてこなかった部分もあり、
+読み進めてたら大体読み終わっちゃった、的なね。</p>
+
+<p>以下僕が読んだ感じだと、、、</p>
+
+<ul>
+<li>インフラをコード(というか設定)で表現できる</li>
+<li>インフラ設定を記述して、実行すると、設定通りの環境を構築できるよ！というもの
+
+<ul>
+<li>ここでいう「インフラ設定」は、大きく分けて下記2つかな、と思った
+
+<ul>
+<li>resource
+
+<ul>
+<li>サーバインスタンスから、IP 設定くらいまで</li>
+<li>ようは、外部サービス(AWSみたいな)で、API 操作して決められるものを resource として扱ってる感じ</li>
+</ul>
+</li>
+<li>provisioning
+
+<ul>
+<li>上のresourceに入らない設定</li>
+<li>ansibleとかchefとか、はたまたスクリプト実行して設定するような設定</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>設定を書いて、実行する前に、実行計画が確認できる
+
+<ul>
+<li>つまーり、ちゃんと何が起きるかを確認してから実行できる</li>
+<li>しかもグラフィカルに依存性をチェックできる</li>
+<li>これは便利</li>
+</ul>
+</li>
+<li>実行後、実際の状態がどうなっているか、もコマンドで確認できる</li>
+</ul>
+
+
+<p>こんなことをできますよ、と。</p>
+
+<p>これだけ見ると、この前ブログに書いてた、Vagrant と何が違うんだろうね・・・
+って感じになるわけです。</p>
+
+<h2>Terraform と Vagrant の違い</h2>
+
+<p>そのままだけど。何が違うんだろうね、と思ったので、まとめてみましたよ。
+勘違いしてるところは、誰か教えて。</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">items</th>
+<th align="left"> Vagrant  </th>
+<th align="left"> Terraform </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Catch copy </td>
+<td align="left"> Development environments made easy </td>
+<td align="left"> Terraform is a tool for building, changing, and combining infrastructure safely and efficiently.</td>
+</tr>
+<tr>
+<td align="center">Provider </td>
+<td align="left"> VirtualBox </td>
+<td align="left"> AWS</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> VMware     </td>
+<td align="left"> CloudFlare</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> Docker     </td>
+<td align="left"> Consul</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> KVM        </td>
+<td align="left"> DigitalOcean</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> Hyper-V    </td>
+<td align="left"> DNSimple</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> AWS        </td>
+<td align="left"> Heroku</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> RackSpace  </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">Provisioning </td>
+<td align="left"> File Upload      </td>
+<td align="left"> たぶんなんでもござれ</td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> script execution </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Ansible          </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> CFengine         </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Chef Solo        </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Chef Client      </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Docker           </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Puppet Apply     </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Puppet Agent     </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Salt             </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">Others </td>
+<td align="left"> Destroy が結構気軽に実行できる(実行までのステップが超短い！) </td>
+<td align="left"> Destroy を間違えて実行する確率は、Vagrant に比べたら相当低い</td>
+</tr>
+<tr>
+<td align="center">       </td>
+<td align="left"> 統合的な管理はできない(Load balancer/DNS/Storege等の管理は現状できない) </td>
+<td align="left"> AWS は、ELB/RDS/EIP/EC2/VPC/Route53/S3/Security Groupなどなど、結構いじれるので、かなり統合的管理ができる</td>
+</tr>
+<tr>
+<td align="center">       </td>
+<td align="left"> 元々の思想が、開発環境/サンドボックス環境構築用のツール </td>
+<td align="left"> 特に開発環境用、とは銘打ってないから本番用なんだ、きっと</td>
+</tr>
+<tr>
+<td align="center">       </td>
+<td align="left"> インフラ環境をコードで記述して、Build &amp; Scrap しまくれて、すげー便利 </td>
+<td align="left"> インフラ環境を設定で記述して、構築できるので便利(destroy はVagrantのほうが気軽)</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>こんな感じなのかなぁ。
+Providerをみるとよくわかるけど、Vagrant は元々が開発環境構築用なので、virtual serversの構築が中心に見える。<br/>
+Terraform に関しては、ちょっと作業フローも付け加えておこうかな。
+きっとこんな感じになるんじゃないかなぁ、ってレベルなので、実際はわからんけど。</p>
+
+<ul>
+<li>たぶん作業フローが
+
+<ul>
+<li>設定ファイルを書く</li>
+<li>実行プランを確認する</li>
+<li>実行する</li>
+<li>実行結果を確認する</li>
+</ul>
+</li>
+</ul>
+
+
+<p>になるので、Vagrant よりも、いちいち確認するために止まる箇所をコマンドベースで置いてるのが違う気がする</p>
+
+<p>という感じで、Terraform vs Vagrant だと、</p>
+
+<ul>
+<li>そもそも最初の思想が違ってたり、</li>
+<li>環境破壊の容易さが違ったり、</li>
+<li>作業フローもたぶん違ったり、</li>
+<li>multi providerへの対応有無が違ったり、</li>
+<li>統合管理できる/できないがあったり</li>
+</ul>
+
+
+<p>っていう違いがあるのかな。だとするとやっぱり、</p>
+
+<ul>
+<li>開発環境 == Vagrant</li>
+<li>本番環境 == Terraform</li>
+</ul>
+
+
+<p>になるんだろうな。もちろん、VPS 1台使ってサービス展開する分には、ぶっちゃけどっちでもええわ。
+たぶんちゃんと管理しとけば(してなくても)、Vagrant で運営できる。でもたぶんそのレベルは、Vagrant すら必要ない。</p>
+
+<p>でかい環境が必要な場合とか、小さい環境が何個も必要な場合とかは、うまく使い分けるのがええだろね。
+provisioning のステージングを Vagrant でやってみて、うまくいったら、それ commit して Terraform 環境で適用、みたいな。
+でもterraformは、初期構築ツールで、運営開始後に全部実行することはないのかも？
+その辺まだわからん。まぁとりあえず、CloudFormation の進化版になりうるやーつだ。やっと理解できたw</p>
+
+<p>ではインストール。</p>
+
+<h3>terraform インストール</h3>
+
+<hr />
+
+<p><a href="http://www.terraform.io/intro/getting-started/install.html">ここ</a>を参考にインストールしましょう。</p>
+
+<ul>
+<li>ダウンロード</li>
+<li>展開</li>
+<li>PATH 通す</li>
+</ul>
+
+
+<p>これが出来ない人は、これ以上進んでも理解できない可能性が高いので、やめといたほうがいいです。</p>
+
+<p>インストール終わったら、動くかだけみてみる。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ terraform version
+</span><span class='line'>Terraform v0.1.1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>なるほど、僕が今回使うのは、v0.1.1 だそうです。</p>
+
+<h3>terraform 使う時のざっくりフロー</h3>
+
+<hr />
+
+<p>まずは、登場用語リストとその説明から。</p>
+
+<ul>
+<li>.tf ファイル
+
+<ul>
+<li>設定ファイル。これにどんなインフラを構築するか設定する</li>
+<li>terraformコマンド実行するディレクトリに入ってる、.tfファイルが全部読み込まれて実行される</li>
+</ul>
+</li>
+<li>provider
+
+<ul>
+<li>インフラを構築する手段</li>
+<li>aws なのか、heroku なのか、的な感じ</li>
+</ul>
+</li>
+<li>resource
+
+<ul>
+<li>各Provider で設定できる項目のこと</li>
+<li>aws だったら、eipとか、elbが一つのresource になってる</li>
+</ul>
+</li>
+</ul>
+
+
+<p>そして次は、実際 terraform 使うかー、ってなったら踏みそうな手順。
+きっと、僕はこんな感じなんだろう。</p>
+
+<ol>
+<li>システム構成検討
+これはそのまんま。まずはどんなシステム作りたいかを考えようよ。</li>
+<li>tf ファイル記述
+これもそのまんま。考えたシステム構成図に則って書くだけといえば書くだけ。</li>
+<li><p>実行計画確認</p>
+
+<p>下記コマンド実行。</p>
+
+<p><code>
+$ terraform plan
+</code></p>
+
+<p>で実行計画が表示されるので、OKかを確認する。</p></li>
+<li><p>実行</p>
+
+<p>計画が OK だったら、下記コマンドで実行。</p>
+
+<p><code>
+$ terraform apply
+</code></p>
+
+<p>実行、というより、適用のほうがしっくりくる。</p></li>
+<li><p>結果確認</p>
+
+<p>で、結果を下記コマンドで確認。</p>
+
+<p><code>
+$ terraform show hogehoge.tfstatus
+</code></p></li>
+</ol>
+
+
+<p>ほむほむ。
+なんとなくこんな感じなのね。</p>
+
+<p>と、ここまで書いて、実際使おうかな、という段で、一旦 Provider の種類を
+みてみよう、というわけで、公式ドキュメントに載ってるのをざっと表にしてみた。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Service name</th>
+<th align="center">Terraform name</th>
+<th align="left">Attribute</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">AWS</td>
+<td align="center">Basic</td>
+<td align="left">aws_autoscaling_group</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">RDS</td>
+<td align="left">aws_db_instance</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_db_security_group</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_eip</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_elb</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_security_group</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_subnet</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">EC2</td>
+<td align="left">aws_instance</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_internet_gateway</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_launch_configuration</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">Route53</td>
+<td align="left">aws_route_table</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_route_table_association</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_route53_record</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_route53_zone</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">S3</td>
+<td align="left">aws_s3_bucket</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">VPC</td>
+<td align="left">aws_vpc</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>な、なにぃ・・・EBS ないのかな・・・CloudFront ないのかな・・・。
+残念だなぁ・・・ちょっと動作みてみるのめんどくさくなってきたなぁ・・・
+などなど、色々と去来する思いもあり、今回はこの辺でやめて、Ansible に戻ろうかなー、
+ってなりましたw</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">xengineer</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-23T01:00:00+09:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/infra/'>Infra</a>, <a class='category' href='/blog/categories/web-development/'>Web Development</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/08/15/dynamodb-test-production-env/" title="Previous Post: DynamoDBの本番とテスト環境の分け方">&laquo; DynamoDBの本番とテスト環境の分け方</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/15/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

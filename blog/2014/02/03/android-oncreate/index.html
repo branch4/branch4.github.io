@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[Android] onCreateメソッドの引数の意味 - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="Android開発やってみてるわけですが、わからないことだらけで困ってます。 今日は、 onCreate(Bundle savedInstanceState) の、引数のところって何？ という疑問でございます。 まぁググれば沢山出てくるんですが。 一番は、 ここ 。当たり前か。 日本語だと ここ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/02/03/android-oncreate">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[Android] onCreateメソッドの引数の意味</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-03T00:43:00+09:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div  class=post>
+  Android開発やってみてるわけですが、わからないことだらけで困ってます。 <br> <br>
+  今日は、<br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+    onCreate(Bundle savedInstanceState)
+    </span></pre>
+  の、引数のところって何？ という疑問でございます。<br><br>
+  まぁググれば沢山出てくるんですが。
+    <!-- more -->
+  <br><br>
+  一番は、
+  <a  href=http://developer.android.com/training/basics/activity-lifecycle/recreating.html style=font-family: inherit; target=_blank>ここ</a> 。当たり前か。 <br> 
+  日本語だと
+  <a  href=http://fernweh.jp/b/android-state-save-load/ target=_blank>ここ</a> がわかりやすかったです。 <br> <br>
+  僕も忘れないように反芻すると・・・ <br>
+  <ul>
+  Androidでは、こんなときに、Activityが破棄されてます。
+  <li>
+    画面を縦方向から横方向に持ち替えた時
+  </li>
+  <li>
+    バックグラウンドに入ってしばらく経った時<br>
+  </li>
+  <li>
+    システム容量が足りなくなった時
+  </li>
+  <li>
+    ユーザがアプリを終了した時
+  </li>
+  </ul>
+  などなど。 <br> <br>
+  ユーザが自分で閉じた時は別らしいけど、少なくとも、下記２パターンにおいては、 <br>
+  勝手にActivity破棄されると残念な気持ちになります。 <br><br>
+  <ul>
+  <li>
+    画面を縦方向から横方向に持ち替えた時
+  </li>
+  <li>
+    システム容量が足りなくなった時
+  </li>
+  </ul>
+  だって、こっちは悪くないもの。 <br>
+  そんなことはGoogleさんも百も承知のようで、破棄前に、 <br><br>
+    onSaveInstanceState() <br><br>
+  を呼ぶらしい。で、その時の状態が、key/valueペアになって、Bundleクラスに保存されて・・・ <br> <br>
+  onCreateメソッドの引数でわたってくる、ということのようでした。 <br> <br>
+  確かに、縦から横に持ち替えた時、layoutも変わるし、同じ情報じゃ画面再構築できないかもしれないし、再読み込み必要です。 <br> <br>
+  ちなみに、onCreateで渡ってくるので、ここでは処理しないといけないのと、 <br> <br>
+  onRestoreInstanceState()が、Activity cycleでいうと、onStart()の後に呼ばれる(<a  href=http://developer.android.com/reference/android/app/Activity.html target=_blank>ここ</a>
+  参照)ので、処理いれとかないと、onStop()->onRestart()のフローでの復帰時にうまくいかなそうな予感。 <br> <br>
+  ちなみに、Bundleのメソッドたちは、
+  <a  href=http://developer.android.com/reference/android/os/Bundle.html target=_blank>ここ</a>参照。 <br> <br>
+  とりあえず、そんなメモでした。 <br> <br>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-03T00:43:00+09:00" pubdate data-updated="true">Feb 3<span>rd</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/02/03/android-oncreate/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/02/03/android-oncreate/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/29/mutt-finding-corresponding-keycode-by/" title="Previous Post: [mutt] finding corresponding keycode by typing keys">&laquo; [mutt] finding corresponding keycode by typing keys</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/02/11/android-entry-point-of-android-program/" title="Next Post: [Android] Entry point of Android program">[Android] Entry point of Android program &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/15/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/02/03/android-oncreate/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/02/03/android-oncreate/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
