@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Posting a Blog With Octopress - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="※ 内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。 こんちには、@xengineer01です。
+前回に引き続きOctopress関連です。 今回は、実際投稿するときどうするか、という点を。
+投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Posting a Blog With Octopress</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T16:20:00+09:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>※  内容間違ってんぞ！と、@adorechicさんに指摘いただいたので、訂正しております。</p>
+
+<p>こんちには、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+前回に引き続きOctopress関連です。</p>
+
+<p>今回は、実際投稿するときどうするか、という点を。<br/>
+投稿するにあたって、ちょいとだけ前回に関連する内容も書くので、少しかぶり気味。</p>
+
+<h3>prerequisite</h3>
+
+<hr />
+
+<p>Octopressはinstallして、github pagesでblogを書く直前まで行ってることが前提条件。<br/>
+<a href="http://blog.branch4.pw/blog/2014/06/07/blog-on-github.io-with-octopress/">ここ</a>でいうとこの、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>までは終わってること。<br/>
+そこまできてたらこのblogは読まなくても書け・・・ます、はい。<br/>
+強いて言えば、準備はできてるけど、なんかよくわからんうちに準備できた人用。<br/>
+それか、このブログみたいに、複数で更新してるので、セットアップした人と、<br/>
+書く人が違う場合用。</p>
+
+<!-- more -->
+
+
+<h3>Cloning</h3>
+
+<hr />
+
+<p>では、setupしたrepositoryを、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://github.com/xxxxxx/xxxxxx.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p>とした場合。まずは、repositoryをlocalにcloneします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/xxxxxx/xxxxxx.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p><del>この時点で、active branchは、source branchに設定されております。</del><br/>
+これは、うそでしたｗｗ<br/>
+clone直後は、master branchでした。<br/>
+cloneしたディレクトリに、cdして、下記を実行するとsource branchに変わるです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git checkout source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この時点で、active branchは、source branchに設定されております。<br/>
+が、正解であります！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git status</span></code></pre></td></tr></table></div></figure>
+
+
+<p>でみるとわかるよん。<br/>
+前回の記事でも書いたけど、記事書くときの実作業は、このままsource branchでやって、<br/>
+本番投稿は、master branchにする、てな手口。</p>
+
+<h3>deploy用設定</h3>
+
+<hr />
+
+<p>次はdeploy用の設定しときます。<br/>
+cloneしたdirectoryにcdして、下記コマンドを実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle exec rake setup_github_pages</span></code></pre></td></tr></table></div></figure>
+
+
+<p>前回の記事でも出てきたんだけど、簡単にいうと、<br/>
+<em>deploy directoryを作ってくれる。<br/>
+で、本番deployのときは、この </em>deploy directoryにあるmaster branchにpushするので、<br/>
+_deploy に、master branchをpullしとく、と。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd _deploy
+</span><span class='line'>$ git pull origin master</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでdeploy用の設定は完了。</p>
+
+<h3>しっぴつ！</h3>
+
+<hr />
+
+<p>ここでは２点紹介。</p>
+
+<ul>
+<li>どこに書く？</li>
+<li>画像はどうする？</li>
+</ul>
+
+
+<h4>どこに書くか。</h4>
+
+<p>例えば、この記事のファイルは下記に格納されておる。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls source/_post/2014-06-08-blog-on-github.io-with-octopress.markdown</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ポイントはファイル名。</p>
+
+<p>&lt;year&gt;&ndash;&lt;month&gt;&ndash;&lt;day&gt;-title.&lt;markdown/html&gt;</p>
+
+<p>的な。これ以外にすると静的ファイルが生成されまてん。<br/>
+内容は、こんな感じ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>---
+</span><span class='line'>layout: post
+</span><span class='line'>title: "Blog on Github Pages with Octopress"
+</span><span class='line'>date: 2014-06-06T23:20:00-07:00
+</span><span class='line'>comments: true
+</span><span class='line'>published: true
+</span><span class='line'>categories:
+</span><span class='line'> - misc
+</span><span class='line'>---
+</span><span class='line'>
+</span><span class='line'>ここから下に本文を書く</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上のほうに、meta-dataを突っ込んで、その下にコンテンツを書く感じでござい。<br/>
+meta-dataの意味は・・・みればすぐわかるような内容しか設定してないので解説なしで。<br/>
+他にも色々あるので使いたい人は調べてみてちょ。</p>
+
+<h4>画像はどうするか</h4>
+
+<p>はい、画像は、source/images配下にcommitします。<br/>
+で、commit/pushすると、</p>
+
+<p><a href="http://github.com/xxxxxx/images/yyyyyy.png">http://github.com/xxxxxx/images/yyyyyy.png</a></p>
+
+<p>でみれるようになります。<br/>
+markdownの場合は、以下な感じで書いとけば、deployしたときに見えるようになります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[test](http://github.com/xxxxxx/images/yyyyyy.png)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然のようにpreviewのときは見えないので、previewでみたい場合は、画像だけ<br/>
+先にpushしとかないとだめかと。(面倒なので僕は一発本番チェック派)</p>
+
+<p>たぶん、この２つがわかればコンテンツ作るとこまではできるはず。<br/>
+コンテンツ書いたら、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle exec rake generate; bundle exec rake preview</span></code></pre></td></tr></table></div></figure>
+
+
+<p>を実行すると、<a href="http://127.0.0.1:4000">http://127.0.0.1:4000</a> に、Webrickがあがるので、<br/>
+ブラウザで見た目チェックと修正を繰り返して、完成までがんばりましょう。</p>
+
+<h3>投稿！</h3>
+
+<hr />
+
+<p>そんな工程を経て記事が無事完成したら、本番公開と、作業ファイルのcommitをしましょう。<br/>
+Octopressは、Jekyllに作業ファイルを食わせて本番用ファイルを生成するので、作業ファイルを<br/>
+commitしとかないと、次回本番生成時に記事がなくなっちゃうので要注意。</p>
+
+<p>そんなわけで、下記で作業ファイルのcommitと本番deploy。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
+</span><span class='line'>$ git commit -m 'nanka message'
+</span><span class='line'>$ git push origin source
+</span><span class='line'>$ bundle exec rake deploy</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あとは無事投稿されてるかを本番で確認したら、完了！<br/>
+おつかれちゃん。</p>
+
+<h3>rake task for generatign new posts</h3>
+
+<hr />
+
+<p>はい、もう終わりなんだけど、新規投稿するときに、いちいちファイルを0から作るのは<br/>
+めんどくさいので、専用raketaskが用意されております。一応その共有。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post['title']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>を実行すると、下記ファイルができあがります、と。<br/>
+source/_posts/2014-06-19-title.markdown</p>
+
+<p>正直、そんなに重要じゃなさげにみえるんだけど、例えば、</p>
+
+<ul>
+<li>テンプレを用意しておきたい</li>
+<li>adsenseを毎回貼るのがめんどくさい</li>
+<li>&lt;!&mdash; more &mdash;&gt;を忘れないようにしたい</li>
+</ul>
+
+
+<p>などなどある人は、Rakefileのtaskに加筆するとスーパー便利になったり。<br/>
+そんな使い方もありますよ。</p>
+
+<p>今日はこの辺で。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">xengineer01</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T16:20:00+09:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/misc/'>misc</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/06/16/rds-temp-resize/" title="Previous Post: Resize Temp File of Oracle on RDS">&laquo; Resize Temp File of Oracle on RDS</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/06/30/changing-jobs-in-internet-gaming-business/" title="Next Post: IT・インターネット・ゲーム業界の【転職】ノウハウ">IT・インターネット・ゲーム業界の【転職】ノウハウ &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/31/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/06/19/posting-blog-with-octopress/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
