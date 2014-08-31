@@ -1,9 +1,9 @@
 ---
 layout: post
 title: DynamoDBの本番とテスト環境の分け方
-date: 2014-08-15 01:30:00 +0900
+date: 2014-08-31 01:30:00 +0900
 comments: true
-published: false
+published: true
 author: risterlab
 categories: 
  - AWS
@@ -15,7 +15,8 @@ categories:
 もはやナンいらなくてカレーだけでも飲めます。うそです。チャパティ派です。  
   
 戯言はその辺にして、今回はDynamoDBでの本番環境とテスト環境の分け方を。  
-![test-and-production-mistaken](http://blog.branch4.pw/images/2014/08/test-and-production-mistaken.gif)  
+![test-and-production-dynamodb](http://blog.branch4.pw/images/2014/08/test_products_dynamodb.jpg)  
+photo credit: <a href="https://www.flickr.com/photos/thepreiserproject/12148182186/">The Preiser Project</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a>
   
 うちではテスト環境としてDynamoが使えるかは下記２つの条件がありました。  
   
