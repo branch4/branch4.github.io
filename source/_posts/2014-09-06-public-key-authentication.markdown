@@ -10,6 +10,13 @@ categories:
   - Web Development
 ---
 
+こんにちは。公開鍵認証について興味を持った、[@xengineer01](https://twitter.com/xengineer01)です。  
+なんの特徴も変哲もないブログですわ。  
+まずはいい写真撮るなべちゃんの作品紹介から。
+
+![Big Sky](http://blog.branch4.pw/images/2014/09/nabechan01_bigsky.jpg)  
+※ Hiroyuki Watanabeの写真で、[http://my-eyes.net/](http://my-eyes.net/)に元があります。
+
 ## 概要
 ---
 本エントリでは、公開鍵と秘密鍵を用いた認証方式について、さらっと紹介します。
@@ -23,6 +30,8 @@ categories:
 
 などなど他にもありますが、今回は、パスワード認証と、鍵認証(の中でも公開鍵/秘密鍵)について。
 特に、sshの認証に使う場合の違いを絡めて紹介します。
+
+<!-- more -->
 
 ## sshとは？
 ---
