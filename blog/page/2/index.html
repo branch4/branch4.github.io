@@ -9,8 +9,9 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content="はいはい、どもども、最近また大好きな野菜の奥深さに感動してばっかりのインフラエンジニア@risterlabです。 来週群馬の農家さんにお邪魔して生トウモロコシ取りにいきます！
-晴れますように。 今回はちょっとした小ネタを。 AWSのEC2のAmazon &hellip;">
+  <meta name="description" content="概要 タイトル通りなんだけど、「fluentdを複数起動したいなー」
+って、質問いただいたので、簡単に手順を書いておきまっせ。 fluentdとは？ 知らない人はいないね。はい。 tresuredataで開発されたオープンソースのデータコレクタですのん。
+詳しいことは、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -81,6 +82,91 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/22/multiprocess-with-fluentd/">Fluentdを複数起動したい</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-22T22:30:00+09:00" pubdate data-updated="true">Jul 22<span>nd</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/22/multiprocess-with-fluentd/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>概要</h2>
+
+<hr />
+
+<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
+って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
+
+<h3>fluentdとは？</h3>
+
+<hr />
+
+<p>知らない人はいないね。はい。</p>
+
+<p><a href="http://www.fluentd.org/"><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></a></p>
+
+<p><a href="http://www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
+
+<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
+使うのが普通ですね、はい。</p>
+
+<p>ちなみに僕はインストールするの今回初です(笑)<br/>
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
+<p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
+
+<h3>前提</h3>
+
+<hr />
+
+<p>multiprocessといっても、</p>
+
+<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
+とか<br/>
+<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
+とは違う意味で。</p>
+
+<p>本当に、プロセスを別で起動したいんです！という話。<br/>
+ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/22/multiprocess-with-fluentd/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -628,55 +714,6 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/10/web-development-sending-post-request/">[Web Development] Sending Post Request With Google Chrome</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-04-10T15:01:00+09:00" pubdate data-updated="true">Apr 10<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/04/10/web-development-sending-post-request/#disqus_thread"
-             data-disqus-identifier="http://blog.branch4.pw/blog/2014/04/10/web-development-sending-post-request/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><div  class=post>
-  <h3 >
-    Purpose of the entry
-  </h3>
-  It&#8217;s just an introduction of the tool I use for debugging purpose.  <br> 
-  I use it to check my APIs.  <br>
-  It can POST/GET/PUT/DELETE&#8230;send data in various HTTP method to any API.  <br><br>
-  </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/04/10/web-development-sending-post-request/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -706,6 +743,10 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/09/06/public-key-authentication/">公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/08/31/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
       </li>
     
@@ -719,10 +760,6 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
     
       <li class="post">
         <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/10/required-person2/">求められる人材(後半)</a>
       </li>
     
   </ul>
@@ -740,7 +777,7 @@ githubなだけあって、投稿自体もレポジトリ管理だから、<br/>
 
 <section>
   <h1>Top Categories</h1>
-  <ul id="top-category-list"><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/infra'>Infra (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (5)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+  <ul id="top-category-list"><li><a href='/blog/categories/infra'>Infra (7)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
 </section>
 
   

@@ -1,0 +1,809 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! - - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="こんにちは。公開鍵認証について興味を持った、@xengineer01です。
+なんの特徴も変哲もないブログですわ。
+まずはいい写真撮るなべちゃんの作品紹介から。 ※ Hiroyuki Watanabeの写真で、http://my-eyes.net/に元があります。 概要 本エントリでは、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/09/06/public-key-authentication">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-06T21:00:00+09:00" pubdate data-updated="true">Sep 6<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>こんにちは。公開鍵認証について興味を持った、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+なんの特徴も変哲もないブログですわ。<br/>
+まずはいい写真撮るなべちゃんの作品紹介から。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/nabechan01_bigsky.jpg" alt="Big Sky" /><br/>
+※ Hiroyuki Watanabeの写真で、<a href="http://my-eyes.net/">http://my-eyes.net/</a>に元があります。</p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>本エントリでは、公開鍵と秘密鍵を用いた認証方式について、さらっと紹介します。</p>
+
+<p>認証と言っても色々ですな。</p>
+
+<ul>
+<li>古き良きパスワード認証</li>
+<li>詰めちゃったら終わりの指紋認証</li>
+<li>パスワードの一種だけど、OTP(One Time Password)</li>
+<li>鍵認証</li>
+</ul>
+
+
+<p>などなど他にもありますが、今回は、パスワード認証と、鍵認証(の中でも公開鍵/秘密鍵)について。
+特に、sshの認証に使う場合の違いを絡めて紹介します。</p>
+
+<!-- more -->
+
+
+<h2>sshとは？</h2>
+
+<hr />
+
+<p>このエントリにおける ssh(Secure SHell)は、ssh client のことをいいます。
+つまり、rlogin/rsh/telnetと同じような通信アプリケーションで、
+リモートのサーバと通信することができるツールのことをさすことにします。</p>
+
+<p>ssh と、telnet/rsh等を比較すると、、、</p>
+
+<ul>
+<li>よりセキュアな認証</li>
+<li>よりセキュアな通信(暗号化通信)</li>
+</ul>
+
+
+<p>こんな機能が追加で提供されているので、、、まぁセキュアってこった。</p>
+
+<p>本エントリでは、上記のうち、「セキュアな認証」を実現するために利用されている方式の一つである、
+公開鍵と秘密鍵について紹介します。</p>
+
+<h2>認証フロー</h2>
+
+<p>まずはパスワード認証方式のフロー。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/password_authentication.png" alt="password authentication" /></p>
+
+<p>やっていることは、パスワードが正しいかの検証のみ。</p>
+
+<p>次に公開鍵認証方式のフロー(すごい簡易バージョン。実際に実装されているのとは違うけど、イメージはこんな感じ)。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/publickey_authentication.png" alt="password authentication" /></p>
+
+<p>こっちはなんだか色々やっている。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">フロー</th>
+<th align="left">クライアント側</th>
+<th align="left">サーバ側</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">事前準備    </td>
+<td align="left">公開鍵を生成する    </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">公開鍵をサーバに渡す</td>
+<td align="left">公開鍵をクライアントから受け取る</td>
+</tr>
+<tr>
+<td align="left">ログイン処理</td>
+<td align="left">サーバにアクセスする</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">                    </td>
+<td align="left">ランダム文字列をクライアントの公開鍵で暗号化してクライアントに渡す</td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">受け取った暗号化文字列を秘密鍵で復号化してサーバに送り返す</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">                    </td>
+<td align="left">クライアントから受け取った復号後文字列と、最初の文字列を突き合わせて、一致していれば認証する</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>ざっくりこんな感じ。(実際とはちょっと異なるイメージだけど、まぁわかりやすく特徴はあらわせてるはず)</p>
+
+<h2>なぜ公開鍵認証が安全？</h2>
+
+<p>公開鍵を盗まれたら終わりでは？と、思うんだけど、実はちがうんだね。</p>
+
+<p>この方式で重要なのは、下記２点。</p>
+
+<ul>
+<li>公開鍵でかけた暗号化は、秘密鍵でしか復号化できない</li>
+<li>秘密鍵でかけた暗号化は、公開鍵でしか復号化できない</li>
+</ul>
+
+
+<p>つまり、公開鍵を入手しても、サーバにログインできるわけではないのです。
+安全安心。</p>
+
+<h2>設定</h2>
+
+<p>ではでは、実際の設定やら鍵の生成やらをやります。
+ざっくり、クライアント側とサーバ側でやることのリスト。</p>
+
+<p>クライアント側</p>
+
+<ul>
+<li>ふたつの鍵(公開鍵と秘密鍵)を生成する</li>
+<li>公開鍵をサーバに渡す</li>
+<li>アクセスする</li>
+</ul>
+
+
+<p>サーバ側</p>
+
+<ul>
+<li>sshサーバの設定をする(公開鍵認証用設定)</li>
+<li>公開鍵をクライアントから受け取って、設定する</li>
+<li>アクセスを待つ</li>
+</ul>
+
+
+<p>以下詳細へと続く。</p>
+
+<h3>ふたつの鍵の生成</h3>
+
+<p>では、公開鍵と秘密鍵の生成手順です。ふたつの鍵はふたつでひとつなので、忘れないようにしましょう。</p>
+
+<ul>
+<li>環境：MacOSX 10.9.4</li>
+<li>ssh-keygen はバージョンの調べ方がわからん・・・</li>
+</ul>
+
+
+<p>まず、クライアント側で鍵生成。以下コマンドを、お好みの暗号化方式を選択して実行します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#RSA鍵を作成(ssh version2)
+</span><span class='line'>$ ssh-keygen -b 4096 -t rsa -C "comment"
+</span><span class='line'># RSA1鍵を作成(ssh version1)
+</span><span class='line'>$ ssh-keygen -t rsa1 -C "comment"
+</span><span class='line'>#DSA鍵を作成(ssh version2)
+</span><span class='line'>$ ssh-keygen -t dsa -C "comment"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>で、RSA/RSA1/DSAってなんやねん。ってなるわけですが、
+それぞれちょっと調べてみた。</p>
+
+<ul>
+<li>RSA1
+
+<ul>
+<li>ssh version1 で使われていた暗号化方式</li>
+<li>強度はそんなにないぽい。当然今は使われていない</li>
+<li>ぐぐってもあんまり詳細が出てこない</li>
+</ul>
+</li>
+<li><a href="http://ja.wikipedia.org/wiki/RSA%E6%9A%97%E5%8F%B7">RSA</a>
+
+<ul>
+<li>発明者３名の名字の頭文字を取って命名。(ron Rivest/adi Shamir/len Adleman)</li>
+<li>wikiにある通り、768bitまでは解読されちゃってる</li>
+<li>使うなら2048bit以上にしよう</li>
+<li>ssh version2 で使える</li>
+</ul>
+</li>
+<li><a href="http://ja.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>
+
+<ul>
+<li>Digital Signature Algorithmの略</li>
+<li>同じ符合長なら、RSA方式と同程度の暗号化強度らしい</li>
+<li>ssh version2 で使える</li>
+</ul>
+</li>
+<li><a href="http://ja.wikipedia.org/wiki/%E6%A5%95%E5%86%86%E6%9B%B2%E7%B7%9ADSA">ECDSA</a>
+
+<ul>
+<li>あ、一個増えた。調べてるうちに新しいのが出て来た。そしてこれが最新らしい</li>
+<li>DSAの亜種で、短い鍵で高い暗号化強度を担保できる</li>
+<li>つまーり、計算量を少なく抑えられて、パフォーマンスもいい</li>
+</ul>
+</li>
+</ul>
+
+
+<p>RSA1は使うな。で、RSA vs DSA だと、暗号化強度云々より、パフォーマンスで選ぶみたい。
+普通に使う分にはどっちでもいいレベルなので、本エントリでは、RSA を使いますわ。
+しかも、OpenSSH で生成できる DSA は、1024bitまでらしいので。
+でも個人的には、ECDSAに移行しようかな。</p>
+
+<p>そんなわけで、RSA鍵を生成するコマンドを実行。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#RSA鍵を作成(ssh version2)
+</span><span class='line'>$ ssh-keygen -b 4096 -t rsa -C "comment"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>僕は既に既存 key がデフォルトディレクトリにあるので、色々指定して実行しまっせ。
+(以降、秘密鍵:rsa、公開鍵:rsa.pubになってるけど、-f オプションなしの場合は、id_rsa/id_rsa.pubに読み替えてちょ)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#RSA鍵を作成(ssh version2)
+</span><span class='line'>$ ssh-keygen -b 4096 -t rsa -C "Test key for blog" -f "~/.ssh2/rsa"
+</span><span class='line'>Generating public/private rsa key pair.
+</span><span class='line'>Enter passphrase (empty for no passphrase):
+</span><span class='line'>Enter same passphrase again:
+</span><span class='line'>passphrase too short: have 4 bytes, need &gt; 4
+</span><span class='line'>Saving the key failed: /Users/nemoto_hideaki/.ssh2/rsa.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あら、passphraseに、4文字しかいれなかったら、5文字以上！って怒られました。
+ちなみに、passphrase は、パスワードみたいなもん。何も設定しなければ、パスワードを要求されないす。
+そして、5文字未満なのに普通に生成されます。(謎)</p>
+
+<p>一旦まともにpassphrase を設定して生成。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ssh-keygen -b 4096 -t rsa -C "Test key for blog" -f ~/.ssh2/rsa
+</span><span class='line'>Generating public/private rsa key pair.
+</span><span class='line'>Enter passphrase (empty for no passphrase):
+</span><span class='line'>Enter same passphrase again:
+</span><span class='line'>Your identification has been saved in /Users/nemoto_hideaki/.ssh2/rsa.
+</span><span class='line'>Your public key has been saved in /Users/nemoto_hideaki/.ssh2/rsa.pub.
+</span><span class='line'>The key fingerprint is:
+</span><span class='line'>a0:53:a2:0a:cd:c1:7b:05:2a:14:d6:eb:08:34:09:de Test key for blog
+</span><span class='line'>The key's randomart image is:
+</span><span class='line'>+--[ RSA 4096]----+
+</span><span class='line'>|o++ .            |
+</span><span class='line'>|+=.o .           |
+</span><span class='line'>|o.=Eo +          |
+</span><span class='line'>|.+ = = .         |
+</span><span class='line'>|o B +   S        |
+</span><span class='line'>|.o o .           |
+</span><span class='line'>|.                |
+</span><span class='line'>|                 |
+</span><span class='line'>|                 |
+</span><span class='line'>+-----------------+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>鍵ができてるかみてみる。<br/>
+<strong><em> 秘密鍵は公開しちゃだめですよ。この鍵は使わないので公開してますが </em></strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ls -l .ssh2/
+</span><span class='line'>total 16
+</span><span class='line'>-rw-------  1 nemoto_hideaki  staff  3326  9  6 18:32 rsa
+</span><span class='line'>-rw-r--r--  1 nemoto_hideaki  staff   743  9  6 18:32 rsa.pub</span></code></pre></td></tr></table></div></figure>
+
+
+<p>rsaのほうが、秘密鍵。<br/>
+rsa.pubのほうが、公開鍵。<br/>
+めでたく鍵が生成できました〜。中身も覗いてみます。何書いてあるか全然わからんけどな。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat .ssh2/rsa
+</span><span class='line'>-----BEGIN RSA PRIVATE KEY-----
+</span><span class='line'>Proc-Type: 4,ENCRYPTED
+</span><span class='line'>DEK-Info: AES-128-CBC,860352EBF26B86E25C86C2AB88D4DF4F
+</span><span class='line'>
+</span><span class='line'>hDttbLvd3QmDvn5CMV6YvuCPZFYSni0C2ztDXH8CNbfY6RVG7sri8uWwcqMtrrjN
+</span><span class='line'>OFG2IeIyXwtKY8htRETu+AVVCERpSWVowySNzFQJnRcKq9d3iGTuX6MjI4+OwK/i
+</span><span class='line'>rZd8UI041Rzas/+kNmDKZfcYEE9F2j9HeDFh3PCTPibE34L2BaP/vv9jcagRvzcW
+</span><span class='line'>MBlSQoi3uuVqENqdI4xHRiFfmcZTykw6JWxHg2aiA6/4+IlgNnVCyjUrcXZ9DCw/
+</span><span class='line'>g6HsuPMzAGfqkpUpOsJd065fsY+PT1he3fSTWBFn2ODiwgGpclZSzfCOCgKgnYDr
+</span><span class='line'>z3XQqI1Z6Z4QudyxZHAfk1togi8Pr+00gboW23NYV4UnY/yu4xRccXobZB8DosP0
+</span><span class='line'>jTfVNI2eDru5WyaOjNjQQLAjTxacMI474K9CoQUYWKxfaaaaaanVryTLzcVqIWX4
+</span><span class='line'>18mtUg/BKCTpntfNojG3PNfmrin9T/G4GxBYFMXL8cftlonO1aKUqZVFdWNJZDeu
+</span><span class='line'>dmzj+SMxG1L3pPcd1sgqt8UZdgt4HkpgyLH5WTL5XnhGsUe8PcONxRKXVMfSzdfd
+</span><span class='line'>xPgfcjgGChOd09YrejTFzNCahoPKhfdvvRVj9RQz6W9cgxOPgH20F2h4puBQIqgo
+</span><span class='line'>LOH0RsDMUJS6htNYefQNs+mRpT8SLLVgKxY1sIAuyM5vq2uQevpg0XfRvRTjucy/
+</span><span class='line'>LZyVbjM5+FJkjLixDbfZ81psianS3WU7n1hb/mTDuKQY1OD/DenDu7gAsAATXmgv
+</span><span class='line'>cTwvCtIgCCzumKvt8pccTUeVyblHWownO/L0r/9oIlxu+9K6eC0bYjwbLl9SjNgk
+</span><span class='line'>+gJpkChc2Gtohj1wutUZR469G+iljl1WkEWyGT1s/fTWCp0V1ep4hWcTc4Ww4F4h
+</span><span class='line'>+A84ulp3qftTXT2uLjCBNiesxm1wTQegFr3ov23ZhkWoNSwNxnzOsUle8xBqTQWp
+</span><span class='line'>9U9inpELOyTn8RCWyb/+VI7Rpxe8FToEqIPRm30KIOSOi5iDQi6OaxvpRm7Z+jZM
+</span><span class='line'>xr2gH6cVgFErRCIc1rKD9MgQqang4fmv7qpmcpjwrFl2aqQcvFF+YZesVkbQ02am
+</span><span class='line'>0IKIccTkzdwsRpmnI/MtncGgKra6fe6s5gee3EDLzkBSCq9ISwScgJQhEhSgPpJW
+</span><span class='line'>N82oE+hnMoNEapY5sZFpydl4CsMSXTSp3ARWkcvY8+oWx/sRggg6BRCd/Lr/cdK3
+</span><span class='line'>jTfwNkSQSQc2O9aaczttxVWls0L4YXf3hZvS01I72ZWxEmmO3MJtCZGpFfsGBjMN
+</span><span class='line'>VIqE2m4XyO4XEerFVjsI7ItMDJHfB7jXG252Nfu5gAPNuC/IzYau9p1xDybR3jGV
+</span><span class='line'>mvbv5XGL+mSPcFV9NFaE8p4BdkPUW5JnWxlr9ItmnSrzpspvyVTZbexp8EeeniPG
+</span><span class='line'>KPzPirJNEitLKFePlLT6unuoXgeqsNW3fMtkH4hyU8uQuow21Vp5bP7xDM0ZSPVu
+</span><span class='line'>sNxSjHEVR4clfmP6NhcL2O/8SKtExb1akJQP5+KNldqCuDS9EmRvLsmRQ7xD3PtY
+</span><span class='line'>TZBCs57WhB7l/mWKWicQm4RA4Die5Xp7W1xPXqxbKN5T3ZSc8oDOZbsj4pCJpRhs
+</span><span class='line'>3U2O7sR6e7f5y1sceJhLH3tcMXYvgPx8RS5iSsRP/2m/vao5BGusRX8PLlbU7hla
+</span><span class='line'>FWNymUh5Rnw4QtXVECulSZbesC0mF9nZH8w0uNdDDUIVDleOUEykCIIXEWCIdyfp
+</span><span class='line'>UqKcALTR3ryM/sxDXzUhhro+fRhp2IFBwI1OXDJTI8vroNnZRWtozrTZBwXFbRyw
+</span><span class='line'>AVi0mSF5X703fv18IBYtF64Qn8+P4ENyjeZx7C8wK2QVcIg3tipXsF/8w0BV7uab
+</span><span class='line'>00VVmOG8eoPbFboVrR/Mu7Ity12YubNwcs4PI6FqAd4C3MosfUFUX1RCIm1NiIaH
+</span><span class='line'>eAl/CAFDxdTTglya+LlOmuhXA8OUbVwXzoBwCS+PJX7zI9U/HiZvXsT93INFvv4O
+</span><span class='line'>26llEq9pq2J9CsC3/WUA2/iyGzfgZeFaGm/J7nbIAypvdloEx8ZvJ19vaLfD9ENz
+</span><span class='line'>TiQBM7lTYvxBtIEv+mAoI4m6h4lkguv2/OBLQFcXtjEtEqPw1PX2hc18RvgPV4fu
+</span><span class='line'>3sxaDyqHqzldA+niAG8t0dPA1NT6bkLECsxK5RDTNXX13xxrvrpTOxrVv/pYWLtk
+</span><span class='line'>pZEIR9igNAZ98ALADtwUhch5F2AxZ7hHmvMgJm1ZT5o4G19Pwh/zMl3ipAetMbGZ
+</span><span class='line'>f6hTV+b3/fmZe3QQxGjUPKOLQmQzuER0fk176UDFlMS7bJhuqbgKtgwdijMRid3a
+</span><span class='line'>JtKuSU9a79TqEYprzyUUpafMHn4GjGjB7uHTu5432NBrZJV5LMUr2wKUvZmwyW6p
+</span><span class='line'>O7p4StEiA4p1y8P8m6kL2us6hHofHL/GeRkXdopnwEZ94AV+PXsm/ON6ykQNic0C
+</span><span class='line'>lWZ7JSXOW6TuT4tFmIR/XkodPjcoxXb/U7cZOqW+T0BLd32YYl57aIAYkMuy7isP
+</span><span class='line'>RWDIR4QwM67hRsEmnYuqumGpuGJmPVW32OqiiiwFhhF+e3ziV3qFfuXaS+iWMzl5
+</span><span class='line'>EzY/hNnQNWbpxm4X14enA8+366RMkrCdK07PhCcqNm1rfGqmn7OMB2zbVpq7EPjm
+</span><span class='line'>cnWYUBZcLqfftXSUsoFj1hfwLfsZOpIJupgrmdgPtLbWDo8SxNJ3AxQroNO6EbjX
+</span><span class='line'>AKc+S79evuMnZCk+xIbUKj2FtlnjJJy9Uk+lLOKq+Y4oKbQl4eRBa6tV9TEsm4u8
+</span><span class='line'>jWOSFnYK/BVI04OMOxwG2LAgPMa/yBcwD8YtCbYzMerHIDOYzr1dI8ShiFlzpNxr
+</span><span class='line'>QjbfewkkAXElPbKB3A/a1GXJNsfMB3DyZdx0KfrDUIALc9IiInHxJzg1xv9N1tRF
+</span><span class='line'>ah0a5BG/hs0dISjf9AvjXlZ6xZicZiaR7dVk1DkLQdewO1wxqZzEpBdQ6vXIfKeR
+</span><span class='line'>AhHtzCg0rpcRQt+EChua7AJxwrCqrsgxlX/8l9PvFSZXOw2M1qLCmJ9FoCQRNiCX
+</span><span class='line'>ds0WaTtQHZ2gXEBAaqQvUCgBSSdLKCxzP0ztmPd0+JA02I0tn2WBd8/7d9y5b+Of
+</span><span class='line'>uzLkERk+NIwHkkp4+c5JR7AT1c8PgG3cN/GbTCCHij+mczKcH21cRGCkcVc1xv36
+</span><span class='line'>-----END RSA PRIVATE KEY-----
+</span><span class='line'>$ cat .ssh2/rsa.pub
+</span><span class='line'>ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC3STy6YZelz5z0zcQkxYx2QMu8X+SCMBlMgxGbmoORBFB18sckyo9vPAjBXyR6XfEViXRUHLo07u6S/FqaLuBSSlwi8GPs8cux8e+KnbQ1Cik6lL829O++rgEFyMRPEvM/bB/GjPsni4Y2aBstU4xA8D4ZpqaN5rgKG2U9ZsovjhVQsIWHa8a4/W/z2oOASqss0/p+LHOYzmjHLDwaGCqqJNqglcdJrrNYxEUZApS5RT8JrkW7874+KbghCdN5L6n27NNblsusP6HJQknTC0ufKE340J3dEUmxpf/vErN6P7bKNDFlzgVfJehLW62n+u1XCj5akHBrfMEKOaS4y90u/pALUoYWoAhIcGou7Xwc6EhtTYYg3gSWqDbk8vDE+A4JVDYl3RnsYptqRqmkJZL9RE1MT67+5yqY5bY74KjuohKeBgAptiEecLb3ABlhPJCvLX1zTOnHQaXa6cC4Ln8DH+2gnFdC3EgDr/sRHonLpAMqO8y/tGNc9digefdxCfr8N3/eX0UPXCyjaPwpN/DjC4MlWDFnqMQGfXUsxCHLl/n/MY/MThYYFUPDe0e8dV0D3oq0l4NoYu+aVEeBIc7/7g01WrQWLHoGYZSPlezCmtclClJzSzOeWk1ghYKVSfWflXBfHgdyNpL3vPyAVeArFg1UDi8MHCHNkZDfLkJHLw== Test key for blog</span></code></pre></td></tr></table></div></figure>
+
+
+<p>では次の手順へ。</p>
+
+<h3>公開鍵をサーバに渡す/公開鍵をクライアントから受け取って、設定する</h3>
+
+<p>では鍵をサーバに登録するところをやります。</p>
+
+<h4>クライアント側作業</h4>
+
+<p>クライアントでやるのは、さっき生成した公開鍵をサーバに転送するだけの簡単なお仕事。
+今回は、scp で公開鍵を丸っと転送。しゅわっち！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ scp .ssh2/rsa.pub &lt;Server IP&gt;:/tmp/</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>サーバ側作業</h4>
+
+<p>サーバ側では、下記をやるわけです。</p>
+
+<ul>
+<li>authorized_keys への公開鍵の登録</li>
+<li>authorized_keys のアクセス権限の確認/変更</li>
+<li>sshサーバの設定確認/変更/再起動</li>
+</ul>
+
+
+<p>まずは、</p>
+
+<h5>authorized_keys への公開鍵の登録</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cat /tmp/rsa.pub &gt;&gt; .ssh/authorized_keys
+</span><span class='line'>$ cat .ssh/authorized_keys # &lt;- ちゃんと入ってるか確認</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>authorized_keys のアクセス権限の確認/変更</h5>
+
+<p>permission をしっかり設定しないと、他が正しくても永遠にログインできねーので、下記参照の上、ちゃんと設定します。</p>
+
+<p>クライアント側</p>
+
+<ul>
+<li>.ssh/rsa : 600</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ chomod 600 .ssh/rsa</span></code></pre></td></tr></table></div></figure>
+
+
+<p>サーバ側</p>
+
+<ul>
+<li>authorized_keys : 600</li>
+<li>~/.ssh ディレクトリ : 700</li>
+<li>/home/hogehoge ディレクトリ : 755</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ chomod 700 .ssh
+</span><span class='line'>$ chomod 600 .ssh/authorized_keys
+</span><span class='line'>$ chomod 755 ~</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ようは、他人が鍵関連のファイルに書き込めない状態にしとけと。
+これでOK。</p>
+
+<p>次。</p>
+
+<h5>sshサーバの設定確認/変更/再起動</h5>
+
+<p>sshサーバの設定で、公開鍵認証OKにしないといかんのです。<br/>
+/etc/sshd_configを開いて、下記３行が入ってなければ追記します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>RSAAuthentication yes
+</span><span class='line'>PubkeyAuthentication yes
+</span><span class='line'>AuthorizedKeyFile   .ssh/authorized_keys</span></code></pre></td></tr></table></div></figure>
+
+
+<p>で、再起動して、クライアントから接続して、ログインできればOK !<br/>
+段々めんどくさくなって手抜きになってきたけど、なんとなく伝わるはず。
+間違いなど、ご指摘いただけるとありがたいっす。</p>
+
+<p>参考URL :<br/>
+  <a href="http://www-net.nifs.ac.jp/lnas/manual/man-sshrsa.html">reference 1</a><br/>
+  <a href="http://oshiete.goo.ne.jp/qa/8356280.html">reference 2</a><br/>
+  <a href="http://stackoverflow.com/questions/2841094/what-is-the-difference-between-dsa-and-rsa">reference 3</a></p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">xengineer</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-06T21:00:00+09:00" pubdate data-updated="true">Sep 6<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/infra/'>Infra</a>, <a class='category' href='/blog/categories/web-development/'>Web Development</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/09/06/public-key-authentication/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/09/06/public-key-authentication/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/08/31/dynamodb-test-production-env/" title="Previous Post: DynamoDBの本番とテスト環境の分け方">&laquo; DynamoDBの本番とテスト環境の分け方</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/06/public-key-authentication/">公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/31/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/infra'>Infra (7)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/09/06/public-key-authentication/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/09/06/public-key-authentication/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
