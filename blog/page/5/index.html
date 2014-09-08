@@ -9,7 +9,7 @@
   <meta name="author" content="root4">
 
   
-  <meta name="description" content="After the production deployment, don&#8217;t forget to compile assets with following command. $ cd &lt;app_root&gt; $ bundle exec rake assets: &hellip;">
+  <meta name="description" content="Tried to open a xml file with XMLEDITOR.NET. And the following error occured. There is no Unicode byte order mark. Cannot switch to Unicode. I &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -86,6 +86,60 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/">[XML] There Is No Unicode Byte Order Mark. Cannot Switch to Unicode.</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-28T12:20:00+09:00" pubdate data-updated="true">Oct 28<span>th</span>, 2013</time>
+        
+           | <a href="/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw/blog/2013/10/28/xml-there-is-no-unicode-byte-order-mark/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div  class=post>
+  Tried to open a xml file with XMLEDITOR.NET.  <br> <br>
+  And the following error occured.  <br>
+  <pre  class=prettyprint>
+  There is no Unicode byte order mark. Cannot switch to Unicode.</pre>
+  I checked the xml file, and fixed the line which said, <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-16"?&gt;</pre>
+  to <br>
+  <pre  class=prettyprint>
+  &lt;?xml version="1.0" encoding="utf-8"?&gt;</pre>
+  wrong  : utf-16 <br>
+  correct: utf-8 <br>
+  <br>
+  And now I could open it.<br>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/10/23/ror-asset-pipeline-precompile/">[RoR] Asset Pipeline Precompile</a></h1>
     
     
@@ -153,6 +207,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/09/09/ansible-for-beginners/">Ansible入門 - Ad-hoc Modeを使ってみる -</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/09/06/public-key-authentication/">公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -</a>
       </li>
     
@@ -166,10 +224,6 @@
     
       <li class="post">
         <a href="/blog/2014/08/12/set-time-on-ec2/">Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/11/setup-test-environment-with-vagrant2/">Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)</a>
       </li>
     
   </ul>
@@ -187,7 +241,7 @@
 
 <section>
   <h1>Top Categories</h1>
-  <ul id="top-category-list"><li><a href='/blog/categories/infra'>Infra (7)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/web-development'>Web Development (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/1liner'>1Liner (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
+  <ul id="top-category-list"><li><a href='/blog/categories/infra'>Infra (8)</a></li><li><a href='/blog/categories/web-development'>Web Development (7)</a></li><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/aws'>aws (1)</a></li><li><a href='/blog/categories/redis'>Redis (1)</a></li></ul>
 </section>
 
   

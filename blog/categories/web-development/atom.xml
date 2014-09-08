@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Web Development | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/web-development/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-09-09T01:01:59+09:00</updated>
+  <updated>2014-09-09T01:21:42+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,1022 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ansible入門 - Ad-hoc Modeを使ってみる -]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners/"/>
+    <updated>2014-09-09T01:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners</id>
+    <content type="html"><![CDATA[<p>予定より少し遅れて Ansible エントリでございます。<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/ANSI_logotype_web.png" alt="ansible logo" /><br/>
+<img src="http://blog.branch4.pw/images/2014/09/ansible_badge.png" alt="ansible badge" /></p>
+
+<h2>Ansible とは？</h2>
+
+<hr />
+
+<p>Ansible は、configuration management tool というやつですわ。<br/>
+continuous delivery/continuous deployment とかに用いられますよ。chef/puppet/capistrano的な。</p>
+
+<p>さて、私昔、chefを使おうとして挫折した組です。理由は沢山あるんですが、
+まぁぶっちゃけ難しくてわからなかったですw</p>
+
+<p>Ansibleの何がいいって、<a href="http://techracho.bpsinc.jp/yamasita-taisuke/2014_05_29/17567">techracho</a>さんもいってらっさいますが、シンプルそうなんですよ。</p>
+
+<p>なので触ってみます、勝つまでは。</p>
+
+<h2>ざっくりagenda</h2>
+
+<ol>
+<li>システム構成
+
+<ul>
+<li>今回の検証環境のシステム構成紹介</li>
+</ul>
+</li>
+<li>Ansible について
+
+<ul>
+<li>簡単に紹介</li>
+</ul>
+</li>
+<li>Ansible の使い方
+
+<ul>
+<li>簡単に紹介</li>
+</ul>
+</li>
+<li>Ansible 全体像
+
+<ul>
+<li>remote server の認証方法</li>
+</ul>
+</li>
+<li>Ad-hoc mode で使ってみる
+
+<ul>
+<li>実際使ってみる</li>
+</ul>
+</li>
+</ol>
+
+
+<p>こんな感じ？</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>写真紹介</h2>
+
+<p>まずは、唐突ながら、友人の写真紹介です(笑)
+いつもいい写真撮るんですよね。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/nabechan02_kamiiso.jpg" alt="nabechan kamiiso" /><br/>
+※ Hiroyuki Watanabeの写真で、<a href="http://my-eyes.net/">http://my-eyes.net/</a>に元があります。</p>
+
+<p>では本題に・・・</p>
+
+<h2>システム構成</h2>
+
+<hr />
+
+<p>今回は、vagrant 使って、下記構成を作って使ってみました。
+念のため最初に断っておくと、今回はまだ、ansible のad-hoc mode を試してみよう、
+程度なので、vagrant + ansible の連携とか、vagrantの設定まで踏み込んでいくつもりはなく、
+いつでも検証自体を再現できるように使ってるだけです。</p>
+
+<p>```</p>
+
+<pre><code>                        +------------+
+                        |            |
+                    +---+ apserver01 |
++-----------+       |   |            |
+|           |       |   +------------+
+| ansible01 +-------+
+|           |       |   +-----------+
++-----------+       |   |           |
+                    +---+ fluentd01 |
+                        |           |
+                        +-----------+
+</code></pre>
+
+<p>```</p>
+
+<p>上のシステムで、ansible01 から２台のサーバに、deploy したり、
+configuration managementしたり、ってのをやってみようかな、と。</p>
+
+<h3>環境について</h3>
+
+<ul>
+<li>OS
+
+<ul>
+<li>Ubuntu 12.04 LTS \n \l</li>
+</ul>
+</li>
+<li>ansible
+
+<ul>
+<li>ansible 1.8 (devel b6a30a7331) last updated 2014/08/27 14:24:50 (GMT +000)</li>
+</ul>
+</li>
+<li>Python
+
+<ul>
+<li>Python 2.7.3</li>
+</ul>
+</li>
+<li>OpenSSH/OpenSSL
+
+<ul>
+<li>OpenSSH_5.9p1 Debian-5ubuntu1, OpenSSL 1.0.1 14 Mar 2012</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>Vagrantfile config</h2>
+
+<hr />
+
+<p>まず、ベースのところは、<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">前回のエントリ</a>で書いた Vagrantfile からほぼ丸パクリ。</p>
+
+<p>```
+$ cat /vagrant/Vagrantfile</p>
+
+<h1>&ndash;<em>&ndash; mode: ruby &ndash;</em>&ndash;</h1>
+
+<h1>vi: set ft=ruby :</h1>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.provision :shell, path: &ldquo;bootstrap/all.sh&rdquo;</p>
+
+<p>  not_dbs = { :ansible01 => &lsquo;192.168.101.101&rsquo;,</p>
+
+<pre><code>          :apserver01 =&gt; '192.168.102.101',
+          :fluentd01  =&gt; '192.168.102.111'
+        }
+</code></pre>
+
+<p>  not_dbs.each do |not_db_name, not_db_ip|</p>
+
+<pre><code>config.vm.define not_db_name do |server_config|
+  bootstrap_path = "bootstrap/#{not_db_name}.sh"
+  bootstrap_path_user = "bootstrap/#{not_db_name}_user.sh"
+  server_config.vm.box = "hashicorp/precise64"
+  server_config.vm.hostname = not_db_name.to_s
+  server_config.vm.network "private_network", ip: not_db_ip
+  server_config.vm.provision :shell, path: bootstrap_path
+  server_config.vm.provision :shell, path: bootstrap_path_user, privileged: false
+
+  server_config.vm.provider :virtualbox do |v|
+    v.customize ["modifyvm", :id, "--memory", "384"]
+    v.customize ["modifyvm", :id, "--cpus", "1"]
+  end
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>読めばわかる。大きく変えてるのは、provisioningのshell実行するとこで、rootで実行するパターンと、
+通常ユーザで実行するパターンを分けてることかな。
+もしわからなかったら<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">こちら</a>へ。</p>
+
+<p>bootstrap/ansible01.sh は下記。
+```
+$ cat /vagrant/bootstrap/ansible01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y git
+apt-get install -y python-setuptools
+apt-get install -y python-dev
+apt-get install -y libyaml-dev</p>
+
+<p>git clone git://github.com/ansible/ansible.git
+cd ./ansible
+source ./hacking/env-setup</p>
+
+<p>echo &ldquo;source ~/ansible/hacking/env-setup&rdquo; >> ~/.bashrc</p>
+
+<p>easy_install pip
+pip install paramiko PyYAML jinja2 httplib2</p>
+
+<p>mkdir -p /etc/ansible
+cat &lt;<EOF > /etc/ansible/hosts
+[ansible]
+192.168.101.101</p>
+
+<p>[web]
+192.168.102.101</p>
+
+<p>[fluentd]
+192.168.102.111
+EOF
+```</p>
+
+<p>やってることは、ansibleのインストールとInventoryの設定。<br/>
+ansibleインストールのための必須条件は、下記。</p>
+
+<ul>
+<li>&gt;= Python 2.6(3系はNG)</li>
+</ul>
+
+
+<p>管理される側のサーバは、</p>
+
+<ul>
+<li>&gt;= Python 2.4(3系はNG)
+
+<ul>
+<li>Python 2.5 &lt; の場合は、python-simplejson も必須</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Inventoryについては後述。</p>
+
+<p>bootstrap/ansible01_user.shの内容はこれ。
+```
+$ cat /vagrant/bootstrap/ansible01_user.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>ssh-keygen -t rsa -f ~/.ssh/id_rsa -N &lsquo;&rsquo;</p>
+
+<p>cp ~/.ssh/id_rsa.pub /vagrant/ansible01_publickey
+echo &ldquo;source ~/ansible/hacking/env-setup&rdquo; >> ~/.bashrc
+```</p>
+
+<p>公開鍵と秘密鍵生成して、公開鍵を、共有ディレクトリに突っ込んで、
+あとは、ansibleの環境変数をsourceするように.bashrcに書いてる、と。</p>
+
+<p>公開鍵の格納場所は、このあとの管理ノードがそこから読んで、authorized_keyに設定できるようにしてるわけです。
+なんかもっとスマートな方法ないかなー、と思ったんだけど、とりあえずテスト用環境だからいっか。</p>
+
+<p>次は、bootstrap/apserver01.sh。
+```
+$ cat /vagrant/bootstrap/apserver01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/apserver.sh
+/vagrant/bootstrap/not_db.sh
+```</p>
+
+<p>なんもしとらん！w<br/>
+apserver.shとnot_db.sh呼んでるだけなので、まずは、not_db.shから。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/not_db.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y curl
+curl -L <a href="http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh">http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh</a> | sh</p>
+
+<p>mkdir /var/log/td-agent/tmp/
+```</p>
+
+<p>ファイル名から察するに、DBサーバじゃなかったら、curlインストールするのと、fluentdインストールしてんだね。
+んで、apserver.sh。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/apserver.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y apache2
+rm -rf /var/www
+ln -fs /vagrant /var/www</p>
+
+<p>chmod o+x /var/log/apache2/
+chmod o+r /var/log/apache2/access.log</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>tail input</h1>
+
+<p><source>
+  type tail
+  path /var/log/apache2/access.log
+  pos_file /var/log/td-agent/tmp/httpd-access.log.pos
+  tag apache.access
+  format apache2
+</source></p>
+
+<h1>Log Forwarding</h1>
+
+<p><match apache.**>
+  type forward</p>
+
+<p>  # primary host
+  <server></p>
+
+<pre><code>host 192.168.102.1
+port 24224
+</code></pre>
+
+<p>  </server>
+  # use secondary host
+  <server></p>
+
+<pre><code>host 192.168.102.2
+port 24224
+standby
+</code></pre>
+
+<p>  </server></p>
+
+<p>  # use longer flush_interval to reduce CPU usage.
+  # note that this is a trade-off against latency.
+  flush_interval 60s
+</match>
+```</p>
+
+<p>apserverには、apacheインストールして、fluentdの細かい設定しております。
+今回の、ansibleのエントリには毛ほども関係ない設定です。消してもいいです。</p>
+
+<p>次は、bootstrap/apserver01_user.sh。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/apserver01_user.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>mkdir -p ~/.ssh/
+touch ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat /vagrant/ansible01_publickey >> ~/.ssh/authorized_keys
+```
+ここで、公開鍵関連の設定をしております。<br/>
+なんか突然、/vagrant/ansible01_publickeyをauthorized_keysに入れてます。
+Vagrantでは、/vagrantファイルに、Vagrantfileが存在してるディレクトリがマウントされるからっすね。
+これで、上のほうで、ansible01.shがやってたことが理解できる、と。</p>
+
+<p>では最後に、bootstrap/fluentd01.shと、bootstrap/fluentd01_user.shの中身を貼付けてだけおきます。
+解説なし。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/fluentd01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/not_db.sh</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>Input</h1>
+
+<p><source>
+  type forward
+  port 24224
+</source></p>
+
+<h1>Output</h1>
+
+<p><match apache.**>
+  type file
+  path /var/log/td-agent/out_apachelog
+  time_slice_format %Y%m%d
+  time_slice_wait 10m
+  time_format %Y%m%dT%H%M%S%z
+  compress gzip
+  utc
+</match>
+EOF</p>
+
+<p>$ cat /vagrant/bootstrap/fluentd01_user.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>mkdir -p ~/.ssh/
+touch ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat /vagrant/ansible01_publickey >> ~/.ssh/authorized_keys
+```</p>
+
+<p>あ、あと、bootstrap/all.shがあった。
+これも解説なし。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/all.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get update
+apt-get install -y vim
+apt-get install -y vim-common
+```</p>
+
+<p>この辺全部ぶっ込んで、vagrant upしたらうまくいくと思う。たぶん。</p>
+
+<h2>Ansible について</h2>
+
+<hr />
+
+<p><a href="http://www.ansible.com/home">Ansible</a> に関しては、<a href="http://docs.ansible.com/">公式ドキュメント</a>を読み進める形でエントリも書いていきます。
+でも、それだと公式ドキュメントの日本語訳にしかならないので、
+今回の構成にあった感じとか、わかりやすくしたり、僕だったら実践こんな感じで使うのかなー、
+ってのをまじえつついく予定。</p>
+
+<h2>Ansible の使い方</h2>
+
+<hr />
+
+<p>まず、Ansible の簡単な特徴を、下記イメージ図にて。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/ansible_rserver_communication_image.png" alt="ansible" /></p>
+
+<p>図に書いてある感じなのかなー、と感じております。
+僕は、chef/puppet なんかに比べて比較的簡単に理解できそうなのでやってみようと思い立ちました。</p>
+
+<p>認証については、今回は、public key 配布して、password なしで通す方向でやります。
+きっとこの方法が一番需要が多いと思われますゆえ・・・</p>
+
+<p>Ansible は、ドキュメントを読むと、大きく２通りの使い方があるみたい。
+違いも込みであげると、</p>
+
+<ul>
+<li>Ad-hoc mode
+
+<ul>
+<li>リモートサーバ上でコマンドを実行するモード。
+コマンド自体は記録されないので、
+何度も反復はしない場合の使い方</li>
+</ul>
+</li>
+<li>Playbook
+
+<ul>
+<li>Configuration Management Systemとしての使い方。
+定義したグループのサーバに対して、継続的に設定を反映したり、
+デプロイしたりする用途</li>
+</ul>
+</li>
+</ul>
+
+
+<p>今回のエントリは、Ad-hoc mode を使いながら紹介していきます。</p>
+
+<h2>Ansible 全体像</h2>
+
+<p>それで、Ad-hoc mode で使う分にはこの辺を知ってればいいかな・・・という
+イメージ図が下記。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/ansible_ad_hoc_image.png" alt="ad-hoc mode" /></p>
+
+<p>これにさっきのイメージ図の認証があれば、大体全体像は理解できる。と思う。
+認証の設定は、<a href="http://blog.branch4.pw/blog/2014/09/06/public-key-authentication/">先日書いたブログ</a>を参照くだされ。
+それぞれを簡単に説明すると・・・</p>
+
+<ul>
+<li>Inventory
+
+<ul>
+<li>管理対象サーバをここで設定する</li>
+<li>ノードの設定だけじゃなくて、グルーピング機能があったり、色々便利</li>
+</ul>
+</li>
+<li>Ansible configuration
+
+<ul>
+<li>ansible全体の挙動の設定
+
+<ul>
+<li>例えば、inventoryの設定ファイルの場所</li>
+<li>例えば、毎回パスワード確認のプロンプトを出すか</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Modules
+
+<ul>
+<li>実際に実行する設定/deploy などが実装されてる単位</li>
+<li>例えば、commandを実行する場合は、Commands Modules</li>
+<li>例えば、file転送する場合は、Files Modules的な感じで、Module単位で実装されている</li>
+</ul>
+</li>
+</ul>
+
+
+<p>コマンド打つと、この辺の設定を読み込んで実行してくれる、という流れ。</p>
+
+<h2>Ad-hoc mode で使ってみる</h2>
+
+<p>まず、なんか動いてるのをみてテンションあげないとやってられないので、コマンド実行してみよう。</p>
+
+<p>ansible01にログインして今回登録した全サーバにpingを打ってみる。
+vagrant関連のconfigで事前の設定は全部してあるから大丈夫。通ります。たぶん。</p>
+
+<p>```
+$ vagrant ssh ansible01
+$ ansible all -m ping
+192.168.101.101 | FAILED => SSH encountered an unknown error during the connection. We recommend you re-run the command using -vvvv, which will enable SSH debugging output to help diagnose the issue
+192.168.102.101 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}</p>
+
+<p>192.168.102.111 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}
+```</p>
+
+<p>あ、通ってない・・・w<br/>
+ansibleサーバ自身には、公開鍵登録してないからだわ。なので、登録。
+(あんまり自分自身にコマンド打つ用途はないので、普段はやらないと思うけど)</p>
+
+<p><code>
+$ cat .ssh/id_rsa.pub &gt;&gt; .ssh/authorized_keys
+$ cat .ssh/authorized_keys #&lt;- 確認してね
+</code></p>
+
+<p>再度実行！</p>
+
+<p>```
+$ ansible all -m ping
+192.168.101.101 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}</p>
+
+<p>192.168.102.111 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}</p>
+
+<p>192.168.102.101 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}
+```</p>
+
+<p>おー。うまくいった。よしよし。では諸設定の説明をば。</p>
+
+<h3>Inventory</h3>
+
+<p><a name="inventory"></a>
+全体像のイメージ図に出て来た３つの要素の一つ、Inventoryについて。</p>
+
+<ul>
+<li>Inventory
+
+<ul>
+<li>管理対象サーバをここで設定する</li>
+<li>ノードの設定だけじゃなくて、グルーピング機能があったり、色々便利</li>
+</ul>
+</li>
+</ul>
+
+
+<p>って上で書いてた。</p>
+
+<p>まず、Inventoryファイルは、デフォルトの、/etc/ansible/hosts に以下のように作成します。
+(ファイルの場所変更するには、Ansible Configuration に設定する。後述しますわ)</p>
+
+<p>```
+$ cat /etc/ansible/hosts
+[ansible]
+192.168.101.101</p>
+
+<p>[web]
+192.168.102.101</p>
+
+<p>[fluentd]
+192.168.102.111
+```</p>
+
+<p>四角い括弧のなかが、グループ名で、その下に書いてあるIPアドレスがそのグループに所属するホストになります。<br/>
+ホスト名解決はできないぽ。</p>
+
+<p>apserver01 192.168.102.101</p>
+
+<p>みたいに書いたら、名前解決できんのかと思ったら、できまてん。なので、名前解決は、
+いまのところの僕の知識だと、外だしソリューションしないといけないのかな。めんどくせ。
+ただ、Dynamic Inventoryの項目がドキュメントにあったので、その辺深堀すればそれっぽいのがありそうな予感。</p>
+
+<p>Inventoryには、グルーピング以外にも、変数渡す機能とかもあるけど、
+このエントリではここまでに留めて、別途Inventory単体でエントリ書く予定。
+壮大になりすぎます。</p>
+
+<p>ad-hoc mode で static Inventoryファイルを使ってコマンド送るときのベースはこんな感じで、
+管理対象サーバ/グループの増減に従って、Inventoryファイルを編集しましょうね、な感じです。</p>
+
+<h3>Ansible Configuration</h3>
+
+<p>２つ目の、Ansible Configurationについて。</p>
+
+<p>ansible全体の挙動を決定する設定ファイルのこと。
+version1.6以降では、下記の優先順位で評価されます。</p>
+
+<ul>
+<li>ANSIBLE_CONFIG (環境変数)</li>
+<li>ansible.cfg (under current directory)</li>
+<li>~/.ansible.cfg (under home directory)</li>
+<li>/etc/ansible/ansible.cfg</li>
+</ul>
+
+
+<p>version1.5以前では、下記の優先順位。環境変数とcurrent directoryが入れ替わったのね。</p>
+
+<ul>
+<li>ansible.cfg (under current directory)</li>
+<li>ANSIBLE_CONFIG (環境変数)</li>
+<li>~/.ansible.cfg (under home directory)</li>
+<li>/etc/ansible/ansible.cfg</li>
+</ul>
+
+
+<p>ただこれも次のバージョンでは変わってるかもしれないので、<a href="http://docs.ansible.com/intro_configuration.html#the-ansible-configuration-file">ここ</a>を正とするのがよーし。</p>
+
+<h4>何を設定できるの？</h4>
+
+<p>全体の挙動って何よ？ってなるので、例を下記に。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">項目</th>
+<th align="left">デフォルト値</th>
+<th align="left">備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">hostfile       </td>
+<td align="left"> /etc/ansible/hosts </td>
+<td align="left"> Inventoryファイルの場所</td>
+</tr>
+<tr>
+<td align="left">library        </td>
+<td align="left"> /usr/share/ansible </td>
+<td align="left"> Moduleの格納場所</td>
+</tr>
+<tr>
+<td align="left">remote_tmp     </td>
+<td align="left"> $HOME/.ansible/tmp </td>
+<td align="left"> ansibleは、module丸ごとremoteに転送して実行されるので、remoteでの格納先</td>
+</tr>
+<tr>
+<td align="left">forks          </td>
+<td align="left"> 5                  </td>
+<td align="left"> remoteに同時接続する上限。デフォルトはかなり保守的</td>
+</tr>
+<tr>
+<td align="left">poll_interval  </td>
+<td align="left"> 15                 </td>
+<td align="left"> 非同期処理への終了確認ポーリング間隔の設定</td>
+</tr>
+<tr>
+<td align="left">sudo_user      </td>
+<td align="left"> root               </td>
+<td align="left"> playbookに sudo_userの指定がない場合のデフォルト設定</td>
+</tr>
+<tr>
+<td align="left">ask_sudo_pass  </td>
+<td align="left"> False              </td>
+<td align="left"> sudo時に、password確認のプロンプトをするか</td>
+</tr>
+<tr>
+<td align="left">ask_pass       </td>
+<td align="left"> False              </td>
+<td align="left"> password確認のプロンプトをするか</td>
+</tr>
+<tr>
+<td align="left">transport      </td>
+<td align="left"> smart              </td>
+<td align="left"> 転送に何を使うか。smart:ssh/local:localhost?/chroot:?/jail:?。基本ssh</td>
+</tr>
+<tr>
+<td align="left">remote_port    </td>
+<td align="left"> 22                 </td>
+<td align="left"> remote hostで使うポート番号。Inventoryファイルでホスト毎に上書きできる</td>
+</tr>
+<tr>
+<td align="left">module_lang    </td>
+<td align="left"> C                  </td>
+<td align="left"> 各モジュール間のやりとりで使う言語</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>こんな感じで、ほんとうに全体の挙動に関する設定ですわ。大体の設定は、
+システムのデフォルト値をここで決めて、個別に、Playbook/Inventoryファイルなんかで決めるイメージ。
+他にも項目が沢山あるので、それは別途エントリを作りますかね。</p>
+
+<p>そして設定項目全部みたいときは、<a href="https://github.com/ansible/ansible/blob/devel/examples/ansible.cfg">こちら！</a>で、
+大元をみたほうがはやいっす。もちろんgithubは最新なので、ansibleのバージョンによっては
+使えないのも入ってると思うので、その辺は調べてみてくだされ。</p>
+
+<h3>Modules</h3>
+
+<p>最後の、Modules について。</p>
+
+<p>ここが、ansibleの実質上のコアなのかな。
+ad-hoc modeでは、実行するmoduleを、コマンドラインから指定して、
+playbookでは、playbookの中で設定して、各moduleをremoteサーバに転送した後、
+各サーバで実行する方式です。</p>
+
+<p>色んなmoduleがあるので、実行したい内容に合わせて選択する形になります。
+自作もできるようなので、ない場合は自分で作りましょう。</p>
+
+<p>本エントリは、ad-hoc modeのエントリなので、ad-hoc modeでどうやってmoduleを指定するかを下記に。</p>
+
+<p><code>
+$ ansible &lt;targets&gt; -m &lt;module&gt; -a "&lt;arguments to the module&gt;"
+</code></p>
+
+<p>まんまだわ。</p>
+
+<h4>targets</h4>
+
+<p><a href="#inventory">Inventory</a>で書いてる何かを指定します。</p>
+
+<ul>
+<li>サーバ単体を指定する場合
+
+<ul>
+<li>192.168.102.101</li>
+</ul>
+</li>
+<li>グループを指定する場合
+
+<ul>
+<li>web</li>
+</ul>
+</li>
+<li>全部を指定する場合
+
+<ul>
+<li>all</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>module</h4>
+
+<p>moduleはね、もう一杯あって、どれを使うのかわかんなくなるね。</p>
+
+<p>例として、/tmp/test っていうファイルを、apserver01に作成して、permissionを777に変更するコマンドを実行してみよう。</p>
+
+<h5>まずは、apserver01 にファイルが存在しないことを確認。</h5>
+
+<p>ansible01で下記を実行する。</p>
+
+<p><code>
+$ ansible 192.168.102.101 -m command -a "ls /tmp"
+192.168.102.101 | success | rc=0 &gt;&gt;
+vagrant-shell
+</code></p>
+
+<p>うむ。vagrant-shellってファイルしかないので次に進もう。</p>
+
+<h5>使うmodule 選択とざっくり流れ</h5>
+
+<p>今回は、ファイル作るので・・・command module で普通にtouch実行して、
+そのあとに、file module でpermission変更します。</p>
+
+<p>各moduleについては、下記参照。</p>
+
+<ul>
+<li><a href="http://docs.ansible.com/command_module.html">Command module</a>
+
+<ul>
+<li>引数に、実行するコマンドを渡すと実行してくれる</li>
+<li>pipe とか、＆はだめ、対応してない</li>
+<li>pipe とか使う場合は、<a href="http://docs.ansible.com/shell_module.html">shell module</a>を使う</li>
+</ul>
+</li>
+<li><a href="http://docs.ansible.com/file_module.html">File module</a>
+
+<ul>
+<li>File/Directory/Symbolic link等を作成する</li>
+<li>File/Directory等のowner設定変更</li>
+<li>File/Directory等のgroup設定変更</li>
+<li>File/Directory等のpermission設定変更</li>
+</ul>
+</li>
+</ul>
+
+
+<p>あ、見事にFile moduleでファイルも作成できる・・・でも今回はcommand で！w</p>
+
+<h5>apserver01上に、ファイル作成</h5>
+
+<p>下記をansible01上で実行してみる。</p>
+
+<p>```
+$ ansible 192.168.102.101 -m command -a &ldquo;touch /tmp/test&rdquo;
+192.168.102.101 | success | rc=0 >></p>
+
+<p>$ ansible 192.168.102.101 -m command -a &ldquo;ls -l /tmp&rdquo;
+192.168.102.101 | success | rc=0 >>
+total 4
+-rw-rw-r&mdash; 1 vagrant vagrant   0 Sep  7 06:07 test
+-rwx&mdash;x&mdash;x 1 vagrant vagrant 159 Aug 30 14:21 vagrant-shell
+```</p>
+
+<p>お、できている。スーパー！！！
+で、permissionは、664。</p>
+
+<p>次は、permisssion変更します。</p>
+
+<h5>ファイルのpermission変更</h5>
+
+<p>644だったpermissionを777に変更してやります。
+permission変更は、file moduleを利用するわけですが、
+<a href="http://docs.ansible.com/file_module.html">公式ドキュメント</a>曰く(ちょっと省略してるけど)、</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">parameter </th>
+<th align="left"> required  </th>
+<th align="left"> default </th>
+<th align="left"> choices </th>
+<th align="left"> comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">force     </td>
+<td align="left">  no       </td>
+<td align="left"> no      </td>
+<td align="left"> yes     </td>
+<td align="left"> ２つのケースについて、symlinkの作成を強制する。ひとつは、source fileが存在しない場合(linkを張っておいて、あとからファイル自体は作成する)。もうひとつは、destination が存在していて、かつファイルである場合。(この場合、pathに指定しているファイルを削除して、symlinkを作成する)</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> no      </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">group     </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">mode      </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> ファイル/ディレクトリのpermission設定。</td>
+</tr>
+<tr>
+<td align="left">owner     </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> ファイル/ディレクトリのowner設定。</td>
+</tr>
+<tr>
+<td align="left">path      </td>
+<td align="left">  yes      </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> 管理対象ファイルのpath。file module内で唯一必須項目。 Aliases: dest, name</td>
+</tr>
+<tr>
+<td align="left">recurse   </td>
+<td align="left">  no       </td>
+<td align="left"> no      </td>
+<td align="left"> yes     </td>
+<td align="left"> ファイルの設定を再起的に実施するかどうか。(state=directoryにのみ適用する) (Ansible 1.1以降実装)</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> no      </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">src       </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> state=linkにのみ適用する。linkするファイルのpathを指定。絶対path/相対path/存在しないpathを指定可能です。相対pathは展開されません。</td>
+</tr>
+<tr>
+<td align="left">state     </td>
+<td align="left">  no       </td>
+<td align="left"> file    </td>
+<td align="left"> file    </td>
+<td align="left"> fileを指定して、srcが存在しない場合、ファイルは作成されません。作成したい場合は、copy/template moduleを使いましょう。はて？fileって必要なの？？</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> link    </td>
+<td align="left"> linkを指定した場合、symbolick linkが作成されるか、変更される。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> directory </td>
+<td align="left"> directoryを指定した場合, 存在しない場合、直接の全サブディレクトリが作成されます。version1.7以降では、modeで指定したpermissionに従って作成される。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> hard    </td>
+<td align="left"> hardlinkを作成する場合は、hardを指定する。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> touch   </td>
+<td align="left"> touch(version1.4以降)を指定した場合、Linux コマンドのtouchと同じ挙動をする。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> absent  </td>
+<td align="left"> absentを指定した場合、ディレクトリは再起的に削除されて、ファイルとsymlinkは削除される。</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>この表からわかる通り、file moduleで必須なオプションは、"path" のみ。
+pathで指定されたファイル/ディレクトリ等に対して、何をするかを、他のオプションで指定する寸法。
+今回は、permissionを777に変更したいので、"mode=0777" を指定して、実行してみる。</p>
+
+<p>```
+$ ansible 192.168.102.101 -m file -a &ldquo;path=/tmp/test mode=0777&rdquo;
+192.168.102.101 | success >> {</p>
+
+<pre><code>"changed": true,
+"gid": 1000,
+"group": "vagrant",
+"mode": "0777",
+"owner": "vagrant",
+"path": "/tmp/test",
+"size": 0,
+"state": "file",
+"uid": 1000
+</code></pre>
+
+<p>}</p>
+
+<p>$ ansible 192.168.102.101 -m command -a &ldquo;ls -l /tmp&rdquo;
+192.168.102.101 | success | rc=0 >>
+total 4
+-rwxrwxrwx 1 vagrant vagrant   0 Sep  7 06:07 test
+-rwx&mdash;x&mdash;x 1 vagrant vagrant 159 Aug 30 14:21 vagrant-shell
+```</p>
+
+<p>おーーーー、変わった変わった。ちゃんちゃん。
+無事に、testファイルのpermissionが777になっておりました。
+よかったよかった。</p>
+
+<p>というわけで、ansibleは、大量のサーバに任意のコマンドをばこばこ発行したり、色々できる
+便利なツールでした。おしまい。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -]]></title>
@@ -582,7 +1598,7 @@ photo credit: <a href="https://www.flickr.com/photos/andrewfhart/8106189987/">an
 って・・・Vagrant でも Ansible でも、Chef でもなんでもそうだからな・・・</p>
 
 <p><img src="http://blog.branch4.pw/images/2014/08/medium_2922128673.jpg" alt="evolve" /><br/>
-photo credit: <a href="https://www.flickr.com/photos/spidermandragon5/2922128673/"><a href="&#x6d;&#97;&#x69;&#108;&#x74;&#111;&#58;&#98;&#x72;&#121;&#97;&#x6e;&#119;&#x72;&#105;&#x67;&#x68;&#x74;&#53;&#64;&#x67;&#109;&#97;&#105;&#108;&#46;&#x63;&#111;&#109;">&#98;&#114;&#121;&#x61;&#110;&#119;&#114;&#105;&#103;&#x68;&#x74;&#53;&#x40;&#x67;&#x6d;&#97;&#x69;&#108;&#46;&#99;&#111;&#109;</a></a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a></p>
+photo credit: <a href="https://www.flickr.com/photos/spidermandragon5/2922128673/"><a href="&#109;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#98;&#114;&#121;&#x61;&#110;&#119;&#x72;&#105;&#x67;&#x68;&#116;&#x35;&#64;&#x67;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x62;&#x72;&#x79;&#x61;&#x6e;&#119;&#114;&#105;&#x67;&#104;&#116;&#x35;&#x40;&#103;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#109;</a></a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a></p>
 
 <p>まだ凄さがわかりまてん。。。</p>
 
@@ -2389,390 +3405,6 @@ vagrant                     233G   92G  142G  40% /vagrant
   document.write( aff[ num ]);
 </script>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fluentdを複数起動したい]]></title>
-    <link href="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/"/>
-    <updated>2014-07-22T22:30:00+09:00</updated>
-    <id>http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd</id>
-    <content type="html"><![CDATA[<h2>概要</h2>
-
-<hr />
-
-<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
-って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
-
-<h3>fluentdとは？</h3>
-
-<hr />
-
-<p>知らない人はいないね。はい。</p>
-
-<p><a href="http://www.fluentd.org/"><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></a></p>
-
-<p><a href="http://www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
-詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
-
-<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
-「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
-使うのが普通ですね、はい。</p>
-
-<p>ちなみに僕はインストールするの今回初です(笑)<br/>
-弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
-
-<p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
-
-<p><img src="http://blog.branch4.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
-
-<h3>前提</h3>
-
-<hr />
-
-<p>multiprocessといっても、</p>
-
-<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
-とか<br/>
-<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
-とは違う意味で。</p>
-
-<p>本当に、プロセスを別で起動したいんです！という話。<br/>
-ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
-
-<!-- more -->
-
-
-<p></p>
-
-<h2>詳細</h2>
-
-<hr />
-
-<p>まず、fluentd自体、ubuntuだとprecise/lucidしかサポートしていないので、<br/>
-binaryで入れたい方は対応osお使いください。</p>
-
-<h3>fluentdに限らず</h3>
-
-<hr />
-
-<p>fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、<br/>
-ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。</p>
-
-<p>気をつけるのは、以下。</p>
-
-<ul>
-<li>IP address</li>
-<li>port</li>
-<li>other sharable resources(files/sockets)</li>
-</ul>
-
-
-<p>大体のアプリは、上記を専有して起動しちゃうので、それが被らないように<br/>
-configをいじったりすれば概ね同時に起動して問題なす。</p>
-
-<h3>fluentdの場合</h3>
-
-<hr />
-
-<p>で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。</p>
-
-<p>まず、インストール後、今回触るファイルたちのリストは以下。</p>
-
-<ul>
-<li>/etc/init.d/td-agent</li>
-<li>/etc/td-agent/td-agent.conf</li>
-<li>/etc/default/td-agent</li>
-</ul>
-
-
-<p>それぞれ軽く解説をつけると・・・</p>
-
-<ul>
-<li>/etc/init.d/td-agent
-
-<ul>
-<li>fluentdの起動スクリプト</li>
-<li>このファイルいじって、PIDファイルが被らないようにする</li>
-</ul>
-</li>
-<li>/etc/td-agent/td-agent.conf
-
-<ul>
-<li>fluentdのconfigファイル</li>
-<li>これの設定をいじって、portが被らないようにする</li>
-</ul>
-</li>
-<li>/etc/default/td-agent
-
-<ul>
-<li>fluentdの起動オプション設定ファイル</li>
-<li>これの設定をいじって、起動時に読み込むconfigを切り替える</li>
-</ul>
-</li>
-</ul>
-
-
-<p>こんな感じ。実際のところは上記の３ファイルをコピって、二つずつ作るのだ。がっはっは。</p>
-
-<p>と、いうわけで、まずは各ファイルのコピーだけ作っておきましょ。</p>
-
-<p><code>
-% sudo cp /etc/init.d/td-agent /etc/init.d/td-agent_nginx
-% sudo cp /etc/default/td-agent /etc/default/td-agent_nginx
-% sudo cp /etc/td-agent/td-agent_nginx.conf /etc/td-agent/td-agent_nginx.conf
-</code></p>
-
-<p>suffinxにnginxっていれてるのは、特に意味はないす。<br/>
-ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。</p>
-
-<h3>各ファイルの詳細</h3>
-
-<hr />
-
-<h4>/etc/init.d/td-agent_nginx</h4>
-
-<p>```</p>
-
-<h1>Introduce the short server&rsquo;s name here</h1>
-
-<p>NAME=td-agent_nginx ★ここ修正</p>
-
-<h1>Read configuration variable file if it is present</h1>
-
-<p>[ -r /etc/default/$NAME ] &amp;&amp; . /etc/default/$NAME</p>
-
-<h1>PATH should only include /usr/* if it runs after the mountnfs.sh script</h1>
-
-<p>PATH=/sbin:/usr/sbin:/bin:/usr/bin
-USER=td-agent                   # Running user
-GROUP=td-agent                  # Running group
-DESC=td-agent_nginx             # Introduce a short description here★ここ修正
-PIDFILE=/var/run/$NAME/$NAME.pid
-DAEMON=/usr/lib/fluent/ruby/bin/ruby # Introduce the server&rsquo;s location here</p>
-
-<h1>Arguments to run the daemon with</h1>
-
-<h1>DAEMON_ARGS=&ldquo;/usr/sbin/td-agent $DAEMON_ARGS &mdash;daemon $PIDFILE &mdash;log /var/log/td-agent/td-agent_nginx.log&rdquo; ★ここ修正</h1>
-
-<p>DAEMON_ARGS=&ldquo;/usr/sbin/td-agent $DAEMON_ARGS $PIDFILE &mdash;log /var/log/td-agent/td-agent_nginx.log&rdquo; ★ここ修正
-echo $DAEMON_ARGS
-SCRIPTNAME=/etc/init.d/$NAME
-START_STOP_DAEMON_ARGS=&ldquo;&rdquo;
-```</p>
-
-<h4>/etc/td-agent/td-agent_nginx.conf</h4>
-
-<p>インストール直後のconfigっす。コメントは邪魔なのでとっぱらってます。</p>
-
-<p>```</p>
-
-<h3>#</h3>
-
-<h2>Output descriptions:</h2>
-
-<h1>#</h1>
-
-<p><match td.*.*>
-  type tdlog
-  apikey YOUR_API_KEY</p>
-
-<p>  auto_create_table
-  buffer_type file
-  buffer_path /var/log/td-agent_nginx/buffer/td ★ここ修正(同じログファイル握らないように)
-</match></p>
-
-<p><match debug.**>
-  type stdout
-</match></p>
-
-<h3>#</h3>
-
-<h2>Source descriptions:</h2>
-
-<h1>#</h1>
-
-<p><source>
-  type forward
-  port 25224 ★defaultだと24224になってるので、明示的に変更しておく
-</source></p>
-
-<h1>HTTP input</h1>
-
-<p><source>
-  type http
-  port 18888 ★ここも明示的に変更しておく
-</source></p>
-
-<h2>live debugging agent</h2>
-
-<p><source>
-  type debug_agent
-  bind 127.0.0.1
-  port 25235 ★ここも明示的に変更しておく
-</source>
-```</p>
-
-<h4>/etc/default/td-agent_nginx</h4>
-
-<p>起動時につけるオプションね。<br/>
-ここで読み込むconfig変更しますゆえお忘れなく。</p>
-
-<p>```</p>
-
-<h1>This file is sourced by /bin/sh from /etc/init.d/td-agent</h1>
-
-<h1>Options to pass to td-agent</h1>
-
-<p>DAEMON_ARGS=&ldquo;&mdash;config /etc/td-agent/td-agent_nginx.conf&rdquo; ★これ追記。違う設定ファイル読み込むように
-```</p>
-
-<p>このくらい修正をかけると、だ、下記コマンドで動くはず、だ。<br/>
-<code>
-% sudo /etc/init.d/td-agent start
-% sudo /etc/init.d/td-agent_nginx start
-% ps aux|grep td-agent
-td-agent 11314  0.0  3.5  98888 17912 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
-td-agent 11317  2.4  5.2 125704 26260 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
-td-agent 11348  0.0  3.5  98888 17908 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
-td-agent 11351  5.5  5.2 125704 26224 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
-</code></p>
-
-<p>ぱちぱちぱちぱちーーー。いやまぁそらそーだ。<br/>
-で、ここまでは結構すぐいきましたわい。ところが、、、、</p>
-
-<p><code>
-% sudo /etc/init.d/td-agent stop
-</code></p>
-
-<p>つって、止めようとすると、、、なんと！両方のプロセスが止まる！<br/>
-ひぎぃ・・・・/etc/init.d/td-agentの中身としばらくにらめっこ。</p>
-
-<p>debian系のinit scriptの中では、start-stop-daemonってのがdaemonの起動・停止に<br/>
-まつわるetc をやっていて、そのあたりをちょっと調べてみることに。</p>
-
-<ul>
-<li>fluentdのdo_stopでは、２回start-stop-daemonが呼ばれている
-
-<ul>
-<li>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</li>
-<li>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</li>
-</ul>
-</li>
-</ul>
-
-
-<p>と、いうのと、man start-stop-daemonの中身をみると。。。</p>
-
-<p>```
-Note: unless &mdash;pidfile is specified, start-stop-daemon behaves similar to killall(1).
-start-stop-daemon will scan the process table looking for any processes which match
-the process name, uid, and/or gid (if specified).</p>
-
-<p>Any matching process will prevent &mdash;start from starting the daemon. All matching processes
-will be sent the TERM signal (or the one specified via &mdash;signal or &mdash;retry)
-if &mdash;stop is specified.</p>
-
-<p>For  daemons  which  have  long-lived children which need to live through a &mdash;stop,
-you must specify a pidfile.
-```</p>
-
-<p>つまり・・・&mdash;pidfileオプションが指定されてなければ、killallと同じように動く、と・・・<br/>
-おお・・・そりゃ両方のプロセス殺されるわけだ・・・<br/>
-逆に言えば、&mdash;pidfileを指定しとけばkillの動作なのかな・・・</p>
-
-<p>で、straceかけて、2パターン検証してみたYO。</p>
-
-<h4>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</h4>
-
-<p>やってることは、</p>
-
-<ol>
-<li>$PIDFILEの中のprocessidをとってくる(ここでは、$PIDとしよう)</li>
-<li>/proc/$PID/statが存在するか確認する</li>
-<li>存在しない場合は、終わり</li>
-<li>存在する場合は、3へ</li>
-<li>killする</li>
-<li>2に戻る</li>
-</ol>
-
-
-<p>をひたすら繰り返しております。<br/>
-なんで、基本的にはkillと同じ動きなのかな。retry付きで。</p>
-
-<h4>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</h4>
-
-<p>こっちは、まじkillallだったわ。</p>
-
-<ol>
-<li>/proc/&lt;全ProcessのPID>/exe のsymbolic link先 == $DAEMON か確認</li>
-<li>同じだったprocessにkillでsignal送信</li>
-<li>同じのがなくなるまで1と2を繰り返す</li>
-</ol>
-
-
-<p>killall。<br/>
-で、問題は、なんでこれを使う必要があるか・・・。<br/>
-きっと、本体殺しても、まだ生き残ってるプロセスがいる可能性があるから、<br/>
-なんだろうな・・・</p>
-
-<p>そこまでプロセスわけた上でやろうとすると、ちょいと今今時間がないので、<br/>
-一旦、各プロセスの本体を殺すinit scriptを書いてみたです。<br/>
-普通にkillコマンドで書いてます。start-stop-daemon、まだ使いこなせまてん。</p>
-
-<p>送るsignalは、<a href="http://docs.fluentd.org/articles/signals">ここ</a>に書いてあったので、INT/TERM。<br/>
-今回はINTでお送りいたします。</p>
-
-<p>/etc/init.d/td-agentの、do_stopを下記に書き換えてもらって、それコピーして、<br/>
-/etc/init.d/td-agent_nginxつくってもらえれば、それぞれに殺すことができまっせ。</p>
-
-<p>```
-#</p>
-
-<h1>Function that stops the daemon/service</h1>
-
-<p>#
-do_stop()
-{</p>
-
-<pre><code># Return
-#   0 if daemon has been stopped
-#   1 if daemon was already stopped
-#   2 if daemon could not be stopped
-#   other if a failure occurred
-PID=`cat $PIDFILE`
-kill -INT $PID
-RETVAL="$?"
-if [ $RETVAL -ne 0 ]; then
-    RETVAL="2"
-fi
-
-ps aux | grep $PIDFILE &gt;/dev/null 2&gt;&amp;1
-RETVAL="$?"
-if [ $RETVAL -eq 0 ]; then
-    rm -f $PIDFILE
-    return "$RETVAL"
-fi
-
-return "2"
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>終わりに</h3>
-
-<hr />
-
-<p>これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。<br/>
-(ご利用は各自の責任においてお願いします。Use at your own risk.)</p>
-
-<p>たぶん、改変自体は、ループ回して、待つ作戦＋ps 結果をgrepしてプロセス毎の<br/>
-PID取得する作戦かなー。</p>
-
-<p>ま、一旦はこれである程度まではいけるので、ブログはここまでで。</p>
-
-<p><a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;"></p>
 ]]></content>
   </entry>
   
