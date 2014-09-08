@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Ansible入門
-date: 2014-09-07 00:06:30 +0900
+date: 2014-09-08 23:30:00 +0900
 comments: true
 published: false
 author: xengineer
