@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Ansible入門
+title: Ansible入門 - Ad-hoc modeを使ってみる -
 date: 2014-09-08 23:30:00 +0900
 comments: true
 published: false
@@ -12,6 +12,9 @@ categories:
 ---
 
 予定より少し遅れて Ansible エントリでございます。[@xengineer01](https://twitter.com/xengineer01)です。  
+
+![ansible logo](http://blog.branch4.pw/images/2014/09/ANSI_logotype_web.png)  
+![ansible badge](http://blog.branch4.pw/images/2014/09/ansible_badge.png)  
 
 ## Ansible とは？
 ---
@@ -45,7 +48,10 @@ Ansibleの何がいいって、[techracho](http://techracho.bpsinc.jp/yamasita-t
 
 ## システム構成
 ---
-今回は、vagrant 使って、下記構成を作って使ってみまっせ。
+今回は、vagrant 使って、下記構成を作って使ってみました。
+念のため最初に断っておくと、今回はまだ、ansible のad-hoc mode を試してみよう、
+程度なので、vagrant + ansible の連携とか、vagrantの設定まで踏み込んでいくつもりはなく、
+いつでも検証自体を再現できるように使ってるだけです。
 
 ```
                             +------------+
@@ -645,7 +651,12 @@ total 4
 
 おーーーー、変わった変わった。ちゃんちゃん。
 無事に、testファイルのpermissionが777になっておりました。
-よかったよかった。
+よかったよかった。  
+
+というわけで、ansibleは、大量のサーバに任意のコマンドをばこばこ発行したり、色々できる
+便利なツールでした。おしまい。
+
+
 
 
 <script type="text/javascript" language="javascript">
