@@ -6,6 +6,9 @@ comments: true
 published: false
 author: xengineer
 categories: 
+  - Infra
+  - Web Development
+  - Provisioning
 ---
 
 予定より少し遅れて Ansible エントリでございます。[@xengineer01](https://twitter.com/xengineer01)です。  
