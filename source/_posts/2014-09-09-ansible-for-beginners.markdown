@@ -1,9 +1,9 @@
 ---
 layout: post
 title: Ansible入門 - Ad-hoc modeを使ってみる -
-date: 2014-09-08 23:30:00 +0900
+date: 2014-09-09 01:00:00 +0900
 comments: true
-published: false
+published: true
 author: xengineer
 categories: 
   - Infra
@@ -18,9 +18,8 @@ categories:
 
 ## Ansible とは？
 ---
-Ansible は、configuration management tool というやつですわ。
-continuous delivery/continuous deployment とかに用いられますよ。
-chef/puppet/capistrano的な。
+Ansible は、configuration management tool というやつですわ。  
+continuous delivery/continuous deployment とかに用いられますよ。chef/puppet/capistrano的な。
 
 さて、私昔、chefを使おうとして挫折した組です。理由は沢山あるんですが、
 まぁぶっちゃけ難しくてわからなかったですw
@@ -53,6 +52,8 @@ Ansibleの何がいいって、[techracho](http://techracho.bpsinc.jp/yamasita-t
 
 ![nabechan kamiiso](http://blog.branch4.pw/images/2014/09/nabechan02_kamiiso.jpg)  
 ※ Hiroyuki Watanabeの写真で、[http://my-eyes.net/](http://my-eyes.net/)に元があります。
+
+では本題に・・・
 
 ## システム構成
 ---
@@ -165,11 +166,11 @@ EOF
 やってることは、ansibleのインストールとInventoryの設定。  
 ansibleインストールのための必須条件は、下記。
 
-- >= Python 2.6(3系はNG)
+- &gt;= Python 2.6(3系はNG)
 
 管理される側のサーバは、
 
-- >= Python 2.4(3系はNG)
+- &gt;= Python 2.4(3系はNG)
   - Python 2.5 < の場合は、python-simplejson も必須
 
 Inventoryについては後述。
