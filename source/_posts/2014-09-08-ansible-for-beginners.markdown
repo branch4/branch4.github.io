@@ -46,6 +46,14 @@ Ansibleの何がいいって、[techracho](http://techracho.bpsinc.jp/yamasita-t
 
 <!-- more -->  
 
+## 写真紹介
+
+まずは、唐突ながら、友人の写真紹介です(笑)
+いつもいい写真撮るんですよね。
+
+![nabechan kamiiso](http://blog.branch4.pw/images/2014/09/nabechan02_kamiiso.jpg)  
+※ Hiroyuki Watanabeの写真で、[http://my-eyes.net/](http://my-eyes.net/)に元があります。
+
 ## システム構成
 ---
 今回は、vagrant 使って、下記構成を作って使ってみました。
