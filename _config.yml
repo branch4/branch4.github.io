@@ -7,7 +7,9 @@ title: branch4 Blog
 subtitle: Internet development with every single possibility.
 author: root4
 simple_search: https://www.google.com/search
-description:
+description: site about web/internet development, and recruitment
+keywords: development, internet, web, infrastructure, provisioning, ruby, rails, virtualization, aws, database
+category_meta_description_prefix: "web, internet, recruit, development, "
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
