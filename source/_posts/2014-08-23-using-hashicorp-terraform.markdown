@@ -4,6 +4,8 @@ title: Hashicorpの新プロダクト、Terraformのドキュメントを読み�
 date: 2014-08-23 01:00:00 +0900
 comments: true
 published: true
+description: "Terraformのドキュメントを読んだ感想と、terraformの使いどころ"
+keywords: "linux, infrastructure, build infrastructure, infrastructure as a code, hashicorp, vagrant, 違い, difference, cloudformation, aws"
 author: xengineer
 categories: 
   - Infra
