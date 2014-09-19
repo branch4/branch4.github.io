@@ -48,6 +48,16 @@
   </script>
 
 
+  <meta property="og:title" content="RSpecでの基本的な書き方（前編） - branch4 Blog" />
+<meta property="og:description" content="site about web/internet development, and recruitment" />
+<meta property="og:url" content="http://blog.branch4.pw/blog/2014/07/30/basic-test-with-rspec" />
+<meta property="og:image" content="https://www.facebook.com/branch4/photos/a.1495942137305296.1073741825.1495707567328753/1495942143971962/?type=1&source=11" />
+<meta property="og:author" content="root4" />
+<meta property="og:site_name" content="branch4 Blog" />
+<meta property="og:locale" content="ja_JP" />
+<meta property="og:type" content="article" />
+<meta property="fb:app_id" content="1491249807810656" />
+
 </head>
 
 <body   >
@@ -309,7 +319,7 @@ fixturesというのがもともと仕組みとしてあるのですが、Factor
 
 <h1>共通で使う値をまとめる</h1>
 
-<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#x74;&#x6f;&#x6d;&#x40;&#101;&#x78;&#97;&#109;&#x70;&#108;&#x65;&#x2e;&#x63;&#x6f;&#x6d;">&#116;&#111;&#x6d;&#x40;&#x65;&#120;&#x61;&#x6d;&#x70;&#108;&#x65;&#x2e;&#x63;&#111;&#109;</a>&#8216;が3箇所で書かれている。
+<p>すっきりしてくると重複してるのが目立ちますね。&#8217;<a href="&#x6d;&#x61;&#105;&#108;&#x74;&#x6f;&#58;&#x74;&#x6f;&#109;&#x40;&#x65;&#120;&#97;&#109;&#x70;&#x6c;&#x65;&#46;&#99;&#111;&#109;">&#116;&#111;&#x6d;&#64;&#101;&#120;&#x61;&#109;&#112;&#108;&#101;&#46;&#99;&#x6f;&#109;</a>&#8216;が3箇所で書かれている。
 後から値変更するとき3箇所弄るの辛いですね。まとめましょう。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -447,9 +457,18 @@ fixturesというのがもともと仕組みとしてあるのですが、Factor
     
       <div class="sharing">
   
+  <a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+  
+  
   <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/07/30/basic-test-with-rspec/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/07/30/basic-test-with-rspec/" >Tweet</a>
   
   
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+  
+  
+  <div class="fb-comments" data-href="http://blog.branch4.pw" data-num-posts="2" data-width="689"></div>
   
 </div>
 
@@ -560,6 +579,15 @@ fixturesというのがもともと仕組みとしてあるのですが、Factor
 </script>
 
 
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/ja_JP/all.js#appId=1491249807810656&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
 
 
