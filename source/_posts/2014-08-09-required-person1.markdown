@@ -4,6 +4,8 @@ title: "求められる人材(前半)"
 date: 2014-08-09 03:35:00 +0900
 comments: true
 published: true
+description: "ソーシャルゲーム業界で求められているプランナーとディレクターの人材傾向(前編)"
+keywords: "転職, ソーシャル業界, ソーシャルゲーム, 企画, プランナー, ディレクター, 過去の変遷, 業界変遷, 能力, 比較"
 author: maringerz
 categories:
  - recruit
