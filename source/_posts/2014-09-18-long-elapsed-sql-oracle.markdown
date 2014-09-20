@@ -5,6 +5,8 @@ date: 2014-09-21 01:30:00 +0900
 comments: true
 published: true
 author: risterlab
+description:  "Oracle, 実行時間の長いSQLの見つけ方と監視の方法について"
+keywords: "oracle, database, sql, nagios"
 categories: 
  - Oracle
  - SQL
@@ -132,3 +134,7 @@ exit ${STATUS}
 実行時間の長いSQLを定期的に見て、チューニングしていきましょう。  
 ってことです。  
   
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
