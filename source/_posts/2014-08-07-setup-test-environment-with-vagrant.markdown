@@ -4,6 +4,8 @@ title: fluentdのテスト環境をvagrantでセットアップしてみるべ
 date: 2014-08-07 22:00:00 +0900
 comments: true
 published: true
+description: "vagrantを用いたfluentdのテスト環境構築"
+keywords: "vagrant, hashicorp, provisioning, linux, virtualbox, development, development environment, easy setup"
 author: xengineer01
 categories: 
   - Infra

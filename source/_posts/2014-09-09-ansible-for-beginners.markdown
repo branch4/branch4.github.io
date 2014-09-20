@@ -5,6 +5,8 @@ date: 2014-09-09 01:00:00 +0900
 comments: true
 published: true
 author: xengineer
+description:  "Provisioning tool, AnsibleのAd-hoc modeの使い方について"
+keywords: "provisioning, ansible, linux, configuration management tool, continuous delivery, continuous deployment, chef, puppet, capistrano"
 categories: 
   - Infra
   - Web Development

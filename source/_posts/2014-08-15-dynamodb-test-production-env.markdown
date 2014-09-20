@@ -4,6 +4,8 @@ title: DynamoDBの本番とテスト環境の分け方
 date: 2014-08-31 01:30:00 +0900
 comments: true
 published: true
+description: "AWS DynamoDBの本番環境とテスト環境の構築の仕方について"
+keywords: "linux, infrastructure, aws, dynamodb, production, staging, development environment, test, database"
 author: risterlab
 categories: 
  - AWS

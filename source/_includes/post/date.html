@@ -8,8 +8,10 @@
 
 {% if has_date != '0' %}
   {% capture time %}<time datetime="{{ date | datetime | date_to_xmlschema }}" pubdate{% if updated %} data-updated="true"{% endif %}>{{ date_formatted }}</time>{% endcapture %}
+  <span class='updated' title="{{ date | datetime }}"></span>
 {% endif %}
 
 {% if was_updated != '0' %}
   {% capture updated %}<time datetime="{{ updated | datetime | date_to_xmlschema }}" class="updated">Updated {{ updated_formatted }}</time>{% endcapture %}
+  <span class='updated' title="{{ date | datetime }}"></span>
 {% else %}{% assign updated = false %}{% endif %}

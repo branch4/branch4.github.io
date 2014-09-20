@@ -4,6 +4,8 @@ title: Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting
 date: 2014-08-12 01:30:00 +0900
 comments: true
 published: true
+description: "How to set the timezone in EC2 and how to avoid beeing the configuration to be initialized"
+keywords: "linux, infrastructure, aws, ec2, timezone, reverted, reboot"
 author: risterlab
 categories: 
  - AWS

@@ -4,6 +4,8 @@ title: fluentdのテスト環境をvagrantでセットアップしてみるべ(�
 date: 2014-08-11 5:00:00 +0900
 comments: true
 published: true
+description: "vagrantを用いたfluentdのテスト環境構築(複数サーバ管理編)"
+keywords: "vagrant, hashicorp, provision, multiple servers, linux, virtualbox, vagrant command, development, development environment, easy setup"
 author: xengineer01
 categories: 
   - Infra
