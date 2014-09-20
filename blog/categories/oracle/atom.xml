@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Oracle | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/oracle/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-09-20T15:19:32+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Oracle 実行時間の長いSQLの見つけ方]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/09/21/long-elapsed-sql-oracle/"/>
+    <updated>2014-09-21T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/09/21/long-elapsed-sql-oracle</id>
+    <content type="html"><![CDATA[<p>はい、こにゃにゃちは。<a href="http://diary.risterlab.com">risterlab</a>です。<br/>
+11月にイタリアに行くことになって、今からでもワインを飲めるようになりたーい、って思ってるところ。</p>
+
+<p>本題はOracleで実行時間の長いSQLをNagiosで監視したので、それについて。<br/>
+だいたい１時間以上実行してるSQLなんてろくなことないですよね。<br/>
+何かあってから犯人探しをするよりは、事前に怪しいやつを押さえておきたい。そんな人は読んでください。 <br/>
+<img src="http://blog.branch4.pw/images/2014/09/long_elapsed_sql_oracle.jpg" alt="long-elapsed-sql-oracle" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/fun_flying/246252433/">Armchair Aviator</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>実行時間の長いSQLを見つける方法</h3>
+
+<hr />
+
+<p>下記SQLを打てばOK。</p>
+
+<p><code>
+select
+b.elapsed_time/b.executions,a.sid,a.serial#,a.sql_hash_value,a.machine,a.username,
+b.elapsed_time, b.executions,b.disk_reads,b.cpu_time,b.sql_text
+from v$session a,v$sql b
+where a.sql_address = b.address
+and a.sql_hash_value = b.hash_value
+and a.status = 'ACTIVE'
+and b.elapsed_time/b.executions &gt;= 3600000000
+and b.executions != 0
+order by b.elapsed_time desc;
+</code></p>
+
+<p>意味は</p>
+
+<ol>
+<li>a.status = &lsquo;ACTIVE&rsquo;
+
+<ul>
+<li>実行中であること</li>
+</ul>
+</li>
+<li>b.elapsed_time/b.executions >= 3600000000
+
+<ul>
+<li>実行時間を実行回数で割った時間が１時間以上のもの</li>
+</ul>
+</li>
+<li>b.executions != 0
+
+<ul>
+<li>実行回数が０回じゃないもの。</li>
+<li>０回ということは初めての実行ということで2.の割り算が失敗してエラーになる為除外。</li>
+</ul>
+</li>
+</ol>
+
+
+<p>v$sessionとjoinしてる理由は<br/>
+実行しているmachine,usernameがわからないと<br/>
+実際どのアプリが実行しているか判断しづらくて対応時に困るため。<br/>
+sidやserial#も出しているのは<br/>
+いざこのSQLのセッションをkillしようとした時に必要だからです。</p>
+
+<h3>Nagiosから監視</h3>
+
+<hr />
+
+<p>何か障害が起きた時に上記SQLで怪しいSQLを探すのもありですが、<br/>
+障害になる前に危ないSQLはつぶしておきたいところ。<br/>
+なので一定時間以上実行されているSQLを検知してメールを送りましょう、ってのをNagiosでやってみました。<br/>
+DBに置くnrpeで実行するスクリプトはこんな感じ</p>
+
+<p>```</p>
+
+<h1>!/bin/sh</h1>
+
+<p>OK=0
+CRITICAL=2
+UNKNOWN=3
+STATUS=${UNKNOWN}</p>
+
+<p>LOGFILE=/usr/local/nagios/log/check_long_elapsed_time.log</p>
+
+<p>error_check(){</p>
+
+<pre><code>RC=`echo $?`
+if [ $RC != 0 ];then
+    STATUS=${CRITICAL}
+fi
+</code></pre>
+
+<p>}</p>
+
+<p>SQL_NUM=&ldquo;101&rdquo;
+SQLDIR=&ldquo;/usr/local/nagios/sqls&rdquo;
+ORACLE_USER=&ldquo;user&rdquo;
+ORACLE_PASS=&lsquo;password&rsquo;
+ORACLE_HOST=&ldquo;172.20.xxx.xxx&rdquo;
+ORACLE_PORT=&ldquo;1521&rdquo;
+ORACLE_SID=&ldquo;SIDxxx&rdquo;</p>
+
+<p>sqlplus ${ORACLE_USER}/${ORACLE_PASS}@${ORACLE_HOST}:${ORACLE_PORT}/${ORACLE_SID} @${SQLDIR}/${SQL_NUM}.sql 1>/dev/null
+error_check ${SQL_NUM}</p>
+
+<p>if [ ${STATUS} = 2 ];then</p>
+
+<pre><code>echo "CRITICAL: check_long_elapsed_time.shが失敗しました。"
+exit ${STATUS}
+</code></pre>
+
+<p>fi</p>
+
+<p>SQLCNT=<code>cat ${LOGFILE} | wc -l</code>
+LONG_SQLS_FILE=&ldquo;/usr/local/nagios/log/long_sqls.log&rdquo;
+if [ ${SQLCNT} -ge  1 ];then</p>
+
+<pre><code>echo "WARNING: 1時間以上実行しているSQLが${SQLCNT}つあります"
+echo "[`date`] 実行時間の長いSQL情報"                    &gt; ${LONG_SQLS_FILE}
+echo "-----------------------------------------------------"         &gt;&gt; ${LONG_SQLS_FILE}
+while read line;do
+    echo "SID = `echo $line | awk '{print $2}'`"                 &gt;&gt; ${LONG_SQLS_FILE}
+    echo "SERIAL# = `echo $line | awk '{print $3}'`"             &gt;&gt; ${LONG_SQLS_FILE}
+    echo "SQL_HASH_VALUE = `echo $line | awk '{print $4}'`"      &gt;&gt; ${LONG_SQLS_FILE}
+    echo "MACHINE = `echo $line | awk '{print $5}'`"             &gt;&gt; ${LONG_SQLS_FILE}
+    echo "USERNAME = `echo $line | awk '{print $6}'`"            &gt;&gt; ${LONG_SQLS_FILE}
+    echo "合計実行時間 = `echo $line | awk '{print $7}'`(μs)"    &gt;&gt; ${LONG_SQLS_FILE}
+    echo "実行回数 = `echo $line | awk '{print $8}'`"            &gt;&gt; ${LONG_SQLS_FILE}
+    echo "DISK_READS = `echo $line | awk '{print $9}'`"          &gt;&gt; ${LONG_SQLS_FILE}
+    echo "CPU_TIME = `echo $line | awk '{print $10}'`"           &gt;&gt; ${LONG_SQLS_FILE}
+    echo "SQL_TEXT = `echo $line | awk '{$1="";$2="";$3="";$4="";$5="";$6="";$7="";$8="";$9="";$10="";print}' | sed -e 's/^          //g'`"      &gt;&gt; ${LONG_SQLS_FILE}
+    echo "-----------------------------------------------------" &gt;&gt; ${LONG_SQLS_FILE}
+done &lt; ${LOGFILE}
+cat ${LONG_SQLS_FILE}
+exit ${CRITICAL}
+</code></pre>
+
+<p>fi</p>
+
+<p>exit ${STATUS}
+```</p>
+
+<p>まぁ適当にこんな感じでさっきのSQLにひっかかったものがあれば<br/>
+整形してメールに流すようにする。<br/>
+あとはnagiosサーバーから１時間に１回実行すればOK.<br/>
+これでおばかなSQLは事前に発見できる、はず。</p>
+
+<h3>まとめ</h3>
+
+<hr />
+
+<p>つまりは、<br/>
+実行時間の長いSQLを定期的に見て、チューニングしていきましょう。<br/>
+ってことです。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+</feed>
