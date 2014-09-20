@@ -1,17 +1,19 @@
 ---
 layout: post
-title: DynamoDBの本番とテスト環境の分け方
-date: 2014-08-31 01:30:00 +0900
+title: Oracle 実行時間の長いSQLの見つけ方
+date: 2014-09-21 01:30:00 +0900
 comments: true
-published: false
+published: true
 author: risterlab
+description:  "Oracle, 実行時間の長いSQLの見つけ方と監視の方法について"
+keywords: "oracle, database, sql, nagios"
 categories: 
  - Oracle
  - SQL
 ---
   
 はい、こにゃにゃちは。[risterlab](http://diary.risterlab.com)です。  
-11月にイタリアに行くことになって、今からでもワインを飲めるようになりたーい。  
+11月にイタリアに行くことになって、今からでもワインを飲めるようになりたーい、って思ってるところ。  
   
 本題はOracleで実行時間の長いSQLをNagiosで監視したので、それについて。  
 だいたい１時間以上実行してるSQLなんてろくなことないですよね。  
@@ -42,12 +44,12 @@ order by b.elapsed_time desc;
 
 1. a.status = 'ACTIVE' 
    - 実行中であること  
-1. b.elapsed_time/b.executions >= 3600000000
+1. b.elapsed_time/b.executions >= 3600000000  
    - 実行時間を実行回数で割った時間が１時間以上のもの  
-1. b.executions != 0
-   - 実行回数が０回じゃないもの。
+1. b.executions != 0  
+   - 実行回数が０回じゃないもの。  
    - ０回ということは初めての実行ということで2.の割り算が失敗してエラーになる為除外。  
-
+  
 v$sessionとjoinしてる理由は  
 実行しているmachine,usernameがわからないと  
 実際どのアプリが実行しているか判断しづらくて対応時に困るため。  
@@ -59,8 +61,8 @@ sidやserial#も出しているのは
   
 何か障害が起きた時に上記SQLで怪しいSQLを探すのもありですが、  
 障害になる前に危ないSQLはつぶしておきたいところ。  
-なので一定時間以上実行されているSQLを検知してメールを送りましょう、ってのをNagiosでやってみました。
-DBに置くnrpeで実行するスクリプトはこんな感じ
+なので一定時間以上実行されているSQLを検知してメールを送りましょう、ってのをNagiosでやってみました。  
+DBに置くnrpeで実行するスクリプトはこんな感じ  
 
 ```
 #!/bin/sh
@@ -133,3 +135,7 @@ exit ${STATUS}
 実行時間の長いSQLを定期的に見て、チューニングしていきましょう。  
 ってことです。  
   
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
