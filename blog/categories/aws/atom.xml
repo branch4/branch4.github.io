@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: AWS | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/aws/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-09-29T21:09:09+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[DynamoDBの本番とテスト環境の分け方]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/31/dynamodb-test-production-env/"/>
+    <updated>2014-08-31T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/31/dynamodb-test-production-env</id>
+    <content type="html"><![CDATA[<p>はい、こんばんみー。最近カレーにますますハマってる<a href="http://diary.risterlab.com">risterlab</a>です。<br/>
+南インドより北インドカレー派ってことが最近わかりました。<br/>
+もはやナンいらなくてカレーだけでも飲めます。うそです。チャパティ派です。</p>
+
+<p>戯言はその辺にして、今回はDynamoDBでの本番環境とテスト環境の分け方を。<br/>
+<img src="http://blog.branch4.pw/images/2014/08/test_products_dynamodb.jpg" alt="test-and-production-dynamodb" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/thepreiserproject/12148182186/">The Preiser Project</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<p>うちではテスト環境としてDynamoが使えるかは下記２つの条件がありました。</p>
+
+<ol>
+<li>同じテーブル名のものを複数作成できること</li>
+<li>テスト環境へのクエリが本番環境へ発行されてしまう危険性がない、またはとても低いこと</li>
+</ol>
+
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>同じテーブル名を複数つくるには</h3>
+
+<hr />
+
+<p>これがDynamoDBでは意外にやっかい。<br/>
+結論申しますと、同じテーブル名については、別リージョンという制限付きで可能。</p>
+
+<p>オンプレだと本番DBとテストDBは大体違う筐体、DB、スキーマにのってるからテーブル名は同じにできるんだけど<br/>
+DynamoDBの場合は<br/>
+１つのリージョンが１つのDBで、AWSのアカウントがスキーマ。<br/>
+というイメージだとわかりやすい。<br/>
+つまりAWSのあるアカウントでTokyoリージョンにDynamoDBのテーブルを作るということは<br/>
+ひとつのDBのあるスキーマ内にテーブルを作るということ。</p>
+
+<p>つまりもちろん同じテーブル名はだめですね。<br/>
+じゃあ別のアカウントにするかって、そんなにアカウント作りたくないし、それは現実的ではなし。<br/>
+一番簡単なのはリージョンを変えることでしょう。</p>
+
+<p>本番をもちろん東京に。テストは適当に一番安いVirginiaってのがよい。</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">AWSアカウントID </th>
+<th align="center"> リージョン </th>
+<th align="center"> テーブル     </th>
+<th align="center"> 環境</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">432156781234    </td>
+<td align="center"> TOKYO      </td>
+<td align="center"> TBL_HOGEHOGE </td>
+<td align="center"> 本番</td>
+</tr>
+<tr>
+<td align="center">432156781234    </td>
+<td align="center"> VIRGINA    </td>
+<td align="center"> TBL_HOGEHOGE </td>
+<td align="center"> テスト</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>これでそれぞれのスループット数を設定すればOK</p>
+
+<h3>本番とテストのアクセス制限</h3>
+
+<hr />
+
+<p>DynamoDBへのアクセスにはリソースネーム（ARN）を使います。<br/>
+たとえばこんなの。<br/>
+<code>arn:aws:dynamodb:us-east-1:432156781234:table/TBL_HOGEHOGE</code></p>
+
+<p>これにはリージョンが含まれているから、アクセス先の設定ミスなど人為的なミスを除けば、間違える危険性は低い。<br/>
+とはいえ、その人為的ミスが起こっちゃう訳ですね。<br/>
+だからそもそもアクセス制限をしたいところですが、そこで使うのがIAM。</p>
+
+<p>IAMでアプリが使うユーザーをテスト用と本番用で作って<br/>
+そこでさっきのリソースネームを使ってアクセス制限をかけましょう。<br/>
+そうすれば、さらにACCESSKEYとSECRETKEYがそれぞれ違うので、<br/>
+本当に最初のKEYの設定さえ間違えなければ、アプリが間違えて本番用のARNで本番用のテーブルに繋ごうとしても、権限なしではじいてくれるというわけです。</p>
+
+<p>IAMで設定するDynamoDBのPolicyはこんな感じ。<br/>
+さっきの表の例でいくと</p>
+
+<h5>テスト用のユーザーにつけるPolicy　　</h5>
+
+<p>```
+{
+  &ldquo;Version&rdquo;: &ldquo;2012-10-17&rdquo;,
+  &ldquo;Statement&rdquo;: [</p>
+
+<pre><code>{
+  "Sid": "Stmt1399538126123",
+  "Effect": "Allow",
+  "Action": [
+    "dynamodb:BatchGetItem",
+    "dynamodb:BatchWriteItem",
+    "dynamodb:CreateTable",
+    "dynamodb:DeleteItem",
+    "dynamodb:DescribeTable",
+    "dynamodb:GetItem",
+    "dynamodb:ListTables",
+    "dynamodb:PutItem",
+    "dynamodb:Query",
+    "dynamodb:Scan",
+    "dynamodb:UpdateItem",
+    "dynamodb:UpdateTable"
+  ],
+  "Resource": [
+    "arn:aws:dynamodb:us-east-1: 432156781234:table/TBL_HOGEHOGE"
+  ]
+}
+</code></pre>
+
+<p>  ]
+}
+```</p>
+
+<h5>本番用のユーザーにつけるPolicy　　</h5>
+
+<p>```
+{
+  &ldquo;Version&rdquo;: &ldquo;2012-10-17&rdquo;,
+  &ldquo;Statement&rdquo;: [</p>
+
+<pre><code>{
+  "Sid": "Stmt1399538126123",
+  "Effect": "Allow",
+  "Action": [
+    "dynamodb:BatchGetItem",
+    "dynamodb:BatchWriteItem",
+    "dynamodb:CreateTable",
+    "dynamodb:DeleteItem",
+    "dynamodb:DescribeTable",
+    "dynamodb:GetItem",
+    "dynamodb:ListTables",
+    "dynamodb:PutItem",
+    "dynamodb:Query",
+    "dynamodb:Scan",
+    "dynamodb:UpdateItem",
+    "dynamodb:UpdateTable"
+  ],
+  "Resource": [
+    "arn:aws:dynamodb:ap-northeast-1: 432156781234:table/TBL_HOGEHOGE"
+  ]
+}
+</code></pre>
+
+<p>  ]
+}
+```</p>
+
+<h3>まとめ</h3>
+
+<hr />
+
+<p>DynamoDBでテスト環境と本番環境を作る時、<br/>
+下記のようにすればよし。</p>
+
+<ol>
+<li>同じテーブル名を複数作成する<br/>
+別リージョンで同名のテーブルを作成することが可能。</li>
+<li>テスト環境へのクエリが本番環境へ発行されてしまわないようにする<br/>
+ARNだけの区別では不十分。<br/>
+ユーザーをわけてIAMでPolicyを設定しアクセス制限をすべし。  　</li>
+</ol>
+
+
+<p>もちろん性能評価とか負荷試験には別リージョンのテスト環境は使ってはだめですよ。レイテンシー違いますからね。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Set the Time of EC2 ~ How to Avoid the Initialization of the Time Setting ~]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/12/set-time-on-ec2/"/>
+    <updated>2014-08-12T01:30:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/12/set-time-on-ec2</id>
+    <content type="html"><![CDATA[<p>Hi, I’m <a href="http://diary.risterlab.com">risterlab</a>, a web infrastructural engineer who love vegetables.</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/degital_clock.jpg" alt="digital clock" /></p>
+
+<p>Today, I give some tips about setting the time on EC2 of AWS.<br/>
+(AWS, is a cloud hosting service of Amazon)</p>
+
+<p>If you set the time from UTC to your local time by following the instruction you usually get from googling,<br/>
+the time of EC2 might be reverted to UTC after the server reboots, <br/>
+not every time but sometimes&hellip;</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h3>The way which you can get by googling</h3>
+
+<hr />
+
+<p><code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code></p>
+
+<p>You usually could find the instruction like above.<br/>
+The time setting will soon become your local time.  <br/>
+It’s so easy! Done!</p>
+
+<p>But by this way, the time might get back to UTC.<br/>
+You need to be careful, because it would happen not every time you reboot the server, but sometimes.</p>
+
+<p>For me, it was after almost a year of service release that the time was reverted to UTC. <br/>
+That was so troublesome since cron and application see the time.</p>
+
+<h3>Why the time gets back to UTC</h3>
+
+<hr />
+
+<p>The thing is&hellip; when glibc package gets updated,<br/>
+/etc/localtime will be set to UTC by the script included in the glibc package.</p>
+
+<p>In the case of Amazon Linux, cloud_init exec the security updates as the server starts.<br/>
+The time setting will be initialized at that time.</p>
+
+<p>So, when you reboot the EC2 server after its glibc package gets updated,<br/>
+cloud_init update the package and /etc/localtime will be initialized.</p>
+
+<p>This is why the time gets back to UTC.</p>
+
+<h3>How to avoid the initialization of the time setting on EC2</h3>
+
+<hr />
+
+<p>There are two ways of dealing with the issue above.</p>
+
+<p>1.Edit not &ldquo;/etc/localtime”, but “/etc/sysconfig/clock”</p>
+
+<p><code>
+ZONE="Asia/Tokyo"
+UTC=False
+</code>
+to ZONE, you need to set your local identifier.<br/>
+It’s the case for Tokyo, Japan.</p>
+
+<p>2.Disable the security updates by editing cloud_init config “/etc/cloud/cloud.cfg"</p>
+
+<p>It’s not recommended.<br/>
+Usually the security updates are necessary though it is troublesome if the time would get back sometimes after the reboots.</p>
+
+<h3>Summary</h3>
+
+<hr />
+
+<p>When you google the way to set the time on EC2,<br/>
+you’ll usually get the information like below.</p>
+
+<p><code>cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime</code></p>
+
+<p>This is available when you want to set the time to your local time very soon.<br/>
+But you need to be careful that this is not that the time is fixed.<br/>
+To avoid the time setting gets initialized carelessly,<br/>
+Not “/etc/localtime”, but “/etc/sysconfig/clock” is the file you need to edit.</p>
+
+<p><code>
+ZONE="Asia/Tokyo"
+UTC=False
+</code></p>
+
+<p>日本人の方は<a href="http://blog.branch4.pw/blog/2014/07/12/fix-the-time-on-ec2/">日本語の記事</a>もあります。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+</feed>

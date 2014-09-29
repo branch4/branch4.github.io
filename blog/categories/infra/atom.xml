@@ -1,0 +1,3411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Infra | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/infra/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-09-29T21:09:09+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Ansible入門 - Ad-hoc Modeを使ってみる -]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners/"/>
+    <updated>2014-09-09T01:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners</id>
+    <content type="html"><![CDATA[<p>予定より少し遅れて Ansible エントリでございます。<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/ANSI_logotype_web.png" alt="ansible logo" /><br/>
+<img src="http://blog.branch4.pw/images/2014/09/ansible_badge.png" alt="ansible badge" /></p>
+
+<h2>Ansible とは？</h2>
+
+<hr />
+
+<p>Ansible は、configuration management tool というやつですわ。<br/>
+continuous delivery/continuous deployment とかに用いられますよ。chef/puppet/capistrano的な。</p>
+
+<p>さて、私昔、chefを使おうとして挫折した組です。理由は沢山あるんですが、
+まぁぶっちゃけ難しくてわからなかったですw</p>
+
+<p>Ansibleの何がいいって、<a href="http://techracho.bpsinc.jp/yamasita-taisuke/2014_05_29/17567">techracho</a>さんもいってらっさいますが、シンプルそうなんですよ。</p>
+
+<p>なので触ってみます、勝つまでは。</p>
+
+<h2>ざっくりagenda</h2>
+
+<ol>
+<li>システム構成
+
+<ul>
+<li>今回の検証環境のシステム構成紹介</li>
+</ul>
+</li>
+<li>Ansible について
+
+<ul>
+<li>簡単に紹介</li>
+</ul>
+</li>
+<li>Ansible の使い方
+
+<ul>
+<li>簡単に紹介</li>
+</ul>
+</li>
+<li>Ansible 全体像
+
+<ul>
+<li>remote server の認証方法</li>
+</ul>
+</li>
+<li>Ad-hoc mode で使ってみる
+
+<ul>
+<li>実際使ってみる</li>
+</ul>
+</li>
+</ol>
+
+
+<p>こんな感じ？</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>写真紹介</h2>
+
+<p>まずは、唐突ながら、友人の写真紹介です(笑)
+いつもいい写真撮るんですよね。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/nabechan02_kamiiso.jpg" alt="nabechan kamiiso" /><br/>
+※ Hiroyuki Watanabeの写真で、<a href="http://my-eyes.net/">http://my-eyes.net/</a>に元があります。</p>
+
+<p>では本題に・・・</p>
+
+<h2>システム構成</h2>
+
+<hr />
+
+<p>今回は、vagrant 使って、下記構成を作って使ってみました。
+念のため最初に断っておくと、今回はまだ、ansible のad-hoc mode を試してみよう、
+程度なので、vagrant + ansible の連携とか、vagrantの設定まで踏み込んでいくつもりはなく、
+いつでも検証自体を再現できるように使ってるだけです。</p>
+
+<p>```</p>
+
+<pre><code>                        +------------+
+                        |            |
+                    +---+ apserver01 |
++-----------+       |   |            |
+|           |       |   +------------+
+| ansible01 +-------+
+|           |       |   +-----------+
++-----------+       |   |           |
+                    +---+ fluentd01 |
+                        |           |
+                        +-----------+
+</code></pre>
+
+<p>```</p>
+
+<p>上のシステムで、ansible01 から２台のサーバに、deploy したり、
+configuration managementしたり、ってのをやってみようかな、と。</p>
+
+<h3>環境について</h3>
+
+<ul>
+<li>OS
+
+<ul>
+<li>Ubuntu 12.04 LTS \n \l</li>
+</ul>
+</li>
+<li>ansible
+
+<ul>
+<li>ansible 1.8 (devel b6a30a7331) last updated 2014/08/27 14:24:50 (GMT +000)</li>
+</ul>
+</li>
+<li>Python
+
+<ul>
+<li>Python 2.7.3</li>
+</ul>
+</li>
+<li>OpenSSH/OpenSSL
+
+<ul>
+<li>OpenSSH_5.9p1 Debian-5ubuntu1, OpenSSL 1.0.1 14 Mar 2012</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>Vagrantfile config</h2>
+
+<hr />
+
+<p>まず、ベースのところは、<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">前回のエントリ</a>で書いた Vagrantfile からほぼ丸パクリ。</p>
+
+<p>```
+$ cat /vagrant/Vagrantfile</p>
+
+<h1>&ndash;<em>&ndash; mode: ruby &ndash;</em>&ndash;</h1>
+
+<h1>vi: set ft=ruby :</h1>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.provision :shell, path: &ldquo;bootstrap/all.sh&rdquo;</p>
+
+<p>  not_dbs = { :ansible01 => &lsquo;192.168.101.101&rsquo;,</p>
+
+<pre><code>          :apserver01 =&gt; '192.168.102.101',
+          :fluentd01  =&gt; '192.168.102.111'
+        }
+</code></pre>
+
+<p>  not_dbs.each do |not_db_name, not_db_ip|</p>
+
+<pre><code>config.vm.define not_db_name do |server_config|
+  bootstrap_path = "bootstrap/#{not_db_name}.sh"
+  bootstrap_path_user = "bootstrap/#{not_db_name}_user.sh"
+  server_config.vm.box = "hashicorp/precise64"
+  server_config.vm.hostname = not_db_name.to_s
+  server_config.vm.network "private_network", ip: not_db_ip
+  server_config.vm.provision :shell, path: bootstrap_path
+  server_config.vm.provision :shell, path: bootstrap_path_user, privileged: false
+
+  server_config.vm.provider :virtualbox do |v|
+    v.customize ["modifyvm", :id, "--memory", "384"]
+    v.customize ["modifyvm", :id, "--cpus", "1"]
+  end
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>読めばわかる。大きく変えてるのは、provisioningのshell実行するとこで、rootで実行するパターンと、
+通常ユーザで実行するパターンを分けてることかな。
+もしわからなかったら<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">こちら</a>へ。</p>
+
+<p>bootstrap/ansible01.sh は下記。
+```
+$ cat /vagrant/bootstrap/ansible01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y git
+apt-get install -y python-setuptools
+apt-get install -y python-dev
+apt-get install -y libyaml-dev</p>
+
+<p>git clone git://github.com/ansible/ansible.git
+cd ./ansible
+source ./hacking/env-setup</p>
+
+<p>echo &ldquo;source ~/ansible/hacking/env-setup&rdquo; >> ~/.bashrc</p>
+
+<p>easy_install pip
+pip install paramiko PyYAML jinja2 httplib2</p>
+
+<p>mkdir -p /etc/ansible
+cat &lt;<EOF > /etc/ansible/hosts
+[ansible]
+192.168.101.101</p>
+
+<p>[web]
+192.168.102.101</p>
+
+<p>[fluentd]
+192.168.102.111
+EOF
+```</p>
+
+<p>やってることは、ansibleのインストールとInventoryの設定。<br/>
+ansibleインストールのための必須条件は、下記。</p>
+
+<ul>
+<li>&gt;= Python 2.6(3系はNG)</li>
+</ul>
+
+
+<p>管理される側のサーバは、</p>
+
+<ul>
+<li>&gt;= Python 2.4(3系はNG)
+
+<ul>
+<li>Python 2.5 &lt; の場合は、python-simplejson も必須</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Inventoryについては後述。</p>
+
+<p>bootstrap/ansible01_user.shの内容はこれ。
+```
+$ cat /vagrant/bootstrap/ansible01_user.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>ssh-keygen -t rsa -f ~/.ssh/id_rsa -N &lsquo;&rsquo;</p>
+
+<p>cp ~/.ssh/id_rsa.pub /vagrant/ansible01_publickey
+echo &ldquo;source ~/ansible/hacking/env-setup&rdquo; >> ~/.bashrc
+```</p>
+
+<p>公開鍵と秘密鍵生成して、公開鍵を、共有ディレクトリに突っ込んで、
+あとは、ansibleの環境変数をsourceするように.bashrcに書いてる、と。</p>
+
+<p>公開鍵の格納場所は、このあとの管理ノードがそこから読んで、authorized_keyに設定できるようにしてるわけです。
+なんかもっとスマートな方法ないかなー、と思ったんだけど、とりあえずテスト用環境だからいっか。</p>
+
+<p>次は、bootstrap/apserver01.sh。
+```
+$ cat /vagrant/bootstrap/apserver01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/apserver.sh
+/vagrant/bootstrap/not_db.sh
+```</p>
+
+<p>なんもしとらん！w<br/>
+apserver.shとnot_db.sh呼んでるだけなので、まずは、not_db.shから。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/not_db.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y curl
+curl -L <a href="http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh">http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh</a> | sh</p>
+
+<p>mkdir /var/log/td-agent/tmp/
+```</p>
+
+<p>ファイル名から察するに、DBサーバじゃなかったら、curlインストールするのと、fluentdインストールしてんだね。
+んで、apserver.sh。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/apserver.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y apache2
+rm -rf /var/www
+ln -fs /vagrant /var/www</p>
+
+<p>chmod o+x /var/log/apache2/
+chmod o+r /var/log/apache2/access.log</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>tail input</h1>
+
+<p><source>
+  type tail
+  path /var/log/apache2/access.log
+  pos_file /var/log/td-agent/tmp/httpd-access.log.pos
+  tag apache.access
+  format apache2
+</source></p>
+
+<h1>Log Forwarding</h1>
+
+<p><match apache.**>
+  type forward</p>
+
+<p>  # primary host
+  <server></p>
+
+<pre><code>host 192.168.102.1
+port 24224
+</code></pre>
+
+<p>  </server>
+  # use secondary host
+  <server></p>
+
+<pre><code>host 192.168.102.2
+port 24224
+standby
+</code></pre>
+
+<p>  </server></p>
+
+<p>  # use longer flush_interval to reduce CPU usage.
+  # note that this is a trade-off against latency.
+  flush_interval 60s
+</match>
+```</p>
+
+<p>apserverには、apacheインストールして、fluentdの細かい設定しております。
+今回の、ansibleのエントリには毛ほども関係ない設定です。消してもいいです。</p>
+
+<p>次は、bootstrap/apserver01_user.sh。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/apserver01_user.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>mkdir -p ~/.ssh/
+touch ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat /vagrant/ansible01_publickey >> ~/.ssh/authorized_keys
+```
+ここで、公開鍵関連の設定をしております。<br/>
+なんか突然、/vagrant/ansible01_publickeyをauthorized_keysに入れてます。
+Vagrantでは、/vagrantファイルに、Vagrantfileが存在してるディレクトリがマウントされるからっすね。
+これで、上のほうで、ansible01.shがやってたことが理解できる、と。</p>
+
+<p>では最後に、bootstrap/fluentd01.shと、bootstrap/fluentd01_user.shの中身を貼付けてだけおきます。
+解説なし。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/fluentd01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/not_db.sh</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>Input</h1>
+
+<p><source>
+  type forward
+  port 24224
+</source></p>
+
+<h1>Output</h1>
+
+<p><match apache.**>
+  type file
+  path /var/log/td-agent/out_apachelog
+  time_slice_format %Y%m%d
+  time_slice_wait 10m
+  time_format %Y%m%dT%H%M%S%z
+  compress gzip
+  utc
+</match>
+EOF</p>
+
+<p>$ cat /vagrant/bootstrap/fluentd01_user.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>mkdir -p ~/.ssh/
+touch ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat /vagrant/ansible01_publickey >> ~/.ssh/authorized_keys
+```</p>
+
+<p>あ、あと、bootstrap/all.shがあった。
+これも解説なし。</p>
+
+<p>```
+$ cat /vagrant/bootstrap/all.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get update
+apt-get install -y vim
+apt-get install -y vim-common
+```</p>
+
+<p>この辺全部ぶっ込んで、vagrant upしたらうまくいくと思う。たぶん。</p>
+
+<h2>Ansible について</h2>
+
+<hr />
+
+<p><a href="http://www.ansible.com/home">Ansible</a> に関しては、<a href="http://docs.ansible.com/">公式ドキュメント</a>を読み進める形でエントリも書いていきます。
+でも、それだと公式ドキュメントの日本語訳にしかならないので、
+今回の構成にあった感じとか、わかりやすくしたり、僕だったら実践こんな感じで使うのかなー、
+ってのをまじえつついく予定。</p>
+
+<h2>Ansible の使い方</h2>
+
+<hr />
+
+<p>まず、Ansible の簡単な特徴を、下記イメージ図にて。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/ansible_rserver_communication_image.png" alt="ansible" /></p>
+
+<p>図に書いてある感じなのかなー、と感じております。
+僕は、chef/puppet なんかに比べて比較的簡単に理解できそうなのでやってみようと思い立ちました。</p>
+
+<p>認証については、今回は、public key 配布して、password なしで通す方向でやります。
+きっとこの方法が一番需要が多いと思われますゆえ・・・</p>
+
+<p>Ansible は、ドキュメントを読むと、大きく２通りの使い方があるみたい。
+違いも込みであげると、</p>
+
+<ul>
+<li>Ad-hoc mode
+
+<ul>
+<li>リモートサーバ上でコマンドを実行するモード。
+コマンド自体は記録されないので、
+何度も反復はしない場合の使い方</li>
+</ul>
+</li>
+<li>Playbook
+
+<ul>
+<li>Configuration Management Systemとしての使い方。
+定義したグループのサーバに対して、継続的に設定を反映したり、
+デプロイしたりする用途</li>
+</ul>
+</li>
+</ul>
+
+
+<p>今回のエントリは、Ad-hoc mode を使いながら紹介していきます。</p>
+
+<h2>Ansible 全体像</h2>
+
+<p>それで、Ad-hoc mode で使う分にはこの辺を知ってればいいかな・・・という
+イメージ図が下記。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/ansible_ad_hoc_image.png" alt="ad-hoc mode" /></p>
+
+<p>これにさっきのイメージ図の認証があれば、大体全体像は理解できる。と思う。
+認証の設定は、<a href="http://blog.branch4.pw/blog/2014/09/06/public-key-authentication/">先日書いたブログ</a>を参照くだされ。
+それぞれを簡単に説明すると・・・</p>
+
+<ul>
+<li>Inventory
+
+<ul>
+<li>管理対象サーバをここで設定する</li>
+<li>ノードの設定だけじゃなくて、グルーピング機能があったり、色々便利</li>
+</ul>
+</li>
+<li>Ansible configuration
+
+<ul>
+<li>ansible全体の挙動の設定
+
+<ul>
+<li>例えば、inventoryの設定ファイルの場所</li>
+<li>例えば、毎回パスワード確認のプロンプトを出すか</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Modules
+
+<ul>
+<li>実際に実行する設定/deploy などが実装されてる単位</li>
+<li>例えば、commandを実行する場合は、Commands Modules</li>
+<li>例えば、file転送する場合は、Files Modules的な感じで、Module単位で実装されている</li>
+</ul>
+</li>
+</ul>
+
+
+<p>コマンド打つと、この辺の設定を読み込んで実行してくれる、という流れ。</p>
+
+<h2>Ad-hoc mode で使ってみる</h2>
+
+<p>まず、なんか動いてるのをみてテンションあげないとやってられないので、コマンド実行してみよう。</p>
+
+<p>ansible01にログインして今回登録した全サーバにpingを打ってみる。
+vagrant関連のconfigで事前の設定は全部してあるから大丈夫。通ります。たぶん。</p>
+
+<p>```
+$ vagrant ssh ansible01
+$ ansible all -m ping
+192.168.101.101 | FAILED => SSH encountered an unknown error during the connection. We recommend you re-run the command using -vvvv, which will enable SSH debugging output to help diagnose the issue
+192.168.102.101 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}</p>
+
+<p>192.168.102.111 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}
+```</p>
+
+<p>あ、通ってない・・・w<br/>
+ansibleサーバ自身には、公開鍵登録してないからだわ。なので、登録。
+(あんまり自分自身にコマンド打つ用途はないので、普段はやらないと思うけど)</p>
+
+<p><code>
+$ cat .ssh/id_rsa.pub &gt;&gt; .ssh/authorized_keys
+$ cat .ssh/authorized_keys #&lt;- 確認してね
+</code></p>
+
+<p>再度実行！</p>
+
+<p>```
+$ ansible all -m ping
+192.168.101.101 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}</p>
+
+<p>192.168.102.111 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}</p>
+
+<p>192.168.102.101 | success >> {</p>
+
+<pre><code>"changed": false,
+"ping": "pong"
+</code></pre>
+
+<p>}
+```</p>
+
+<p>おー。うまくいった。よしよし。では諸設定の説明をば。</p>
+
+<h3>Inventory</h3>
+
+<p><a name="inventory"></a>
+全体像のイメージ図に出て来た３つの要素の一つ、Inventoryについて。</p>
+
+<ul>
+<li>Inventory
+
+<ul>
+<li>管理対象サーバをここで設定する</li>
+<li>ノードの設定だけじゃなくて、グルーピング機能があったり、色々便利</li>
+</ul>
+</li>
+</ul>
+
+
+<p>って上で書いてた。</p>
+
+<p>まず、Inventoryファイルは、デフォルトの、/etc/ansible/hosts に以下のように作成します。
+(ファイルの場所変更するには、Ansible Configuration に設定する。後述しますわ)</p>
+
+<p>```
+$ cat /etc/ansible/hosts
+[ansible]
+192.168.101.101</p>
+
+<p>[web]
+192.168.102.101</p>
+
+<p>[fluentd]
+192.168.102.111
+```</p>
+
+<p>四角い括弧のなかが、グループ名で、その下に書いてあるIPアドレスがそのグループに所属するホストになります。<br/>
+ホスト名解決はできないぽ。</p>
+
+<p>apserver01 192.168.102.101</p>
+
+<p>みたいに書いたら、名前解決できんのかと思ったら、できまてん。なので、名前解決は、
+いまのところの僕の知識だと、外だしソリューションしないといけないのかな。めんどくせ。
+ただ、Dynamic Inventoryの項目がドキュメントにあったので、その辺深堀すればそれっぽいのがありそうな予感。</p>
+
+<p>Inventoryには、グルーピング以外にも、変数渡す機能とかもあるけど、
+このエントリではここまでに留めて、別途Inventory単体でエントリ書く予定。
+壮大になりすぎます。</p>
+
+<p>ad-hoc mode で static Inventoryファイルを使ってコマンド送るときのベースはこんな感じで、
+管理対象サーバ/グループの増減に従って、Inventoryファイルを編集しましょうね、な感じです。</p>
+
+<h3>Ansible Configuration</h3>
+
+<p>２つ目の、Ansible Configurationについて。</p>
+
+<p>ansible全体の挙動を決定する設定ファイルのこと。
+version1.6以降では、下記の優先順位で評価されます。</p>
+
+<ul>
+<li>ANSIBLE_CONFIG (環境変数)</li>
+<li>ansible.cfg (under current directory)</li>
+<li>~/.ansible.cfg (under home directory)</li>
+<li>/etc/ansible/ansible.cfg</li>
+</ul>
+
+
+<p>version1.5以前では、下記の優先順位。環境変数とcurrent directoryが入れ替わったのね。</p>
+
+<ul>
+<li>ansible.cfg (under current directory)</li>
+<li>ANSIBLE_CONFIG (環境変数)</li>
+<li>~/.ansible.cfg (under home directory)</li>
+<li>/etc/ansible/ansible.cfg</li>
+</ul>
+
+
+<p>ただこれも次のバージョンでは変わってるかもしれないので、<a href="http://docs.ansible.com/intro_configuration.html#the-ansible-configuration-file">ここ</a>を正とするのがよーし。</p>
+
+<h4>何を設定できるの？</h4>
+
+<p>全体の挙動って何よ？ってなるので、例を下記に。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">項目</th>
+<th align="left">デフォルト値</th>
+<th align="left">備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">hostfile       </td>
+<td align="left"> /etc/ansible/hosts </td>
+<td align="left"> Inventoryファイルの場所</td>
+</tr>
+<tr>
+<td align="left">library        </td>
+<td align="left"> /usr/share/ansible </td>
+<td align="left"> Moduleの格納場所</td>
+</tr>
+<tr>
+<td align="left">remote_tmp     </td>
+<td align="left"> $HOME/.ansible/tmp </td>
+<td align="left"> ansibleは、module丸ごとremoteに転送して実行されるので、remoteでの格納先</td>
+</tr>
+<tr>
+<td align="left">forks          </td>
+<td align="left"> 5                  </td>
+<td align="left"> remoteに同時接続する上限。デフォルトはかなり保守的</td>
+</tr>
+<tr>
+<td align="left">poll_interval  </td>
+<td align="left"> 15                 </td>
+<td align="left"> 非同期処理への終了確認ポーリング間隔の設定</td>
+</tr>
+<tr>
+<td align="left">sudo_user      </td>
+<td align="left"> root               </td>
+<td align="left"> playbookに sudo_userの指定がない場合のデフォルト設定</td>
+</tr>
+<tr>
+<td align="left">ask_sudo_pass  </td>
+<td align="left"> False              </td>
+<td align="left"> sudo時に、password確認のプロンプトをするか</td>
+</tr>
+<tr>
+<td align="left">ask_pass       </td>
+<td align="left"> False              </td>
+<td align="left"> password確認のプロンプトをするか</td>
+</tr>
+<tr>
+<td align="left">transport      </td>
+<td align="left"> smart              </td>
+<td align="left"> 転送に何を使うか。smart:ssh/local:localhost?/chroot:?/jail:?。基本ssh</td>
+</tr>
+<tr>
+<td align="left">remote_port    </td>
+<td align="left"> 22                 </td>
+<td align="left"> remote hostで使うポート番号。Inventoryファイルでホスト毎に上書きできる</td>
+</tr>
+<tr>
+<td align="left">module_lang    </td>
+<td align="left"> C                  </td>
+<td align="left"> 各モジュール間のやりとりで使う言語</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>こんな感じで、ほんとうに全体の挙動に関する設定ですわ。大体の設定は、
+システムのデフォルト値をここで決めて、個別に、Playbook/Inventoryファイルなんかで決めるイメージ。
+他にも項目が沢山あるので、それは別途エントリを作りますかね。</p>
+
+<p>そして設定項目全部みたいときは、<a href="https://github.com/ansible/ansible/blob/devel/examples/ansible.cfg">こちら！</a>で、
+大元をみたほうがはやいっす。もちろんgithubは最新なので、ansibleのバージョンによっては
+使えないのも入ってると思うので、その辺は調べてみてくだされ。</p>
+
+<h3>Modules</h3>
+
+<p>最後の、Modules について。</p>
+
+<p>ここが、ansibleの実質上のコアなのかな。
+ad-hoc modeでは、実行するmoduleを、コマンドラインから指定して、
+playbookでは、playbookの中で設定して、各moduleをremoteサーバに転送した後、
+各サーバで実行する方式です。</p>
+
+<p>色んなmoduleがあるので、実行したい内容に合わせて選択する形になります。
+自作もできるようなので、ない場合は自分で作りましょう。</p>
+
+<p>本エントリは、ad-hoc modeのエントリなので、ad-hoc modeでどうやってmoduleを指定するかを下記に。</p>
+
+<p><code>
+$ ansible &lt;targets&gt; -m &lt;module&gt; -a "&lt;arguments to the module&gt;"
+</code></p>
+
+<p>まんまだわ。</p>
+
+<h4>targets</h4>
+
+<p><a href="#inventory">Inventory</a>で書いてる何かを指定します。</p>
+
+<ul>
+<li>サーバ単体を指定する場合
+
+<ul>
+<li>192.168.102.101</li>
+</ul>
+</li>
+<li>グループを指定する場合
+
+<ul>
+<li>web</li>
+</ul>
+</li>
+<li>全部を指定する場合
+
+<ul>
+<li>all</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>module</h4>
+
+<p>moduleはね、もう一杯あって、どれを使うのかわかんなくなるね。</p>
+
+<p>例として、/tmp/test っていうファイルを、apserver01に作成して、permissionを777に変更するコマンドを実行してみよう。</p>
+
+<h5>まずは、apserver01 にファイルが存在しないことを確認。</h5>
+
+<p>ansible01で下記を実行する。</p>
+
+<p><code>
+$ ansible 192.168.102.101 -m command -a "ls /tmp"
+192.168.102.101 | success | rc=0 &gt;&gt;
+vagrant-shell
+</code></p>
+
+<p>うむ。vagrant-shellってファイルしかないので次に進もう。</p>
+
+<h5>使うmodule 選択とざっくり流れ</h5>
+
+<p>今回は、ファイル作るので・・・command module で普通にtouch実行して、
+そのあとに、file module でpermission変更します。</p>
+
+<p>各moduleについては、下記参照。</p>
+
+<ul>
+<li><a href="http://docs.ansible.com/command_module.html">Command module</a>
+
+<ul>
+<li>引数に、実行するコマンドを渡すと実行してくれる</li>
+<li>pipe とか、＆はだめ、対応してない</li>
+<li>pipe とか使う場合は、<a href="http://docs.ansible.com/shell_module.html">shell module</a>を使う</li>
+</ul>
+</li>
+<li><a href="http://docs.ansible.com/file_module.html">File module</a>
+
+<ul>
+<li>File/Directory/Symbolic link等を作成する</li>
+<li>File/Directory等のowner設定変更</li>
+<li>File/Directory等のgroup設定変更</li>
+<li>File/Directory等のpermission設定変更</li>
+</ul>
+</li>
+</ul>
+
+
+<p>あ、見事にFile moduleでファイルも作成できる・・・でも今回はcommand で！w</p>
+
+<h5>apserver01上に、ファイル作成</h5>
+
+<p>下記をansible01上で実行してみる。</p>
+
+<p>```
+$ ansible 192.168.102.101 -m command -a &ldquo;touch /tmp/test&rdquo;
+192.168.102.101 | success | rc=0 >></p>
+
+<p>$ ansible 192.168.102.101 -m command -a &ldquo;ls -l /tmp&rdquo;
+192.168.102.101 | success | rc=0 >>
+total 4
+-rw-rw-r&mdash; 1 vagrant vagrant   0 Sep  7 06:07 test
+-rwx&mdash;x&mdash;x 1 vagrant vagrant 159 Aug 30 14:21 vagrant-shell
+```</p>
+
+<p>お、できている。スーパー！！！
+で、permissionは、664。</p>
+
+<p>次は、permisssion変更します。</p>
+
+<h5>ファイルのpermission変更</h5>
+
+<p>644だったpermissionを777に変更してやります。
+permission変更は、file moduleを利用するわけですが、
+<a href="http://docs.ansible.com/file_module.html">公式ドキュメント</a>曰く(ちょっと省略してるけど)、</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">parameter </th>
+<th align="left"> required  </th>
+<th align="left"> default </th>
+<th align="left"> choices </th>
+<th align="left"> comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">force     </td>
+<td align="left">  no       </td>
+<td align="left"> no      </td>
+<td align="left"> yes     </td>
+<td align="left"> ２つのケースについて、symlinkの作成を強制する。ひとつは、source fileが存在しない場合(linkを張っておいて、あとからファイル自体は作成する)。もうひとつは、destination が存在していて、かつファイルである場合。(この場合、pathに指定しているファイルを削除して、symlinkを作成する)</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> no      </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">group     </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">mode      </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> ファイル/ディレクトリのpermission設定。</td>
+</tr>
+<tr>
+<td align="left">owner     </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> ファイル/ディレクトリのowner設定。</td>
+</tr>
+<tr>
+<td align="left">path      </td>
+<td align="left">  yes      </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> 管理対象ファイルのpath。file module内で唯一必須項目。 Aliases: dest, name</td>
+</tr>
+<tr>
+<td align="left">recurse   </td>
+<td align="left">  no       </td>
+<td align="left"> no      </td>
+<td align="left"> yes     </td>
+<td align="left"> ファイルの設定を再起的に実施するかどうか。(state=directoryにのみ適用する) (Ansible 1.1以降実装)</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> no      </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">src       </td>
+<td align="left">  no       </td>
+<td align="left">         </td>
+<td align="left">         </td>
+<td align="left"> state=linkにのみ適用する。linkするファイルのpathを指定。絶対path/相対path/存在しないpathを指定可能です。相対pathは展開されません。</td>
+</tr>
+<tr>
+<td align="left">state     </td>
+<td align="left">  no       </td>
+<td align="left"> file    </td>
+<td align="left"> file    </td>
+<td align="left"> fileを指定して、srcが存在しない場合、ファイルは作成されません。作成したい場合は、copy/template moduleを使いましょう。はて？fileって必要なの？？</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> link    </td>
+<td align="left"> linkを指定した場合、symbolick linkが作成されるか、変更される。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> directory </td>
+<td align="left"> directoryを指定した場合, 存在しない場合、直接の全サブディレクトリが作成されます。version1.7以降では、modeで指定したpermissionに従って作成される。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> hard    </td>
+<td align="left"> hardlinkを作成する場合は、hardを指定する。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> touch   </td>
+<td align="left"> touch(version1.4以降)を指定した場合、Linux コマンドのtouchと同じ挙動をする。</td>
+</tr>
+<tr>
+<td align="left">          </td>
+<td align="left">           </td>
+<td align="left">         </td>
+<td align="left"> absent  </td>
+<td align="left"> absentを指定した場合、ディレクトリは再起的に削除されて、ファイルとsymlinkは削除される。</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>この表からわかる通り、file moduleで必須なオプションは、"path" のみ。
+pathで指定されたファイル/ディレクトリ等に対して、何をするかを、他のオプションで指定する寸法。
+今回は、permissionを777に変更したいので、"mode=0777" を指定して、実行してみる。</p>
+
+<p>```
+$ ansible 192.168.102.101 -m file -a &ldquo;path=/tmp/test mode=0777&rdquo;
+192.168.102.101 | success >> {</p>
+
+<pre><code>"changed": true,
+"gid": 1000,
+"group": "vagrant",
+"mode": "0777",
+"owner": "vagrant",
+"path": "/tmp/test",
+"size": 0,
+"state": "file",
+"uid": 1000
+</code></pre>
+
+<p>}</p>
+
+<p>$ ansible 192.168.102.101 -m command -a &ldquo;ls -l /tmp&rdquo;
+192.168.102.101 | success | rc=0 >>
+total 4
+-rwxrwxrwx 1 vagrant vagrant   0 Sep  7 06:07 test
+-rwx&mdash;x&mdash;x 1 vagrant vagrant 159 Aug 30 14:21 vagrant-shell
+```</p>
+
+<p>おーーーー、変わった変わった。ちゃんちゃん。
+無事に、testファイルのpermissionが777になっておりました。
+よかったよかった。</p>
+
+<p>というわけで、ansibleは、大量のサーバに任意のコマンドをばこばこ発行したり、色々できる
+便利なツールでした。おしまい。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/09/06/public-key-authentication/"/>
+    <updated>2014-09-06T21:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/09/06/public-key-authentication</id>
+    <content type="html"><![CDATA[<p>こんにちは。公開鍵認証について興味を持った、<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+なんの特徴も変哲もないブログですわ。<br/>
+まずはいい写真撮るなべちゃんの作品紹介から。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/nabechan01_bigsky.jpg" alt="Big Sky" /><br/>
+※ Hiroyuki Watanabeの写真で、<a href="http://my-eyes.net/">http://my-eyes.net/</a>に元があります。</p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>本エントリでは、公開鍵と秘密鍵を用いた認証方式について、さらっと紹介します。</p>
+
+<p>認証と言っても色々ですな。</p>
+
+<ul>
+<li>古き良きパスワード認証</li>
+<li>詰めちゃったら終わりの指紋認証</li>
+<li>パスワードの一種だけど、OTP(One Time Password)</li>
+<li>鍵認証</li>
+</ul>
+
+
+<p>などなど他にもありますが、今回は、パスワード認証と、鍵認証(の中でも公開鍵/秘密鍵)について。
+特に、sshの認証に使う場合の違いを絡めて紹介します。</p>
+
+<!-- more -->
+
+
+<h2>sshとは？</h2>
+
+<hr />
+
+<p>このエントリにおける ssh(Secure SHell)は、ssh client のことをいいます。
+つまり、rlogin/rsh/telnetと同じような通信アプリケーションで、
+リモートのサーバと通信することができるツールのことをさすことにします。</p>
+
+<p>ssh と、telnet/rsh等を比較すると、、、</p>
+
+<ul>
+<li>よりセキュアな認証</li>
+<li>よりセキュアな通信(暗号化通信)</li>
+</ul>
+
+
+<p>こんな機能が追加で提供されているので、、、まぁセキュアってこった。</p>
+
+<p>本エントリでは、上記のうち、「セキュアな認証」を実現するために利用されている方式の一つである、
+公開鍵と秘密鍵について紹介します。</p>
+
+<h2>認証フロー</h2>
+
+<p>まずはパスワード認証方式のフロー。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/password_authentication.png" alt="password authentication" /></p>
+
+<p>やっていることは、パスワードが正しいかの検証のみ。</p>
+
+<p>次に公開鍵認証方式のフロー(すごい簡易バージョン。実際に実装されているのとは違うけど、イメージはこんな感じ)。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/09/publickey_authentication.png" alt="password authentication" /></p>
+
+<p>こっちはなんだか色々やっている。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">フロー</th>
+<th align="left">クライアント側</th>
+<th align="left">サーバ側</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">事前準備    </td>
+<td align="left">公開鍵を生成する    </td>
+<td></td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">公開鍵をサーバに渡す</td>
+<td align="left">公開鍵をクライアントから受け取る</td>
+</tr>
+<tr>
+<td align="left">ログイン処理</td>
+<td align="left">サーバにアクセスする</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">                    </td>
+<td align="left">ランダム文字列をクライアントの公開鍵で暗号化してクライアントに渡す</td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">受け取った暗号化文字列を秘密鍵で復号化してサーバに送り返す</td>
+<td></td>
+</tr>
+<tr>
+<td align="left">            </td>
+<td align="left">                    </td>
+<td align="left">クライアントから受け取った復号後文字列と、最初の文字列を突き合わせて、一致していれば認証する</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>ざっくりこんな感じ。(実際とはちょっと異なるイメージだけど、まぁわかりやすく特徴はあらわせてるはず)</p>
+
+<h2>なぜ公開鍵認証が安全？</h2>
+
+<p>公開鍵を盗まれたら終わりでは？と、思うんだけど、実はちがうんだね。</p>
+
+<p>この方式で重要なのは、下記２点。</p>
+
+<ul>
+<li>公開鍵でかけた暗号化は、秘密鍵でしか復号化できない</li>
+<li>秘密鍵でかけた暗号化は、公開鍵でしか復号化できない</li>
+</ul>
+
+
+<p>つまり、公開鍵を入手しても、サーバにログインできるわけではないのです。
+安全安心。</p>
+
+<h2>設定</h2>
+
+<p>ではでは、実際の設定やら鍵の生成やらをやります。
+ざっくり、クライアント側とサーバ側でやることのリスト。</p>
+
+<p>クライアント側</p>
+
+<ul>
+<li>ふたつの鍵(公開鍵と秘密鍵)を生成する</li>
+<li>公開鍵をサーバに渡す</li>
+<li>アクセスする</li>
+</ul>
+
+
+<p>サーバ側</p>
+
+<ul>
+<li>sshサーバの設定をする(公開鍵認証用設定)</li>
+<li>公開鍵をクライアントから受け取って、設定する</li>
+<li>アクセスを待つ</li>
+</ul>
+
+
+<p>以下詳細へと続く。</p>
+
+<h3>ふたつの鍵の生成</h3>
+
+<p>では、公開鍵と秘密鍵の生成手順です。ふたつの鍵はふたつでひとつなので、忘れないようにしましょう。</p>
+
+<ul>
+<li>環境：MacOSX 10.9.4</li>
+<li>ssh-keygen はバージョンの調べ方がわからん・・・</li>
+</ul>
+
+
+<p>まず、クライアント側で鍵生成。以下コマンドを、お好みの暗号化方式を選択して実行します。</p>
+
+<p>```</p>
+
+<h1>RSA鍵を作成(ssh version2)</h1>
+
+<p>$ ssh-keygen -b 4096 -t rsa -C &ldquo;comment&rdquo;</p>
+
+<h1>RSA1鍵を作成(ssh version1)</h1>
+
+<p>$ ssh-keygen -t rsa1 -C &ldquo;comment&rdquo;</p>
+
+<h1>DSA鍵を作成(ssh version2)</h1>
+
+<p>$ ssh-keygen -t dsa -C &ldquo;comment&rdquo;
+```</p>
+
+<p>で、RSA/RSA1/DSAってなんやねん。ってなるわけですが、
+それぞれちょっと調べてみた。</p>
+
+<ul>
+<li>RSA1
+
+<ul>
+<li>ssh version1 で使われていた暗号化方式</li>
+<li>強度はそんなにないぽい。当然今は使われていない</li>
+<li>ぐぐってもあんまり詳細が出てこない</li>
+</ul>
+</li>
+<li><a href="http://ja.wikipedia.org/wiki/RSA%E6%9A%97%E5%8F%B7">RSA</a>
+
+<ul>
+<li>発明者３名の名字の頭文字を取って命名。(ron Rivest/adi Shamir/len Adleman)</li>
+<li>wikiにある通り、768bitまでは解読されちゃってる</li>
+<li>使うなら2048bit以上にしよう</li>
+<li>ssh version2 で使える</li>
+</ul>
+</li>
+<li><a href="http://ja.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>
+
+<ul>
+<li>Digital Signature Algorithmの略</li>
+<li>同じ符合長なら、RSA方式と同程度の暗号化強度らしい</li>
+<li>ssh version2 で使える</li>
+</ul>
+</li>
+<li><a href="http://ja.wikipedia.org/wiki/%E6%A5%95%E5%86%86%E6%9B%B2%E7%B7%9ADSA">ECDSA</a>
+
+<ul>
+<li>あ、一個増えた。調べてるうちに新しいのが出て来た。そしてこれが最新らしい</li>
+<li>DSAの亜種で、短い鍵で高い暗号化強度を担保できる</li>
+<li>つまーり、計算量を少なく抑えられて、パフォーマンスもいい</li>
+</ul>
+</li>
+</ul>
+
+
+<p>RSA1は使うな。で、RSA vs DSA だと、暗号化強度云々より、パフォーマンスで選ぶみたい。
+普通に使う分にはどっちでもいいレベルなので、本エントリでは、RSA を使いますわ。
+しかも、OpenSSH で生成できる DSA は、1024bitまでらしいので。
+でも個人的には、ECDSAに移行しようかな。</p>
+
+<p>そんなわけで、RSA鍵を生成するコマンドを実行。</p>
+
+<p>```</p>
+
+<h1>RSA鍵を作成(ssh version2)</h1>
+
+<p>$ ssh-keygen -b 4096 -t rsa -C &ldquo;comment&rdquo;
+```</p>
+
+<p>僕は既に既存 key がデフォルトディレクトリにあるので、色々指定して実行しまっせ。
+(以降、秘密鍵:rsa、公開鍵:rsa.pubになってるけど、-f オプションなしの場合は、id_rsa/id_rsa.pubに読み替えてちょ)</p>
+
+<p>```</p>
+
+<h1>RSA鍵を作成(ssh version2)</h1>
+
+<p>$ ssh-keygen -b 4096 -t rsa -C &ldquo;Test key for blog&rdquo; -f &ldquo;~/.ssh2/rsa&rdquo;
+Generating public/private rsa key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+passphrase too short: have 4 bytes, need > 4
+Saving the key failed: /Users/nemoto_hideaki/.ssh2/rsa.
+```</p>
+
+<p>あら、passphraseに、4文字しかいれなかったら、5文字以上！って怒られました。
+ちなみに、passphrase は、パスワードみたいなもん。何も設定しなければ、パスワードを要求されないす。
+そして、5文字未満なのに普通に生成されます。(謎)</p>
+
+<p>一旦まともにpassphrase を設定して生成。</p>
+
+<p><code>
+$ ssh-keygen -b 4096 -t rsa -C "Test key for blog" -f ~/.ssh2/rsa
+Generating public/private rsa key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /Users/nemoto_hideaki/.ssh2/rsa.
+Your public key has been saved in /Users/nemoto_hideaki/.ssh2/rsa.pub.
+The key fingerprint is:
+a0:53:a2:0a:cd:c1:7b:05:2a:14:d6:eb:08:34:09:de Test key for blog
+The key's randomart image is:
++--[ RSA 4096]----+
+|o++ .            |
+|+=.o .           |
+|o.=Eo +          |
+|.+ = = .         |
+|o B +   S        |
+|.o o .           |
+|.                |
+|                 |
+|                 |
++-----------------+
+</code></p>
+
+<p>鍵ができてるかみてみる。<br/>
+<strong><em> 秘密鍵は公開しちゃだめですよ。この鍵は使わないので公開してますが </em></strong></p>
+
+<p><code>
+$ ls -l .ssh2/
+total 16
+-rw-------  1 nemoto_hideaki  staff  3326  9  6 18:32 rsa
+-rw-r--r--  1 nemoto_hideaki  staff   743  9  6 18:32 rsa.pub
+</code></p>
+
+<p>rsaのほうが、秘密鍵。<br/>
+rsa.pubのほうが、公開鍵。<br/>
+めでたく鍵が生成できました〜。中身も覗いてみます。何書いてあるか全然わからんけどな。</p>
+
+<p>```
+$ cat .ssh2/rsa
+&mdash;&mdash;-BEGIN RSA PRIVATE KEY&mdash;&mdash;&ndash;
+Proc-Type: 4,ENCRYPTED
+DEK-Info: AES-128-CBC,860352EBF26B86E25C86C2AB88D4DF4F</p>
+
+<p>hDttbLvd3QmDvn5CMV6YvuCPZFYSni0C2ztDXH8CNbfY6RVG7sri8uWwcqMtrrjN
+OFG2IeIyXwtKY8htRETu+AVVCERpSWVowySNzFQJnRcKq9d3iGTuX6MjI4+OwK/i
+rZd8UI041Rzas/+kNmDKZfcYEE9F2j9HeDFh3PCTPibE34L2BaP/vv9jcagRvzcW
+MBlSQoi3uuVqENqdI4xHRiFfmcZTykw6JWxHg2aiA6/4+IlgNnVCyjUrcXZ9DCw/
+g6HsuPMzAGfqkpUpOsJd065fsY+PT1he3fSTWBFn2ODiwgGpclZSzfCOCgKgnYDr
+z3XQqI1Z6Z4QudyxZHAfk1togi8Pr+00gboW23NYV4UnY/yu4xRccXobZB8DosP0
+jTfVNI2eDru5WyaOjNjQQLAjTxacMI474K9CoQUYWKxfaaaaaanVryTLzcVqIWX4
+18mtUg/BKCTpntfNojG3PNfmrin9T/G4GxBYFMXL8cftlonO1aKUqZVFdWNJZDeu
+dmzj+SMxG1L3pPcd1sgqt8UZdgt4HkpgyLH5WTL5XnhGsUe8PcONxRKXVMfSzdfd
+xPgfcjgGChOd09YrejTFzNCahoPKhfdvvRVj9RQz6W9cgxOPgH20F2h4puBQIqgo
+LOH0RsDMUJS6htNYefQNs+mRpT8SLLVgKxY1sIAuyM5vq2uQevpg0XfRvRTjucy/
+LZyVbjM5+FJkjLixDbfZ81psianS3WU7n1hb/mTDuKQY1OD/DenDu7gAsAATXmgv
+cTwvCtIgCCzumKvt8pccTUeVyblHWownO/L0r/9oIlxu+9K6eC0bYjwbLl9SjNgk
++gJpkChc2Gtohj1wutUZR469G+iljl1WkEWyGT1s/fTWCp0V1ep4hWcTc4Ww4F4h
++A84ulp3qftTXT2uLjCBNiesxm1wTQegFr3ov23ZhkWoNSwNxnzOsUle8xBqTQWp
+9U9inpELOyTn8RCWyb/+VI7Rpxe8FToEqIPRm30KIOSOi5iDQi6OaxvpRm7Z+jZM
+xr2gH6cVgFErRCIc1rKD9MgQqang4fmv7qpmcpjwrFl2aqQcvFF+YZesVkbQ02am
+0IKIccTkzdwsRpmnI/MtncGgKra6fe6s5gee3EDLzkBSCq9ISwScgJQhEhSgPpJW
+N82oE+hnMoNEapY5sZFpydl4CsMSXTSp3ARWkcvY8+oWx/sRggg6BRCd/Lr/cdK3
+jTfwNkSQSQc2O9aaczttxVWls0L4YXf3hZvS01I72ZWxEmmO3MJtCZGpFfsGBjMN
+VIqE2m4XyO4XEerFVjsI7ItMDJHfB7jXG252Nfu5gAPNuC/IzYau9p1xDybR3jGV
+mvbv5XGL+mSPcFV9NFaE8p4BdkPUW5JnWxlr9ItmnSrzpspvyVTZbexp8EeeniPG
+KPzPirJNEitLKFePlLT6unuoXgeqsNW3fMtkH4hyU8uQuow21Vp5bP7xDM0ZSPVu
+sNxSjHEVR4clfmP6NhcL2O/8SKtExb1akJQP5+KNldqCuDS9EmRvLsmRQ7xD3PtY
+TZBCs57WhB7l/mWKWicQm4RA4Die5Xp7W1xPXqxbKN5T3ZSc8oDOZbsj4pCJpRhs
+3U2O7sR6e7f5y1sceJhLH3tcMXYvgPx8RS5iSsRP/2m/vao5BGusRX8PLlbU7hla
+FWNymUh5Rnw4QtXVECulSZbesC0mF9nZH8w0uNdDDUIVDleOUEykCIIXEWCIdyfp
+UqKcALTR3ryM/sxDXzUhhro+fRhp2IFBwI1OXDJTI8vroNnZRWtozrTZBwXFbRyw
+AVi0mSF5X703fv18IBYtF64Qn8+P4ENyjeZx7C8wK2QVcIg3tipXsF/8w0BV7uab
+00VVmOG8eoPbFboVrR/Mu7Ity12YubNwcs4PI6FqAd4C3MosfUFUX1RCIm1NiIaH
+eAl/CAFDxdTTglya+LlOmuhXA8OUbVwXzoBwCS+PJX7zI9U/HiZvXsT93INFvv4O
+26llEq9pq2J9CsC3/WUA2/iyGzfgZeFaGm/J7nbIAypvdloEx8ZvJ19vaLfD9ENz
+TiQBM7lTYvxBtIEv+mAoI4m6h4lkguv2/OBLQFcXtjEtEqPw1PX2hc18RvgPV4fu
+3sxaDyqHqzldA+niAG8t0dPA1NT6bkLECsxK5RDTNXX13xxrvrpTOxrVv/pYWLtk
+pZEIR9igNAZ98ALADtwUhch5F2AxZ7hHmvMgJm1ZT5o4G19Pwh/zMl3ipAetMbGZ
+f6hTV+b3/fmZe3QQxGjUPKOLQmQzuER0fk176UDFlMS7bJhuqbgKtgwdijMRid3a
+JtKuSU9a79TqEYprzyUUpafMHn4GjGjB7uHTu5432NBrZJV5LMUr2wKUvZmwyW6p
+O7p4StEiA4p1y8P8m6kL2us6hHofHL/GeRkXdopnwEZ94AV+PXsm/ON6ykQNic0C
+lWZ7JSXOW6TuT4tFmIR/XkodPjcoxXb/U7cZOqW+T0BLd32YYl57aIAYkMuy7isP
+RWDIR4QwM67hRsEmnYuqumGpuGJmPVW32OqiiiwFhhF+e3ziV3qFfuXaS+iWMzl5
+EzY/hNnQNWbpxm4X14enA8+366RMkrCdK07PhCcqNm1rfGqmn7OMB2zbVpq7EPjm
+cnWYUBZcLqfftXSUsoFj1hfwLfsZOpIJupgrmdgPtLbWDo8SxNJ3AxQroNO6EbjX
+AKc+S79evuMnZCk+xIbUKj2FtlnjJJy9Uk+lLOKq+Y4oKbQl4eRBa6tV9TEsm4u8
+jWOSFnYK/BVI04OMOxwG2LAgPMa/yBcwD8YtCbYzMerHIDOYzr1dI8ShiFlzpNxr
+QjbfewkkAXElPbKB3A/a1GXJNsfMB3DyZdx0KfrDUIALc9IiInHxJzg1xv9N1tRF
+ah0a5BG/hs0dISjf9AvjXlZ6xZicZiaR7dVk1DkLQdewO1wxqZzEpBdQ6vXIfKeR
+AhHtzCg0rpcRQt+EChua7AJxwrCqrsgxlX/8l9PvFSZXOw2M1qLCmJ9FoCQRNiCX
+ds0WaTtQHZ2gXEBAaqQvUCgBSSdLKCxzP0ztmPd0+JA02I0tn2WBd8/7d9y5b+Of
+uzLkERk+NIwHkkp4+c5JR7AT1c8PgG3cN/GbTCCHij+mczKcH21cRGCkcVc1xv36
+&mdash;&mdash;-END RSA PRIVATE KEY&mdash;&mdash;&ndash;
+$ cat .ssh2/rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC3STy6YZelz5z0zcQkxYx2QMu8X+SCMBlMgxGbmoORBFB18sckyo9vPAjBXyR6XfEViXRUHLo07u6S/FqaLuBSSlwi8GPs8cux8e+KnbQ1Cik6lL829O++rgEFyMRPEvM/bB/GjPsni4Y2aBstU4xA8D4ZpqaN5rgKG2U9ZsovjhVQsIWHa8a4/W/z2oOASqss0/p+LHOYzmjHLDwaGCqqJNqglcdJrrNYxEUZApS5RT8JrkW7874+KbghCdN5L6n27NNblsusP6HJQknTC0ufKE340J3dEUmxpf/vErN6P7bKNDFlzgVfJehLW62n+u1XCj5akHBrfMEKOaS4y90u/pALUoYWoAhIcGou7Xwc6EhtTYYg3gSWqDbk8vDE+A4JVDYl3RnsYptqRqmkJZL9RE1MT67+5yqY5bY74KjuohKeBgAptiEecLb3ABlhPJCvLX1zTOnHQaXa6cC4Ln8DH+2gnFdC3EgDr/sRHonLpAMqO8y/tGNc9digefdxCfr8N3/eX0UPXCyjaPwpN/DjC4MlWDFnqMQGfXUsxCHLl/n/MY/MThYYFUPDe0e8dV0D3oq0l4NoYu+aVEeBIc7/7g01WrQWLHoGYZSPlezCmtclClJzSzOeWk1ghYKVSfWflXBfHgdyNpL3vPyAVeArFg1UDi8MHCHNkZDfLkJHLw== Test key for blog
+```</p>
+
+<p>では次の手順へ。</p>
+
+<h3>公開鍵をサーバに渡す/公開鍵をクライアントから受け取って、設定する</h3>
+
+<p>では鍵をサーバに登録するところをやります。</p>
+
+<h4>クライアント側作業</h4>
+
+<p>クライアントでやるのは、さっき生成した公開鍵をサーバに転送するだけの簡単なお仕事。
+今回は、scp で公開鍵を丸っと転送。しゅわっち！</p>
+
+<p><code>
+$ scp .ssh2/rsa.pub &lt;Server IP&gt;:/tmp/
+</code></p>
+
+<h4>サーバ側作業</h4>
+
+<p>サーバ側では、下記をやるわけです。</p>
+
+<ul>
+<li>authorized_keys への公開鍵の登録</li>
+<li>authorized_keys のアクセス権限の確認/変更</li>
+<li>sshサーバの設定確認/変更/再起動</li>
+</ul>
+
+
+<p>まずは、</p>
+
+<h5>authorized_keys への公開鍵の登録</h5>
+
+<p><code>
+$ cat /tmp/rsa.pub &gt;&gt; .ssh/authorized_keys
+$ cat .ssh/authorized_keys # &lt;- ちゃんと入ってるか確認
+</code></p>
+
+<h5>authorized_keys のアクセス権限の確認/変更</h5>
+
+<p>permission をしっかり設定しないと、他が正しくても永遠にログインできねーので、下記参照の上、ちゃんと設定します。</p>
+
+<p>クライアント側</p>
+
+<ul>
+<li>.ssh/rsa : 600</li>
+</ul>
+
+
+<p><code>
+$ chomod 600 .ssh/rsa
+</code></p>
+
+<p>サーバ側</p>
+
+<ul>
+<li>authorized_keys : 600</li>
+<li>~/.ssh ディレクトリ : 700</li>
+<li>/home/hogehoge ディレクトリ : 755</li>
+</ul>
+
+
+<p><code>
+$ chomod 700 .ssh
+$ chomod 600 .ssh/authorized_keys
+$ chomod 755 ~
+</code></p>
+
+<p>ようは、他人が鍵関連のファイルに書き込めない状態にしとけと。
+これでOK。</p>
+
+<p>次。</p>
+
+<h5>sshサーバの設定確認/変更/再起動</h5>
+
+<p>sshサーバの設定で、公開鍵認証OKにしないといかんのです。<br/>
+/etc/sshd_configを開いて、下記３行が入ってなければ追記します。</p>
+
+<p><code>
+RSAAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeyFile   .ssh/authorized_keys
+</code></p>
+
+<p>で、再起動して、クライアントから接続して、ログインできればOK !<br/>
+段々めんどくさくなって手抜きになってきたけど、なんとなく伝わるはず。
+間違いなど、ご指摘いただけるとありがたいっす。</p>
+
+<p>参考URL :<br/>
+  <a href="http://www-net.nifs.ac.jp/lnas/manual/man-sshrsa.html">reference 1</a><br/>
+  <a href="http://oshiete.goo.ne.jp/qa/8356280.html">reference 2</a><br/>
+  <a href="http://stackoverflow.com/questions/2841094/what-is-the-difference-between-dsa-and-rsa">reference 3</a></p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform/"/>
+    <updated>2014-08-23T01:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/23/using-hashicorp-terraform</id>
+    <content type="html"><![CDATA[<p>はい、前回の宣言を無視して、Terraformエントリを書く<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+(前回は、「次は Ansible」って言ってた)</p>
+
+<h2>目的と概要</h2>
+
+<hr />
+
+<p>タイトルそのままです。<br/>
+ほんとに読んだだけなんです！w</p>
+
+<p>ちなみに、ドキュメント読みながらエントリ書いてみて、最終 terraform を実際使ってみるには至りませんでした。
+結局こんなことに使うのね、というところまでは行ったものの、まだProviderサポートが弱いのと、
+AWS をサポートしてるものの、EBS は作れなそうだったり、CloudFrontもこれからぽいので、
+時間かけて使ってみても、僕が実用するのは先かな、ということで、</p>
+
+<ul>
+<li>ドキュメント読んでみた感想</li>
+</ul>
+
+
+<p>のみ！にとどまってますw</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_2044819979.jpg" alt="readonly" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/takomabibelot/2044819979/">takomabibelot</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by/2.0/">cc</a></p>
+
+<!-- more -->
+
+
+<p></p>
+
+<p>一応ね、terraform インストールして、実行計画見たり、グラフみたりはしましたけど、
+普通に公式ドキュメントに載ってるやつなので、ここでは割愛。</p>
+
+<p>全体的な感想としては、もうちょっと Providerが充実したら、使いどころによってはいいツールなんだろうなー。</p>
+
+<h2>Terraform とは？</h2>
+
+<hr />
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_4575417487.jpg" alt="terraform" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/torley/4575417487/">▓▒░ TORLEY ░▒▓</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">cc</a></p>
+
+<p>Serf/Consul/Vagrant/Packer を出してる、<a href="http://www.hashicorp.com">Hashicorp</a>の新プロダクト。<br/>
+製品紹介には、、、</p>
+
+<p>Terraform is a tool for building, changing, and combining infrastructure safely and efficiently.</p>
+
+<p>って書いてある。つまり・・・</p>
+
+<p>「Terraform は、安全で、効率的にインフラを構築/変更/組み合わせることができるツールですよこれ」</p>
+
+<p>と・・・。Hashicorpさん！いまいち伝わらないっす！
+海外のサイトの説明ってこんな感じな気がする。他のも調べてみよう・・・</p>
+
+<h4>ansible</h4>
+
+<p>Ansible is the simplest way to automate IT.<br/>
+つまり、IT を自動化する、一番簡単な方法だよーん。と。</p>
+
+<p>・・・ちょっとわかりづらい・・・かな。</p>
+
+<h4>chef</h4>
+
+<p>Automation for Web-Scale IT.<br/>
+お、ちょっとわかりやすい。</p>
+
+<h4>apache</h4>
+
+<p>The Number One HTTP Server On The Internet<br/>
+あ、すごい直球だった。</p>
+
+<h4>MySQL</h4>
+
+<p>The world&rsquo;s most popular open source database<br/>
+うむ。ちょっと有名どころすぎるとわかりやすくなりすぎる。</p>
+
+<h4>github</h4>
+
+<p>Build software better, together.<br/>
+コンセプトわかりやすい。</p>
+
+<p>さて、茶番はこの辺にして本題へ。</p>
+
+<p>結局、Terraform が何者か、よくわからないので、"learn more" ボタンをぽちっとな。</p>
+
+<h2>ざっくり概要</h2>
+
+<h3>INFRASTRUCTURE AS CODE</h3>
+
+<p>コードでインフラを表現するためのテンプレ的なのを用意してくれてる、な感じぽい。
+Vagrant を自由自在に使いこなしてる場合と、どう違うのかよくわからない。(Vagrantも使いこなせてないし)</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_8106189987.jpg" alt="infra" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/andrewfhart/8106189987/">andrewfhart</a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">cc</a></p>
+
+<h3>COMBINE MULTIPLE PROVIDERS</h3>
+
+<p>ほほう。なんかここは、Vagrant と違いそうじゃないか？
+そもそも Vagrant の Provider をまだ勉強してないからなんとも言えないけど。。。</p>
+
+<p>ちょっと戻ってみる限り、Vagrantは、単一 Provider にしか対応してなし。</p>
+
+<p>つまり、AWS でサーバ起動して、お名前に登録してる DNS を修正してくれる、的なこと？
+(AWS と、お名前の 2 Provider)</p>
+
+<p>それか、AWS/GCP 両方で使ってるインフラ管理できる？ま、使ってみればわかるかもしれないので、次を読んでいこう。</p>
+
+<h3>EVOLVE YOUR INFRASTRUCTURE</h3>
+
+<p>設定ファイルを、VCS に登録して、インフラをどんどん進化させていけるよ！
+って・・・Vagrant でも Ansible でも、Chef でもなんでもそうだからな・・・</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/medium_2922128673.jpg" alt="evolve" /><br/>
+photo credit: <a href="https://www.flickr.com/photos/spidermandragon5/2922128673/"><a href="&#109;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x62;&#x72;&#x79;&#x61;&#x6e;&#119;&#x72;&#105;&#x67;&#104;&#116;&#x35;&#x40;&#103;&#109;&#97;&#105;&#x6c;&#x2e;&#99;&#x6f;&#x6d;">&#98;&#114;&#121;&#97;&#110;&#x77;&#x72;&#105;&#103;&#x68;&#x74;&#53;&#64;&#x67;&#109;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#x6d;</a></a> via <a href="http://photopin.com">photopin</a> <a href="http://creativecommons.org/licenses/by-nd/2.0/">cc</a></p>
+
+<p>まだ凄さがわかりまてん。。。</p>
+
+<h2>Terraform で何ができる？</h2>
+
+<p>いきなり飛びますが、ざーーーーーっと、ドキュメントを読んでみました。
+読み進めても、使いどころが、ふわっ、としてて、ちゃんと落ちてこなかった部分もあり、
+読み進めてたら大体読み終わっちゃった、的なね。</p>
+
+<p>以下僕が読んだ感じだと、、、</p>
+
+<ul>
+<li>インフラをコード(というか設定)で表現できる</li>
+<li>インフラ設定を記述して、実行すると、設定通りの環境を構築できるよ！というもの
+
+<ul>
+<li>ここでいう「インフラ設定」は、大きく分けて下記2つかな、と思った
+
+<ul>
+<li>resource
+
+<ul>
+<li>サーバインスタンスから、IP 設定くらいまで</li>
+<li>ようは、外部サービス(AWSみたいな)で、API 操作して決められるものを resource として扱ってる感じ</li>
+</ul>
+</li>
+<li>provisioning
+
+<ul>
+<li>上のresourceに入らない設定</li>
+<li>ansibleとかchefとか、はたまたスクリプト実行して設定するような設定</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>設定を書いて、実行する前に、実行計画が確認できる
+
+<ul>
+<li>つまーり、ちゃんと何が起きるかを確認してから実行できる</li>
+<li>しかもグラフィカルに依存性をチェックできる</li>
+<li>これは便利</li>
+</ul>
+</li>
+<li>実行後、実際の状態がどうなっているか、もコマンドで確認できる</li>
+</ul>
+
+
+<p>こんなことをできますよ、と。</p>
+
+<p>これだけ見ると、この前ブログに書いてた、Vagrant と何が違うんだろうね・・・
+って感じになるわけです。</p>
+
+<h2>Terraform と Vagrant の違い</h2>
+
+<p>そのままだけど。何が違うんだろうね、と思ったので、まとめてみましたよ。
+勘違いしてるところは、誰か教えて。</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">items</th>
+<th align="left"> Vagrant  </th>
+<th align="left"> Terraform </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Catch copy </td>
+<td align="left"> Development environments made easy </td>
+<td align="left"> Terraform is a tool for building, changing, and combining infrastructure safely and efficiently.</td>
+</tr>
+<tr>
+<td align="center">Provider </td>
+<td align="left"> VirtualBox </td>
+<td align="left"> AWS</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> VMware     </td>
+<td align="left"> CloudFlare</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> Docker     </td>
+<td align="left"> Consul</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> KVM        </td>
+<td align="left"> DigitalOcean</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> Hyper-V    </td>
+<td align="left"> DNSimple</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> AWS        </td>
+<td align="left"> Heroku</td>
+</tr>
+<tr>
+<td align="center">         </td>
+<td align="left"> RackSpace  </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">Provisioning </td>
+<td align="left"> File Upload      </td>
+<td align="left"> たぶんなんでもござれ</td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> script execution </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Ansible          </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> CFengine         </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Chef Solo        </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Chef Client      </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Docker           </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Puppet Apply     </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Puppet Agent     </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">             </td>
+<td align="left"> Salt             </td>
+<td align="left"> </td>
+</tr>
+<tr>
+<td align="center">Others </td>
+<td align="left"> Destroy が結構気軽に実行できる(実行までのステップが超短い！) </td>
+<td align="left"> Destroy を間違えて実行する確率は、Vagrant に比べたら相当低い</td>
+</tr>
+<tr>
+<td align="center">       </td>
+<td align="left"> 統合的な管理はできない(Load balancer/DNS/Storege等の管理は現状できない) </td>
+<td align="left"> AWS は、ELB/RDS/EIP/EC2/VPC/Route53/S3/Security Groupなどなど、結構いじれるので、かなり統合的管理ができる</td>
+</tr>
+<tr>
+<td align="center">       </td>
+<td align="left"> 元々の思想が、開発環境/サンドボックス環境構築用のツール </td>
+<td align="left"> 特に開発環境用、とは銘打ってないから本番用なんだ、きっと</td>
+</tr>
+<tr>
+<td align="center">       </td>
+<td align="left"> インフラ環境をコードで記述して、Build &amp; Scrap しまくれて、すげー便利 </td>
+<td align="left"> インフラ環境を設定で記述して、構築できるので便利(destroy はVagrantのほうが気軽)</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>こんな感じなのかなぁ。
+Providerをみるとよくわかるけど、Vagrant は元々が開発環境構築用なので、virtual serversの構築が中心に見える。<br/>
+Terraform に関しては、ちょっと作業フローも付け加えておこうかな。
+きっとこんな感じになるんじゃないかなぁ、ってレベルなので、実際はわからんけど。</p>
+
+<ul>
+<li>たぶん作業フローが
+
+<ul>
+<li>設定ファイルを書く</li>
+<li>実行プランを確認する</li>
+<li>実行する</li>
+<li>実行結果を確認する</li>
+</ul>
+</li>
+</ul>
+
+
+<p>になるので、Vagrant よりも、いちいち確認するために止まる箇所をコマンドベースで置いてるのが違う気がする</p>
+
+<p>という感じで、Terraform vs Vagrant だと、</p>
+
+<ul>
+<li>そもそも最初の思想が違ってたり、</li>
+<li>環境破壊の容易さが違ったり、</li>
+<li>作業フローもたぶん違ったり、</li>
+<li>multi providerへの対応有無が違ったり、</li>
+<li>統合管理できる/できないがあったり</li>
+</ul>
+
+
+<p>っていう違いがあるのかな。だとするとやっぱり、</p>
+
+<ul>
+<li>開発環境 == Vagrant</li>
+<li>本番環境 == Terraform</li>
+</ul>
+
+
+<p>になるんだろうな。もちろん、VPS 1台使ってサービス展開する分には、ぶっちゃけどっちでもええわ。
+たぶんちゃんと管理しとけば(してなくても)、Vagrant で運営できる。でもたぶんそのレベルは、Vagrant すら必要ない。</p>
+
+<p>でかい環境が必要な場合とか、小さい環境が何個も必要な場合とかは、うまく使い分けるのがええだろね。
+provisioning のステージングを Vagrant でやってみて、うまくいったら、それ commit して Terraform 環境で適用、みたいな。
+でもterraformは、初期構築ツールで、運営開始後に全部実行することはないのかも？
+その辺まだわからん。まぁとりあえず、CloudFormation の進化版になりうるやーつだ。やっと理解できたw</p>
+
+<p>ではインストール。</p>
+
+<h3>terraform インストール</h3>
+
+<hr />
+
+<p><a href="http://www.terraform.io/intro/getting-started/install.html">ここ</a>を参考にインストールしましょう。</p>
+
+<ul>
+<li>ダウンロード</li>
+<li>展開</li>
+<li>PATH 通す</li>
+</ul>
+
+
+<p>これが出来ない人は、これ以上進んでも理解できない可能性が高いので、やめといたほうがいいです。</p>
+
+<p>インストール終わったら、動くかだけみてみる。
+<code>
+$ terraform version
+Terraform v0.1.1
+</code>
+なるほど、僕が今回使うのは、v0.1.1 だそうです。</p>
+
+<h3>terraform 使う時のざっくりフロー</h3>
+
+<hr />
+
+<p>まずは、登場用語リストとその説明から。</p>
+
+<ul>
+<li>.tf ファイル
+
+<ul>
+<li>設定ファイル。これにどんなインフラを構築するか設定する</li>
+<li>terraformコマンド実行するディレクトリに入ってる、.tfファイルが全部読み込まれて実行される</li>
+</ul>
+</li>
+<li>provider
+
+<ul>
+<li>インフラを構築する手段</li>
+<li>aws なのか、heroku なのか、的な感じ</li>
+</ul>
+</li>
+<li>resource
+
+<ul>
+<li>各Provider で設定できる項目のこと</li>
+<li>aws だったら、eipとか、elbが一つのresource になってる</li>
+</ul>
+</li>
+</ul>
+
+
+<p>そして次は、実際 terraform 使うかー、ってなったら踏みそうな手順。
+きっと、僕はこんな感じなんだろう。</p>
+
+<ol>
+<li>システム構成検討
+これはそのまんま。まずはどんなシステム作りたいかを考えようよ。</li>
+<li>tf ファイル記述
+これもそのまんま。考えたシステム構成図に則って書くだけといえば書くだけ。</li>
+<li><p>実行計画確認</p>
+
+<p>下記コマンド実行。</p>
+
+<p><code>
+$ terraform plan
+</code></p>
+
+<p>で実行計画が表示されるので、OKかを確認する。</p></li>
+<li><p>実行</p>
+
+<p>計画が OK だったら、下記コマンドで実行。</p>
+
+<p><code>
+$ terraform apply
+</code></p>
+
+<p>実行、というより、適用のほうがしっくりくる。</p></li>
+<li><p>結果確認</p>
+
+<p>で、結果を下記コマンドで確認。</p>
+
+<p><code>
+$ terraform show hogehoge.tfstatus
+</code></p></li>
+</ol>
+
+
+<p>ほむほむ。
+なんとなくこんな感じなのね。</p>
+
+<p>と、ここまで書いて、実際使おうかな、という段で、一旦 Provider の種類を
+みてみよう、というわけで、公式ドキュメントに載ってるのをざっと表にしてみた。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Service name</th>
+<th align="center">Terraform name</th>
+<th align="left">Attribute</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">AWS</td>
+<td align="center">Basic</td>
+<td align="left">aws_autoscaling_group</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">RDS</td>
+<td align="left">aws_db_instance</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_db_security_group</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_eip</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_elb</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_security_group</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_subnet</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">EC2</td>
+<td align="left">aws_instance</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_internet_gateway</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_launch_configuration</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">Route53</td>
+<td align="left">aws_route_table</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_route_table_association</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_route53_record</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center"></td>
+<td align="left">aws_route53_zone</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">S3</td>
+<td align="left">aws_s3_bucket</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="center">VPC</td>
+<td align="left">aws_vpc</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>な、なにぃ・・・EBS ないのかな・・・CloudFront ないのかな・・・。
+残念だなぁ・・・ちょっと動作みてみるのめんどくさくなってきたなぁ・・・
+などなど、色々と去来する思いもあり、今回はこの辺でやめて、Ansible に戻ろうかなー、
+ってなりましたw</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdのテスト環境をvagrantでセットアップしてみるべ(複数サーバ管理)]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/"/>
+    <updated>2014-08-11T05:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2</id>
+    <content type="html"><![CDATA[<p>こんにちは。前回の続きで、またVagrantのエントリ書いてる<a href="https://twitter.com/xengineer01">@xengineer01</a>です。<br/>
+Vagrant は、前回も書いた通り、開発環境構築用の application で、色んな仮想化ソリューションに対応してて便利なツールでございます。
+今回はそんなツールで、複数サーバを簡単に管理しちゃおうぜ！的なエントリ。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
+
+<h2>システム構成図</h2>
+
+<hr />
+
+<p>まずは今回作ろうとしてるシステムの構成図。</p>
+
+<p>Appサーバのapacheのログを fluentd(HA) に投げて、postgres insertくらいを一旦の目処にしようかね。<br/>
+最終的には、HTTP(RESTなのかは不明)で別apに投げるのと、S3でのバックアップ、くらいまでをやるか、
+と思ってはいるけどどこまで書けるやら・・・。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/vagrant-multi-server01.png" alt="mul2ti server01" /></p>
+
+<!-- more -->
+
+
+<h2>前回のあらすじ</h2>
+
+<p><a href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/">前回の記事</a>
+は、下記あたりの流れをざっくり紹介しました。</p>
+
+<ul>
+<li>Vagrantってなんですか？</li>
+<li>Vagrantのinstall</li>
+<li>Vagrantfileの書き方</li>
+<li>vagrantでソフトウェア関連設定</li>
+<li>vagrantでサーバのハードウェアスペック指定</li>
+</ul>
+
+
+<p>前回は、サーバ１台の場合についてだったんで、今回は複数台管理する場合について。<br/>
+この記事、本来の目的は、fluentdの検証をすることなんで、当然複数サーバあげたいわけで。</p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>今回はたぶん、</p>
+
+<p>1 Projectで複数サーバを管理する場合の、</p>
+
+<ul>
+<li>Vagrantfileの書き方</li>
+<li>networkについて</li>
+<li>provisioningについて</li>
+<li>vagrant commandの使い方</li>
+</ul>
+
+
+<p>こんなところになる予定。</p>
+
+<h2>各種バージョン</h2>
+
+<hr />
+
+<p>前回も書いたけど、このとおり。<br/>
+今回は fluentdのバージョンも追記しておこう。</p>
+
+<ul>
+<li>vagrant version 1.6.3</li>
+<li>Windows PC + VirtualBox 4.3.8r92456</li>
+<li>MintLinux17 + VirtualBox 4.3 ?</li>
+<li>MacOSX(Mavericks) + VirtualBox 4.3.14r95030</li>
+</ul>
+
+
+<h2>Vagrantfile複数サーバ対応</h2>
+
+<hr />
+
+<h3>１台のときは？</h3>
+
+<p>何はなくとも予習と復習は大切です。<br/>
+なので、前回の復習から。単体のサーバの場合の Vagrantfile はこんな感じでした。</p>
+
+<p>```
+$ cat Vagrantfile
+VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;</p>
+
+<p>  config.vm.provider :virtualbox do |v|</p>
+
+<pre><code>v.customize ["modifyvm", :id, "--memory", "512"]
+v.customize ["modifyvm", :id, "--cpus", "1"]
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>ほむほむ。思い出しました。</p>
+
+<h3>複数台のときは？</h3>
+
+<p>では、引き続き複数の場合はどうすりゃいいんかね・・・ vagrant の公式 website を物色。</p>
+
+<p><a href="https://docs.vagrantup.com/v2/multi-machine/index.html">ここ</a>ですよ。ドンピシャ。
+ではこれを参考に、システム構成図ぽく書いてみると・・・</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<h1>&ndash;<em>&ndash; mode: ruby &ndash;</em>&ndash;</h1>
+
+<h1>vi: set ft=ruby :</h1>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|</p>
+
+<p>  config.vm.define &ldquo;ap_server01&rdquo; do |ap_server01|</p>
+
+<pre><code>ap_server01.vm.box = "hashicorp/precise64"
+ap_server01.vm.hostname = "apserver01"
+ap_server01.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+ap_server01.vm.provision :shell, path: "bootstrap.sh"
+
+ap_server01.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;ap_server02&rdquo; do |ap_server02|</p>
+
+<pre><code>ap_server02.vm.box = "hashicorp/precise64"
+ap_server02.vm.hostname = "apserver02"
+ap_server02.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+ap_server02.vm.provision :shell, path: "bootstrap.sh"
+
+ap_server02.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;fluentd01&rdquo; do |fluentd01|</p>
+
+<pre><code>fluentd01.vm.box = "hashicorp/precise64"
+fluentd01.vm.hostname = "fluentd01"
+fluentd01.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+fluentd01.vm.provision :shell, path: "bootstrap.sh"
+
+fluentd01.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;fluentd02&rdquo; do |fluentd02|</p>
+
+<pre><code>fluentd02.vm.box = "hashicorp/precise64"
+fluentd02.vm.hostname = "fluentd02"
+fluentd02.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+fluentd02.vm.provision :shell, path: "bootstrap.sh"
+
+fluentd02.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  config.vm.define &ldquo;postgres&rdquo; do |postgres|</p>
+
+<pre><code>postgres.vm.box = "hashicorp/precise64"
+postgres.vm.hostname = "postgres"
+postgres.vm.network "public_network", bridge: 'en0: Wi-Fi (AirPort)'
+postgres.vm.provision :shell, path: "bootstrap.sh"
+
+postgres.vm.provider :virtualbox do |v|
+  v.customize ["modifyvm", :id, "--memory", "384"]
+  v.customize ["modifyvm", :id, "--cpus", "1"]
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>な、、、ながいすな・・・これはさすがに短くできる予感しかしないけども、
+一旦起動するかどうか確認をば・・・</p>
+
+<p><code>
+$ vagrant up
+</code></p>
+
+<p>ってうつと・・・おお、、、起動した。結構時間かかった。
+あと今更だけど、network &ldquo;public_network"ってどういう IP 振られてるんだろう？</p>
+
+<p>ログインして確認しよう。ぬ、複数サーバあがってるときに、vagrant ssh つっても、
+どのサーバに ssh するかわからんだろ・・・とりあえずやってみる。</p>
+
+<p><code>
+$ vagrant ssh
+This command requires a specific VM name to target in a multi-VM environment.
+</code></p>
+
+<p>あ、、、やっぱり怒られるのね・・・。どうやら引数に、ssh したいサーバの識別子渡すそうです。</p>
+
+<p>config.vm.define &ldquo;ap_server01&rdquo; do |ap_server01| &lt;&ndash; &ldquo;ここの中の文字列&rdquo;</p>
+
+<p>```
+$ vagrant ssh ap_server01
+Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)</p>
+
+<ul>
+<li>Documentation:  <a href="https://help.ubuntu.com/">https://help.ubuntu.com/</a>
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@apserver01:~$ /sbin/ip a
+1: lo: &lt;LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue state UNKNOWN
+ link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+ inet 127.0.0.1/8 scope host lo
+ inet6 ::1/128 scope host
+    valid_lft forever preferred_lft forever
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
+ link/ether 08:00:27:88:0c:a6 brd ff:ff:ff:ff:ff:ff
+ inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0
+ inet6 fe80::a00:27ff:fe88:ca6/64 scope link
+    valid_lft forever preferred_lft forever
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
+ link/ether 08:00:27:01:26:5a brd ff:ff:ff:ff:ff:ff
+ inet 172.16.17.10/24 brd 172.16.17.255 scope global eth1
+ inet6 2408:27:bfff:28d:411a:c61a:be37:db7c/64 scope global temporary dynamic
+    valid_lft 604272sec preferred_lft 85272sec
+ inet6 2408:27:bfff:28d:a00:27ff:fe01:265a/64 scope global dynamic
+    valid_lft 2591957sec preferred_lft 604757sec
+ inet6 fe80::a00:27ff:fe01:265a/64 scope link
+    valid_lft forever preferred_lft forever
+vagrant@apserver01:~$ logout
+Connection to 127.0.0.1 closed.
+```</li>
+</ul>
+
+
+<p>IP は、そうか、うちの自宅内の DHCP が振られてるのね。
+検証環境には、完全 Private振りたいので、あとで変更しよっと。
+その前に、Vagrantfile の簡略化をしてみよう。これは長過ぎる・・・</p>
+
+<h3>Vagrantfile 短く！</h3>
+
+<p>さて、どうしたものか、まずはぐぐってみる。</p>
+
+<p><em>&ldquo;vagrantfile 簡略化&rdquo;</em></p>
+
+<p>はそれっぽいのがヒットせず。</p>
+
+<p><em>&ldquo;vagrantfile 複数&rdquo;</em></p>
+
+<p>で、<a href="http://nmbr8.com/blog/2014/05/22/how-to-define-and-control-multiple-guest-machines-per-Vagrantfile/">こんな記事</a>が。
+これだ！ruby で書けばいいからこう書けるのね。</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<h1>&ndash;<em>&ndash; mode: ruby &ndash;</em>&ndash;</h1>
+
+<h1>vi: set ft=ruby :</h1>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.provision :shell, path: &ldquo;bootstrap/all.sh&rdquo;             #1</p>
+
+<p>  not_dbs = { :apserver01 => &lsquo;192.168.101.1&rsquo;,</p>
+
+<pre><code>          :apserver02 =&gt; '192.168.101.2',
+          :fluentd01  =&gt; '192.168.102.1',
+          :fluentd02  =&gt; '192.168.102.2'
+          :postgres01 =&gt; '192.168.103.1'
+        }                                                      #2
+</code></pre>
+
+<p>  not_dbs.each do |not_db_name, not_db_ip|                         #3</p>
+
+<pre><code>config.vm.define not_db_name do |server_config|
+  bootstrap_path = "bootstrap/#{not_db_name}.sh"
+  server_config.vm.box = "hashicorp/precise64"
+  server_config.vm.hostname = not_db_name.to_s
+  server_config.vm.network "private_network", ip: not_db_ip    #4
+  server_config.vm.provision :shell, path: bootstrap_path
+
+  server_config.vm.provider :virtualbox do |v|
+    v.customize ["modifyvm", :id, "--memory", "384"]
+    v.customize ["modifyvm", :id, "--cpus", "1"]
+  end
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>なんかまとまってる感あり！
+行末に、コメントで番号付けてるとこを軽く説明しておこうかな。</p>
+
+<ul>
+<li>config.vm.provision :shell, path: &ldquo;bootstrap/all.sh&rdquo;
+
+<ul>
+<li>あれだわ。全部のサーバで実行する provisioning の shell を指定してます</li>
+<li>これとは別に、各サーバ毎に実行する shell もループ中で指定しております</li>
+</ul>
+</li>
+<li>not_dbs = { :apserver01 => &lsquo;192.168.101.1&rsquo;, &hellip; }
+
+<ul>
+<li>共通化してループにしてみた(not_dbs のネーミングは・・・最初 DB 以外にしてたから。最終的にまとめちゃった)</li>
+</ul>
+</li>
+<li>not_dbs.each do |not_db_name, not_db_ip|
+
+<ul>
+<li>そのループ。中の処理はみればわかる</li>
+</ul>
+</li>
+<li>server_config.vm.network &ldquo;private_network&rdquo;, ip: not_db_ip
+
+<ul>
+<li>networkはね、今回はプライベートにしました。IP も指定で</li>
+</ul>
+</li>
+</ul>
+
+
+<p>結構簡略化できてると思うけどどうでしょう。
+次は、provisioning 用の shellを覗いてみよう。</p>
+
+<p>shellは、apserver/fluentdは、複数台あるけど、今全部中身一緒なので、1台分だけみる。</p>
+
+<h4>全部のサーバで実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/all.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get update
+apt-get install -y vim
+apt-get install -y vim-common
+```</p>
+
+<h4>ap server でだけ実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/apserver01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/apserver.sh
+/vagrant/bootstrap/not_db.sh
+```</p>
+
+<h4>fluentd でだけ実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/fluentd01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>/vagrant/bootstrap/not_db.sh</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>Input</h1>
+
+<p><source>
+  type forward
+  port 24224
+</source></p>
+
+<h1>Output</h1>
+
+<p><match apache.**>
+  type file
+  path /var/log/td-agent/out_apachelog
+  time_slice_format %Y%m%d
+  time_slice_wait 10m
+  time_format %Y%m%dT%H%M%S%z
+  compress gzip
+  utc
+</match>
+EOF
+```</p>
+
+<h4>postgres でだけ実行されるやーつ</h4>
+
+<p>```
+$ cat bootstrap/postgres01.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y postgresql
+```</p>
+
+<p>大体見ればわかると思うので、一個だけ説明。</p>
+
+<p><code>
+/vagrant/bootstrap/apserver.sh
+/vagrant/bootstrap/not_db.sh
+</code>
+この二つだけ。</p>
+
+<p>/vagrant っていうのは、Hostサーバでいうところの、PROJECT_ROOTのディレクトリなのです。<br/>
+つまり、</p>
+
+<p>PROJECT_ROOT/bootstrap/apserver.sh<br/>
+PROJECT_ROOT/bootstrap/not_db.sh</p>
+
+<p>をそれぞれ実行しろよ、と。
+今回でいうと、apserverが一番実行される shell が多いのかな。</p>
+
+<ol>
+<li>まず、全体で、all.shを実行</li>
+<li>次に、apserver01.sh に書いてある何かを実行(今回は実は中身ほとんどないんだけど)</li>
+<li>で、bootstrap/apserver.sh と bootstrap/not_db.sh を実行</li>
+</ol>
+
+
+<p>なるほど。こんな感じにすれば、共通化もできるのねん。一旦、簡略化はこんなもんかな。</p>
+
+<p>apserver.sh と not_db.sh については、下記内容が書いてありますよ。</p>
+
+<p>```
+$ cat bootstrap/apserver.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y apache2
+rm -rf /var/www
+ln -fs /vagrant /var/www</p>
+
+<p>chmod o+x /var/log/apache2/
+chmod o+r /var/log/apache2/access.log</p>
+
+<p>cat &lt;&lt; EOF > /etc/td-agent/td-agent.conf</p>
+
+<h1>tail input</h1>
+
+<p><source>
+  type tail
+  path /var/log/apache2/access.log
+  pos_file /var/log/td-agent/tmp/httpd-access.log.pos
+  tag apache.access
+  format apache2
+</source></p>
+
+<h1>Log Forwarding</h1>
+
+<p><match apache.**>
+  type forward</p>
+
+<p>  # primary host
+  <server></p>
+
+<pre><code>host 192.168.102.1
+port 24224
+</code></pre>
+
+<p>  </server>
+  # use secondary host
+  <server></p>
+
+<pre><code>host 192.168.102.2
+port 24224
+standby
+</code></pre>
+
+<p>  </server></p>
+
+<p>  # use longer flush_interval to reduce CPU usage.
+  # note that this is a trade-off against latency.
+  flush_interval 60s
+</match>
+EOF
+```</p>
+
+<p>```
+$ cat bootstrap/not_db.sh</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>apt-get install -y curl
+curl -L <a href="http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh">http://toolbelt.treasuredata.com/sh/install-ubuntu-precise.sh</a> | sh</p>
+
+<p>mkdir /var/log/td-agent/tmp/
+chown td-agent. /var/log/td-agent/tmp
+```</p>
+
+<h4>apserver.shの内容</h4>
+
+<p>見ればわかるけど、apache インストールと、fluentd の HA 設定してるくらい。</p>
+
+<h4>not_db.shの内容</h4>
+
+<p>ほぼ fluentd インストールしてるだけ。</p>
+
+<h3>Network について</h3>
+
+<p>network は、public/private で書き方だけわかったからいいや。</p>
+
+<h4>public(DHCP)</h4>
+
+<p>config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;</p>
+
+<h4>private(static)</h4>
+
+<p>config.vm.network &ldquo;private_network&rdquo;, ip: &lsquo;IP address&rsquo;</p>
+
+<p>たぶん、private で DHCP 振りたい場合は、ip: 以降削ればいける。</p>
+
+<h3>Provisioning について</h3>
+
+<p>shell でも、ここまで共通化したり、分けたりできれば結構楽にはいけると思うけど、
+そもそも、shell でやってるのはいかがなものか、という意見は認める。なので次は、ansible やろうかな。</p>
+
+<h3>vagrant command について</h3>
+
+<p>リストアップ＆説明。でも説明は、公式サイトから抜粋しただけ。</p>
+
+<h4>今のところよく使いそうなやーつ</h4>
+
+<ul>
+<li>halt
+
+<ul>
+<li>stops the vagrant machine</li>
+</ul>
+</li>
+<li>help
+
+<ul>
+<li>shows the help for a subcommand</li>
+</ul>
+</li>
+<li>provision
+
+<ul>
+<li>provisions the vagrant machine</li>
+</ul>
+</li>
+<li>reload
+
+<ul>
+<li>restarts vagrant machine, loads new Vagrantfile configuration</li>
+</ul>
+</li>
+<li>ssh
+
+<ul>
+<li>connects to machine via SSH</li>
+</ul>
+</li>
+<li>status
+
+<ul>
+<li>outputs status of the vagrant machine</li>
+<li>起動してるサーバのリストをみれるので、ちょいちょい使う</li>
+<li>statusみて、どのサーバに ssh するか決めて、みたいな</li>
+</ul>
+</li>
+<li>up
+
+<ul>
+<li>starts and provisions the vagrant environment</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>その次に使いそうなやーつ</h4>
+
+<ul>
+<li>init
+
+<ul>
+<li>initializes a new Vagrant environment by creating a Vagrantfile</li>
+</ul>
+</li>
+<li>destroy
+
+<ul>
+<li>stops and deletes all traces of the vagrant machine</li>
+</ul>
+</li>
+<li>resume
+
+<ul>
+<li>resume a suspended vagrant machine</li>
+</ul>
+</li>
+<li>suspend
+
+<ul>
+<li>suspends the machine</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>たまーに使うかもねなやーつ</h4>
+
+<ul>
+<li>login
+
+<ul>
+<li>log in to Vagrant Cloud</li>
+</ul>
+</li>
+<li>share
+
+<ul>
+<li>share your Vagrant environment with anyone in the world</li>
+</ul>
+</li>
+<li>plugin
+
+<ul>
+<li>manages plugins: install, uninstall, update, etc.</li>
+</ul>
+</li>
+<li>global-status
+
+<ul>
+<li>outputs status Vagrant environments for this user</li>
+</ul>
+</li>
+</ul>
+
+
+<h4>そんなに使わなそうねなやーつ(box/packageあたりは、box 自作するようになると使うかな)</h4>
+
+<ul>
+<li>box
+
+<ul>
+<li>manages boxes: installation, removal, etc.</li>
+</ul>
+</li>
+<li>connect
+
+<ul>
+<li>connect to a remotely shared Vagrant environment</li>
+</ul>
+</li>
+<li>package
+
+<ul>
+<li>packages a running vagrant environment into a box</li>
+</ul>
+</li>
+<li>rdp
+
+<ul>
+<li>connects to machine via RDP</li>
+</ul>
+</li>
+<li>ssh-config
+
+<ul>
+<li>outputs OpenSSH valid configuration to connect to the machine</li>
+</ul>
+</li>
+<li>version
+
+<ul>
+<li>prints current and latest Vagrant version</li>
+</ul>
+</li>
+</ul>
+
+
+<h3>おわりに</h3>
+
+<p>はい、postgresに突っ込むところまではいきませんでした。
+なぜならpostgres使ったことなくてちょっとめんどくさくなったから。</p>
+
+<p>なので、現状だと、apache の log を tail で引っ張ってきて、fluentd01/02にファイル出力する、 まで。
+次はどこまでいけるかな・・・</p>
+
+<h2>次回予告</h2>
+
+<p>ansible 使った provisioning 。</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fluentdのテスト環境をvagrantでセットアップしてみるべ]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/"/>
+    <updated>2014-08-07T22:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant</id>
+    <content type="html"><![CDATA[<p>こんにちは。Vagrant使ってみよ。と思った<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/logo_vagrant.png" alt="vagrant logo" /></p>
+
+<h2>概要</h2>
+
+<hr />
+
+<p>まぁ使ってみたかっただけです。<br/>
+fluentdの検証するし、今後も環境構築は何回もするし、ついでだから vagrant使ってみよ、<br/>
+なノリです。</p>
+
+<p>実際は、今回のエントリーでは fluentd の環境構築までいかなかったので、何回かに分けて書きますわ。</p>
+
+<h2>vagrantって？</h2>
+
+<hr />
+
+<p>どこでも同じ環境を寸分違わず再現できるセットアップツール、って感じなのかな。<br/>
+boxつくって、設定ファイル書いとけば、どこに持ってっても同じ環境が作れて、<br/>
+問題の再現とかもしやすい、ということです。便利だわー。<br/>
+今回は、数年ぶりに環境構築する用事があったので、使おうと思ったり。</p>
+
+<!-- more -->
+
+
+<h2>インストール</h2>
+
+<hr />
+
+<p><a href="http://www.vagrantup.com/downloads">こちら</a>からダウンロードしてインストール。<br/>
+簡単だから。ただし、ツール自体にGUIはないのでCLIに抵抗がある人はここでおかえりいただきます。</p>
+
+<h2>セットアップ</h2>
+
+<hr />
+
+<p>まずは、<a href="http://www.vagrantup.com/">公式サイト</a>のドキュメンツを辿ってみるべし。<br/>
+Getting Startedを一通りやれば結構わかる。</p>
+
+<h2>諸情報</h2>
+
+<p>今回使ったのは、</p>
+
+<ul>
+<li>vagrant version 1.6.3</li>
+<li>Windows PC + VirtualBox 4.3.8r92456</li>
+<li>MintLinux17 + VirtualBox 4.3 ?</li>
+<li>MacOSX(Mavericks) + VirtualBox 4.3 ?</li>
+</ul>
+
+
+<p>でございます。作った Vagrantfile 含めた設定は、全環境でちゃんと動いてるぽかったです。</p>
+
+<h3>Vagrantfile なる設定ファイルが肝</h3>
+
+<p>設定ファイルのこと。</p>
+
+<ul>
+<li>1つのプロジェクトあたり、1つ存在する。</li>
+<li>プロジェクト内に、どんなサーバが何台存在しているか</li>
+<li>ネットワーク構成どんな感じか</li>
+<li>各サーバに何インストールしとくか、設定どうなってるか</li>
+</ul>
+
+
+<p>などなど定義します。たぶん、流れ的には、</p>
+
+<ul>
+<li>Vagrantfileの書き方覚える</li>
+<li>Provisioningツールの使い方覚える or 既に覚えてれば不要</li>
+<li>Provider(VirtualBox/KVM/Docker etc&hellip;)の使い分け的なものを覚える</li>
+<li>Boxの作り方覚える</li>
+</ul>
+
+
+<p>この辺を覚えていくんでしょう。</p>
+
+<h3>Projectディレクトリと、Vagrantfile を作る！</h3>
+
+<p>下記コマンドを実行してね。<br/>
+(本Entryでは、以降Projectのルートディレクトリは、PROJECT_ROOTとします)
+<code>``
+$ mkdir &lt;PROJECT_ROOT&gt;
+$ cd &lt;PROJECT_ROOT&gt;
+$ vagrant init
+A</code>Vagrantfile<code>has been placed in this directory. You are now
+ready to</code>vagrant up<code>your first virtual environment! Please read
+the comments in the Vagrantfile as well as documentation on
+</code>vagrantup.com` for more information on using Vagrant.</p>
+
+<p>```</p>
+
+<p>やってることは、</p>
+
+<ol>
+<li>Projectディレクトリを作成</li>
+<li>Projectディレクトリに移動</li>
+<li>Projectを初期化(Vagrantfileが生成される)</li>
+</ol>
+
+
+<p>でございます。コマンドで生成された Vagrantfileから、コメントの行を消すと、、、</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;base&rdquo;
+end
+```
+こんな感じ。APIのバージョンは、"2" のようです。<br/>
+config.vm.box = &ldquo;base"は、よくわからないけど、今はいいや。<br/>
+Vagrantfile は、git,svn等の、VCSにcommitすべきものらしいので、commit。</p>
+
+<h3>Box とは？</h3>
+
+<p>生成された、Vagrantfile中にも出てくるけど、Boxとは？<br/>
+Vagrant では、box っていうのが、ひとつのベースイメージになるんだと。<br/>
+仮想イメージの呼び方をVagrant風に言うと &ldquo;Box&rdquo; なのです。</p>
+
+<h3>Box のインストール</h3>
+
+<p>まずは、自分のマシンに、Box(仮想イメージ)を追加します。<br/>
+下記コマンドを、実行。</p>
+
+<p>```
+$ vagrant box add hashicorp/precise64
+==> box: Loading metadata for box &lsquo;hashicorp/precise64&rsquo;</p>
+
+<pre><code>box: URL: https://vagrantcloud.com/hashicorp/precise64
+This box can work with multiple providers! The providers that it
+can work with are listed below. Please review the list and choose
+the provider you will be working with.
+
+1) hyperv
+2) virtualbox
+3) vmware_fusion
+
+Enter your choice: 2
+
+==&gt; box: Adding box 'hashicorp/precise64' (v1.1.0) for provider: virtualbox
+    box: Downloading: https://vagrantcloud.com/hashicorp/precise64/version/2/provider/virtualbox.box
+    ==&gt; box: Successfully added box 'hashicorp/precise64' (v1.1.0) for 'virtualbox'!
+</code></pre>
+
+<p>```</p>
+
+<p>今回使用してる、hashicorp さん謹製の box、precise64 は、</p>
+
+<ul>
+<li>hyperv</li>
+<li>virtualbox</li>
+<li>vmware_fusion</li>
+</ul>
+
+
+<p>に対応してるみたいだけど、2番の virtualbox を選択。<br/>
+そうすると、下記ディレクトリ配下に、VirtualBox のイメージがダウンロードされたり、<br/>
+Vagrantfileのような諸情報が格納されます。(結構時間かかる)</p>
+
+<p>${HOME}/.vagrant.d<br/>
+${HOME}/.vagrant.d/boxes<br/>
+${HOME}/.vagrant.d/data<br/>
+${HOME}/.vagrant.d/gems<br/>
+${HOME}/.vagrant.d/rgloader<br/>
+${HOME}/.vagrant.d/tmp</p>
+
+<p>たぶん大事なのは、boxes 配下なのかな？きっとそうだろう。<br/>
+イメージのダウンロード元は、<a href="https://vagrantcloud.com/">ここ</a>からみたい。</p>
+
+<p>初期化完了した状態で、</p>
+
+<p><code>
+$ vagrant up
+</code>
+実行すると、今追加したほやほやのboxがすぐ起動。<br/>
+ただ、諸々未設定なので、一旦落として設定しましょ。</p>
+
+<ul>
+<li>ネットワーク設定</li>
+<li>ホスト名の設定</li>
+<li>起動時にインストールするアプリがあるのかどうか</li>
+</ul>
+
+
+<p>などなど、設定していきます。<br/>
+まずは、停止。</p>
+
+<p><code>
+$ vagrant destroy
+</code></p>
+
+<h3>Vagrantfile設定</h3>
+
+<p>設定自体は、初期化時に生成された、Vagrantfileを編集していく。</p>
+
+<p>Vagrantfile では、下記なんかを定義できる</p>
+
+<ul>
+<li>起動するマシンスペック</li>
+<li>インストールするアプリケーション</li>
+<li>どうやってアクセスするか</li>
+</ul>
+
+
+<p>今回は、こんなマシンにしようかな。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/guestserver01.png" alt="guestserver" /></p>
+
+<ul>
+<li>CPU x 1 個</li>
+<li>Memory 512 MB</li>
+<li>HDD 15 GB</li>
+<li>Ubuntu12.04</li>
+<li>Network(DHCP/public)</li>
+<li>hostname: testserver</li>
+<li>apache pre-install</li>
+</ul>
+
+
+<p><a href="http://docs.vagrantup.com/v2/getting-started/index.html">ここ</a>とか、
+<a href="http://docs.vagrantup.com/v2/virtualbox/configuration.html">ここ</a>を参照して、書いていく。<br/>
+ハードのスペック関連は、VirtualBoxのAPI経由なので、<a href="http://www.virtualbox.org/manual/ch08.html">ここ</a>
+からやりたいことを探すんだーね。<br/>
+そして出来上がったVagrantfile。(まだスペック関連入れてない版)
+```
+$ cat Vagrantfile</p>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;
+end
+```
+順番に説明。</p>
+
+<h4>config.vm.box = &ldquo;hashicorp/precise64&rdquo;</h4>
+
+<p>このBoxは、このイメージですよ！と、いうこと。</p>
+
+<h4>config.vm.hostname = &ldquo;testserver&rdquo;</h4>
+
+<p>Host名は、testserverですよ！と、いうこと。</p>
+
+<h4>config.vm.network &ldquo;public_network&rdquo;</h4>
+
+<p>Public、といっても、グローバルIPが必ず振られるわけではない。<br/>
+たぶん、下記環境だったらグローバルが来るんじゃないか？</p>
+
+<ul>
+<li>Network IF が 1 つ</li>
+<li>DHCP でグローバルが割り当てられる</li>
+</ul>
+
+
+<p>VirtualBox では、NAT になる。</p>
+
+<p>Network IF が複数ある場合は、こんな感じに指定するそうな。
+<code>
+config.vm.network "public_network", bridge: 'en1: Wi-Fi(AirPort)'
+</code></p>
+
+<h4>config.vm.provision :shell, path: bootstrap.sh</h4>
+
+<p>ゲストサーバ起動時に、PROJECT_ROOT/bootstrap.sh を実行しろ、ということ。<br/>
+なので、ここに、</p>
+
+<p>```</p>
+
+<h1>!/usr/bin/evn bash</h1>
+
+<p>apt-get update
+apt-get install -y apache2
+```</p>
+
+<p>って書いておくと、起動時に、apache2 が入った状態になります。<br/>
+さて、準備は整ったはずなので、いざ起動！！</p>
+
+<p>```
+$ vagrant up
+Bringing machine &lsquo;default&rsquo; up with &lsquo;virtualbox&rsquo; provider&hellip;
+==> default: Importing base box &lsquo;hashicorp/precise64&rsquo;&hellip;
+==> default: Matching MAC address for NAT networking&hellip;
+==> default: Checking if box &lsquo;hashicorp/precise64&rsquo; is up to date&hellip;
+==> default: Setting the name of the VM: project_blog_default_1407340802923_76317
+==> default: Fixed port collision for 22 => 2222. Now on port 2204.
+==> default: Clearing any previously set network interfaces&hellip;
+==> default: Available bridged network interfaces:
+1) en0: Wi-Fi (AirPort)
+2) en1: Thunderbolt 1
+3) en2: Thunderbolt 2
+4) bridge0
+5) p2p0</p>
+
+<p>```
+あ、NIC だけじゃなくて色々あるから指定しないとだめなんですね・・・<br/>
+一旦とめて、Vagrantfile を編集。</p>
+
+<p>```
+$ cat Vagrantfile</p>
+
+<p>VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;
+end
+```</p>
+
+<p>気を取り直して、再度実行。</p>
+
+<p>```
+$ vagrant up
+Bringing machine &lsquo;default&rsquo; up with &lsquo;virtualbox&rsquo; provider&hellip;
+==> default: Checking if box &lsquo;hashicorp/precise64&rsquo; is up to date&hellip;
+==> default: Fixed port collision for 22 => 2222. Now on port 2205.
+==> default: Clearing any previously set network interfaces&hellip;
+==> default: Preparing network interfaces based on configuration&hellip;</p>
+
+<pre><code>default: Adapter 1: nat
+default: Adapter 2: bridged
+</code></pre>
+
+<p>==> default: Forwarding ports&hellip;</p>
+
+<pre><code>default: 22 =&gt; 2205 (adapter 1)
+</code></pre>
+
+<p>==> default: Booting VM&hellip;
+==> default: Waiting for machine to boot. This may take a few minutes&hellip;</p>
+
+<pre><code>default: SSH address: 127.0.0.1:2205
+default: SSH username: vagrant
+default: SSH auth method: private key
+</code></pre>
+
+<p>==> default: Machine booted and ready!
+==> default: Checking for guest additions in VM&hellip;</p>
+
+<pre><code>default: The guest additions on this VM do not match the installed version of
+default: VirtualBox! In most cases this is fine, but in rare cases it can
+default: prevent things such as shared folders from working properly. If you see
+default: shared folder errors, please make sure the guest additions within the
+default: virtual machine match the version of VirtualBox you have installed on
+default: your host and reload your VM.
+default:
+default: Guest Additions Version: 4.2.0
+default: VirtualBox Version: 4.3
+</code></pre>
+
+<p>==> default: Setting hostname&hellip;
+==> default: Configuring and enabling network interfaces&hellip;
+==> default: Mounting shared folders&hellip;</p>
+
+<pre><code>default: /vagrant =&gt; /Users/nemoto_hideaki/work/vagrant/project_blog
+</code></pre>
+
+<p>==> default: Running provisioner: shell&hellip;</p>
+
+<pre><code>default: Running: /var/folders/kn/k_t_9_cs0yjd5q44m9w8b8wh0000gn/T/vagrant-shell20140807-3962-19neoc2.sh
+</code></pre>
+
+<p>==> default: stdin: is not a tty
+==> default: bash: /tmp/vagrant-shell: /usr/bin/evn: bad interpreter: No such file or directory
+The following SSH command responded with a non-zero exit status.
+Vagrant assumes that this means the command failed!</p>
+
+<p>chmod +x /tmp/vagrant-shell &amp;&amp; /tmp/vagrant-shell</p>
+
+<p>Stdout from the command:</p>
+
+<p>Stderr from the command:</p>
+
+<p>stdin: is not a tty
+bash: /tmp/vagrant-shell: /usr/bin/evn: bad interpreter: No such file or directory
+```</p>
+
+<p>はい、再度失敗orz<br/>
+なんだなんだ・・・bootstrap.shを確認確認・・・</p>
+
+<p>&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash<br/>
+&#35;!/usr/bin/evn bash</p>
+
+<p>evn ね・・・修正いたしまして・・・
+```
+&#35;!/usr/bin/env bash</p>
+
+<p>apt-get update
+apt-get install -y apache2
+```
+修正して、再度実行。</p>
+
+<p><code>
+$ vagrant up
+Bringing machine 'default' up with 'virtualbox' provider...
+==&gt; default: Checking if box 'hashicorp/precise64' is up to date...
+==&gt; default: VirtualBox VM is already running.
+</code>
+あ、さっき実行してるから実行中なのか。もしかして今回は bootstrap.sh が実行されてないかも。<br/>
+なので、下記コマンドどっちかで強制実行。</p>
+
+<p><code>
+$ vagrant reload --provision
+$ vagrant provision
+</code></p>
+
+<p>違いは、stdoutみる限り、たぶん・・・</p>
+
+<h4>$ vagrant reload &mdash;provision</h4>
+
+<p>こっちは一旦マシン再起動かけてからの強制実行。</p>
+
+<h4>$ vagrant provision</h4>
+
+<p>こっちは起動したままbootstrap.shだけ強制実行。</p>
+
+<p>どっちか実行すると、ちゃんと apache がインストールされます。</p>
+
+<h3>ログイン！</h3>
+
+<p>次は実際にログインアクセスしますよと。
+```
+$ vagrant ssh
+Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)</p>
+
+<ul>
+<li>Documentation:  <a href="https://help.ubuntu.com/">https://help.ubuntu.com/</a>
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@testserver:~$
+```</li>
+</ul>
+
+
+<p>おーいえす。ちゃんとホスト名も設定されてる。</p>
+
+<p>ちなみに起動時の標準出力じっくりみると色々わかるんだけど、起動時に、guestのssh port(22)と、<br/>
+hostの何番かを紐づけてくれてるので、そこにアクセスしてもいいのかも。<br/>
+```
+Hideaki-no-MacBook-Pro:project_blog nemoto_hideaki$ vagrant reload &mdash;provision
+==> default: Attempting graceful shutdown of VM&hellip;
+==> default: Checking if box &lsquo;hashicorp/precise64&rsquo; is up to date&hellip;
+==> default: Clearing any previously set forwarded ports&hellip;
+==> default: Fixed port collision for 22 => 2222. Now on port 2204.
+==> default: Clearing any previously set network interfaces&hellip;
+==> default: Preparing network interfaces based on configuration&hellip;</p>
+
+<pre><code>default: Adapter 1: nat
+default: Adapter 2: bridged
+</code></pre>
+
+<p>==> default: Forwarding ports&hellip;</p>
+
+<pre><code>default: 22 =&gt; 2204 (adapter 1) &lt;--ここ！！★
+</code></pre>
+
+<p>==> default: Booting VM&hellip;
+==> default: Waiting for machine to boot. This may take a few minutes&hellip;</p>
+
+<pre><code>default: SSH address: 127.0.0.1:2204
+default: SSH username: vagrant
+default: SSH auth method: private key
+</code></pre>
+
+<p>==> default: Machine booted and ready!
+==> default: Checking for guest additions in VM&hellip;
+```</p>
+
+<p>というわけで、localhostの 2204 番にアクセスしてみるも・・・
+<code>
+$ ssh -p 2204 vagrant@127.0.0.1
+vagrant@127.0.0.1's password:
+</code>
+private key 設定すればよさげだけど・・・どの key だ？面倒なんでパス。<br/>
+つまり、こんな設定をして、vagrant up/vagrant ssh すればつながるよ！<br/>
+という話でした。</p>
+
+<p>はっ！マシンスペック！変えるんだった。とりあえず、default のままのスペックは下記。<br/>
+```
+$ cat /proc/cpuinfo | grep -E &lsquo;processor|model name&rsquo;
+processor: 0
+model name: Intel&reg; Core&trade; i5-4258U CPU @ 2.40GHz
+processor: 1
+model name: Intel&reg; Core&trade; i5-4258U CPU @ 2.40GHz</p>
+
+<p>$ free -m</p>
+
+<pre><code>         total       used       free     shared    buffers     cached
+         Mem:           365        321         43          0         11        248
+         -/+ buffers/cache:         61        303
+         Swap:          767          0        767
+</code></pre>
+
+<p>$ df -h
+Filesystem                  Size  Used Avail Use% Mounted on
+/dev/mapper/precise64-root   79G  2.3G   73G   4% /
+udev                        174M  4.0K  174M   1% /dev
+tmpfs                        74M  288K   73M   1% /run
+none                        5.0M     0  5.0M   0% /run/lock
+none                        183M     0  183M   0% /run/shm
+/dev/sda1                   228M   25M  192M  12% /boot
+vagrant                     233G   92G  142G  40% /vagrant
+```
+CPU : 2個
+Memory : 384MB
+HDD : 80GB
+(VirtualBox の GUI から引っ張って来てるスペック)</p>
+
+<ul>
+<li>CPU : 1個</li>
+<li>Memory 512MB</li>
+<li>HDD 15GB</li>
+</ul>
+
+
+<p>やることは、</p>
+
+<ul>
+<li>CPUを一個に減らす</li>
+<li>Memoryを512MBに増やす</li>
+<li>HDDを15GBに減らす</li>
+</ul>
+
+
+<p><a href="http://docs.vagrantup.com/v2/virtualbox/configuration.html">参考サイト１</a><br/>
+<a href="http://www.virtualbox.org/manual/ch08.html">参考サイト２</a><br/>
+上記２サイトを見比べた結果・・・
+```
+$ cat Vagrantfile
+VAGRANTFILE_API_VERSION = &ldquo;2&rdquo;</p>
+
+<p>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = &ldquo;hashicorp/precise64&rdquo;
+  config.vm.hostname = &ldquo;testserver&rdquo;
+  config.vm.network &ldquo;public_network&rdquo;, bridge: &lsquo;en0: Wi-Fi (AirPort)&rsquo;
+  config.vm.provision :shell, path: &ldquo;bootstrap.sh&rdquo;</p>
+
+<p>  # ここから下を追記した
+  config.vm.provider :virtualbox do |v|</p>
+
+<pre><code>v.customize ["modifyvm", :id, "--memory", "512"]
+v.customize ["modifyvm", :id, "--cpus", "1"]
+v.customize ["modifyhd", "b5fc9c57-f008-4118-a03f-e535f25deea4", "--resize", "1024"]
+</code></pre>
+
+<p>  end
+end
+<code>
+こう。こんな感じでいけるはず。  
+modifyhd の横の、"b5fc9c57-f008-4118-a03f-e535f25deea4"は、VirtualBox イメージのイメージファイルの UUID。  
+下記コマンド実行すればみれるです。
+</code>
+$ VBoxManage list -l vms
+Name:            project_blog_default_1407343357247_93821
+Groups:          /
+Guest OS:        Ubuntu (64 bit)
+UUID:            7819729d-541f-47b8-8607-ec50965f4901
+&hellip;
+(中略)
+&hellip;
+SATA Controller (0, 0): /Users/nemoto_hideaki/VirtualBox VMs/project_blog_default_1407343357247_93821/box-disk1.vmdk (UUID: b5fc9c57-f008-4118-a03f-e535f25deea4) &lt;&mdash; これ！！
+&hellip;
+(中略)
+&hellip;
+```</p>
+
+<p>よし！実行！
+```
+$ vagrant up
+Bringing machine &lsquo;default&rsquo; up with &lsquo;virtualbox&rsquo; provider&hellip;
+&hellip;
+(中略)
+&hellip;
+A customization command failed:</p>
+
+<p>[&ldquo;modifyhd&rdquo;, &ldquo;b5fc9c57-f008-4118-a03f-e535f25deea4&rdquo;, &ldquo;&mdash;resize&rdquo;, &ldquo;1024&rdquo;]</p>
+
+<p>The following error was experienced:</p>
+
+<h1>&lt;Vagrant::Errors::VBoxManageError: There was an error while executing <code>VBoxManage</code>, a CLI used by Vagrant</h1>
+
+<p>for controlling VirtualBox. The command and stderr is shown below.</p>
+
+<p>Command: [&ldquo;modifyhd&rdquo;, &ldquo;b5fc9c57-f008-4118-a03f-e535f25deea4&rdquo;, &ldquo;&mdash;resize&rdquo;, &ldquo;1024&rdquo;]</p>
+
+<p>Stderr: 0%&hellip;
+Progress state: VBOX_E_NOT_SUPPORTED
+VBoxManage: error: Resize hard disk operation for this format is not implemented yet!</p>
+
+<blockquote></blockquote>
+
+<p>Please fix this customization and try again.
+```</p>
+
+<p>はい、まただめ・・・orz<br/>
+VBoxManage: error: Resize hard disk operation for this format is not implemented yet!<br/>
+まだ実装してねーってよ。あきらめよう。</p>
+
+<p>HDD の件を削って実行して、スペック確認した結果。
+```
+vagrant@testserver:~$ cat /proc/cpuinfo | grep -E &lsquo;processor|model name&rsquo;
+processor   : 0
+model name  : Intel&reg; Core&trade; i5-4258U CPU @ 2.40GHz
+vagrant@testserver:~$ free -m</p>
+
+<pre><code>         total       used       free     shared    buffers     cached
+</code></pre>
+
+<p>Mem:           491        338        153          0         15        260
+&ndash;/+ buffers/cache:         61        429
+Swap:          767          0        767
+vagrant@testserver:~$ df -h
+Filesystem                  Size  Used Avail Use% Mounted on
+/dev/mapper/precise64-root   79G  2.3G   73G   4% /
+udev                        237M  4.0K  237M   1% /dev
+tmpfs                        99M  288K   99M   1% /run
+none                        5.0M     0  5.0M   0% /run/lock
+none                        246M     0  246M   0% /run/shm
+/dev/sda1                   228M   25M  192M  12% /boot
+vagrant                     233G   92G  142G  40% /vagrant
+```</p>
+
+<p>HDD リサイズとかは、たぶん Box 定義からいじる、とかなのかな？<br/>
+その辺の深追いはまた今度。<br/>
+まず今日の課題はクリアで。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/08/guestserver01_nohdd.png" alt="guestserver_hddstay" /></p>
+
+<h2>次回予告</h2>
+
+<p>複数サーバをぼこぼこあげるとき。</p>
+
+<p>続きの複数サーバ編は
+<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">ここ</a>だよ。</p>
+
+<p>基本vagrantのproviderは、主要な仮想化に対応してるから便利だな・・・</p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Mutt | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/mutt/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-09-29T21:09:09+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Mutt] Finding Corresponding Keycode by Typing Keys]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/01/29/mutt-finding-corresponding-keycode-by/"/>
+    <updated>2014-01-29T19:26:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/01/29/mutt-finding-corresponding-keycode-by</id>
+    <content type="html"><![CDATA[<div  class=post>
+  I always fail to set the correct keycode when setting key bind for mutt.  <br> <br>
+  So some tips I'll leave here.  <br> <br>
+  <!-- more -->
+  <ol>
+  <li>
+    boot mutt
+  </li>
+  <li>
+    in index mode, type following <br>
+    :exec what-key
+  </li>
+  <li>
+    press the key/keys you want to know the keycode for
+  </li>
+  <li>
+    check the result <br>
+    (following example pressed "p") <br>
+    Char = p, Octal = 160, Decimal = 112
+  </li>
+  <li>
+    set the key binding in muttrc
+  </li>
+  </ol>
+  that's it.  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

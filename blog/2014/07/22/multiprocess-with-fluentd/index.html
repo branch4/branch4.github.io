@@ -1,0 +1,768 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Fluentdを複数起動したい - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="site about web/internet development, and recruitment">
+  <meta name="keywords" content="development, internet, web, infrastructure, provisioning, ruby, rails, virtualization, aws, database">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+  <meta property="og:title" content="fluentdを複数起動したい - branch4 Blog" />
+<meta property="og:description" content="site about web/internet development, and recruitment" />
+<meta property="og:url" content="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd" />
+<meta property="og:image" content="https://www.facebook.com/branch4/photos/a.1495942137305296.1073741825.1495707567328753/1495942143971962/?type=1&source=11" />
+<meta property="og:author" content="root4" />
+<meta property="og:site_name" content="branch4 Blog" />
+<meta property="og:locale" content="ja_JP" />
+<meta property="og:type" content="article" />
+<meta property="fb:app_id" content="1491249807810656" />
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Fluentdを複数起動したい</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+  <span class='updated' title="2014-07-22 22:30:00 +0900"></span>
+
+
+
+<time datetime="2014-07-22T22:30:00+09:00" pubdate data-updated="true">Jul 22<span>nd</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>概要</h2>
+
+<hr />
+
+<p>タイトル通りなんだけど、「fluentdを複数起動したいなー」<br/>
+って、質問いただいたので、簡単に手順を書いておきまっせ。</p>
+
+<h3>fluentdとは？</h3>
+
+<hr />
+
+<p>知らない人はいないね。はい。</p>
+
+<p><a href="http://www.fluentd.org/"><img src="http://blog.branch4.pw/images/2014/07/fluentd-logo.png" alt="fluentd logo" /></a></p>
+
+<p><a href="http://www.treasuredata.com">tresuredata</a>で開発されたオープンソースのデータコレクタですのん。<br/>
+詳しいことは、<a href="http://www.fluentd.org/">fluentdのwebsite</a>にいけば大体書いてあるね。</p>
+
+<p>この前行った、AWSSummit Tokyo2014でも、どの会社も、<br/>
+「弊社では、ログはfluentdで処理しています！(ドヤ)」的な感じでした。<br/>
+使うのが普通ですね、はい。</p>
+
+<p>ちなみに僕はインストールするの今回初です(笑)<br/>
+弊社では使ってるんですけどね、もう現場仕事から離れること・・・200X年くらい。</p>
+
+<p>なのでね、今回の記事のイメージはこんな感じだけど、なんか間違って理解してたら誰か突っ込みよろ！</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/07/multiprocess.png" alt="multiprocess with fluentd" /></p>
+
+<h3>前提</h3>
+
+<hr />
+
+<p>multiprocessといっても、</p>
+
+<p><a href="https://github.com/frsyuki/fluent-plugin-multiprocess">こういうの</a><br/>
+とか<br/>
+<a href="http://orihubon.com/blog/2013/12/06/fluentd-multiprocess-input-plugin/">こういうの</a><br/>
+とは違う意味で。</p>
+
+<p>本当に、プロセスを別で起動したいんです！という話。<br/>
+ようは、片方のプロセス止めるときに、もう一方は止めたくないんだよね、的なアレ。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>詳細</h2>
+
+<hr />
+
+<p>まず、fluentd自体、ubuntuだとprecise/lucidしかサポートしていないので、<br/>
+binaryで入れたい方は対応osお使いください。</p>
+
+<h3>fluentdに限らず</h3>
+
+<hr />
+
+<p>fluentdに限らずな話ではあるんですが、なにかしらのアプリを複数起動する、<br/>
+ということ自体は、そんなに難しいことではないす。面倒な時はあるけど。</p>
+
+<p>気をつけるのは、以下。</p>
+
+<ul>
+<li>IP address</li>
+<li>port</li>
+<li>other sharable resources(files/sockets)</li>
+</ul>
+
+
+<p>大体のアプリは、上記を専有して起動しちゃうので、それが被らないように<br/>
+configをいじったりすれば概ね同時に起動して問題なす。</p>
+
+<h3>fluentdの場合</h3>
+
+<hr />
+
+<p>で、fluentd@ubuntu(precise pangolin)の場合にどうやったかね、というお話。</p>
+
+<p>まず、インストール後、今回触るファイルたちのリストは以下。</p>
+
+<ul>
+<li>/etc/init.d/td-agent</li>
+<li>/etc/td-agent/td-agent.conf</li>
+<li>/etc/default/td-agent</li>
+</ul>
+
+
+<p>それぞれ軽く解説をつけると・・・</p>
+
+<ul>
+<li>/etc/init.d/td-agent
+
+<ul>
+<li>fluentdの起動スクリプト</li>
+<li>このファイルいじって、PIDファイルが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/td-agent/td-agent.conf
+
+<ul>
+<li>fluentdのconfigファイル</li>
+<li>これの設定をいじって、portが被らないようにする</li>
+</ul>
+</li>
+<li>/etc/default/td-agent
+
+<ul>
+<li>fluentdの起動オプション設定ファイル</li>
+<li>これの設定をいじって、起動時に読み込むconfigを切り替える</li>
+</ul>
+</li>
+</ul>
+
+
+<p>こんな感じ。実際のところは上記の３ファイルをコピって、二つずつ作るのだ。がっはっは。</p>
+
+<p>と、いうわけで、まずは各ファイルのコピーだけ作っておきましょ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo cp /etc/init.d/td-agent /etc/init.d/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/default/td-agent /etc/default/td-agent_nginx
+</span><span class='line'>% sudo cp /etc/td-agent/td-agent_nginx.conf /etc/td-agent/td-agent_nginx.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>suffinxにnginxっていれてるのは、特に意味はないす。<br/>
+ただ、なんのためのfluentdなのか見分けつかなくなるようなファイル名はやめたほうがよいかと。</p>
+
+<h3>各ファイルの詳細</h3>
+
+<hr />
+
+<h4>/etc/init.d/td-agent_nginx</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Introduce the short server's name here
+</span><span class='line'>NAME=td-agent_nginx ★ここ修正
+</span><span class='line'>
+</span><span class='line'># Read configuration variable file if it is present
+</span><span class='line'>[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+</span><span class='line'>
+</span><span class='line'># PATH should only include /usr/* if it runs after the mountnfs.sh script
+</span><span class='line'>PATH=/sbin:/usr/sbin:/bin:/usr/bin
+</span><span class='line'>USER=td-agent                   # Running user
+</span><span class='line'>GROUP=td-agent                  # Running group
+</span><span class='line'>DESC=td-agent_nginx             # Introduce a short description here★ここ修正
+</span><span class='line'>PIDFILE=/var/run/$NAME/$NAME.pid
+</span><span class='line'>DAEMON=/usr/lib/fluent/ruby/bin/ruby # Introduce the server's location here
+</span><span class='line'># Arguments to run the daemon with
+</span><span class='line'>#DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS --daemon $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>DAEMON_ARGS="/usr/sbin/td-agent $DAEMON_ARGS $PIDFILE --log /var/log/td-agent/td-agent_nginx.log" ★ここ修正
+</span><span class='line'>echo $DAEMON_ARGS
+</span><span class='line'>SCRIPTNAME=/etc/init.d/$NAME
+</span><span class='line'>START_STOP_DAEMON_ARGS=""</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/td-agent/td-agent_nginx.conf</h4>
+
+<p>インストール直後のconfigっす。コメントは邪魔なのでとっぱらってます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>####
+</span><span class='line'>## Output descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;match td.*.*&gt;
+</span><span class='line'>  type tdlog
+</span><span class='line'>  apikey YOUR_API_KEY
+</span><span class='line'>
+</span><span class='line'>  auto_create_table
+</span><span class='line'>  buffer_type file
+</span><span class='line'>  buffer_path /var/log/td-agent_nginx/buffer/td ★ここ修正(同じログファイル握らないように)
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;match debug.**&gt;
+</span><span class='line'>  type stdout
+</span><span class='line'>&lt;/match&gt;
+</span><span class='line'>
+</span><span class='line'>####
+</span><span class='line'>## Source descriptions:
+</span><span class='line'>##
+</span><span class='line'>
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type forward
+</span><span class='line'>  port 25224 ★defaultだと24224になってるので、明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'># HTTP input
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type http
+</span><span class='line'>  port 18888 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;
+</span><span class='line'>
+</span><span class='line'>## live debugging agent
+</span><span class='line'>&lt;source&gt;
+</span><span class='line'>  type debug_agent
+</span><span class='line'>  bind 127.0.0.1
+</span><span class='line'>  port 25235 ★ここも明示的に変更しておく
+</span><span class='line'>&lt;/source&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>/etc/default/td-agent_nginx</h4>
+
+<p>起動時につけるオプションね。<br/>
+ここで読み込むconfig変更しますゆえお忘れなく。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># This file is sourced by /bin/sh from /etc/init.d/td-agent
+</span><span class='line'># Options to pass to td-agent
+</span><span class='line'>DAEMON_ARGS="--config /etc/td-agent/td-agent_nginx.conf" ★これ追記。違う設定ファイル読み込むように</span></code></pre></td></tr></table></div></figure>
+
+
+<p>このくらい修正をかけると、だ、下記コマンドで動くはず、だ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent start
+</span><span class='line'>% sudo /etc/init.d/td-agent_nginx start
+</span><span class='line'>% ps aux|grep td-agent
+</span><span class='line'>td-agent 11314  0.0  3.5  98888 17912 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11317  2.4  5.2 125704 26260 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --daemon /var/run/td-agent/td-agent.pid --log /var/log/td-agent/td-agent.log
+</span><span class='line'>td-agent 11348  0.0  3.5  98888 17908 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log
+</span><span class='line'>td-agent 11351  5.5  5.2 125704 26224 ?        Sl   07:05   0:00 /usr/lib/fluent/ruby/bin/ruby /usr/sbin/td-agent --config /etc/td-agent/td-agent_nginx.conf --daemon /var/run/td-agent_nginx/td-agent_nginx.pid --log /var/log/td-agent/td-agent_nginx.log</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ぱちぱちぱちぱちーーー。いやまぁそらそーだ。<br/>
+で、ここまでは結構すぐいきましたわい。ところが、、、、</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>% sudo /etc/init.d/td-agent stop</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つって、止めようとすると、、、なんと！両方のプロセスが止まる！<br/>
+ひぎぃ・・・・/etc/init.d/td-agentの中身としばらくにらめっこ。</p>
+
+<p>debian系のinit scriptの中では、start-stop-daemonってのがdaemonの起動・停止に<br/>
+まつわるetc をやっていて、そのあたりをちょっと調べてみることに。</p>
+
+<ul>
+<li>fluentdのdo_stopでは、２回start-stop-daemonが呼ばれている
+
+<ul>
+<li>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</li>
+<li>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</li>
+</ul>
+</li>
+</ul>
+
+
+<p>と、いうのと、man start-stop-daemonの中身をみると。。。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Note: unless --pidfile is specified, start-stop-daemon behaves similar to killall(1).
+</span><span class='line'>start-stop-daemon will scan the process table looking for any processes which match
+</span><span class='line'>the process name, uid, and/or gid (if specified).
+</span><span class='line'>
+</span><span class='line'>Any matching process will prevent --start from starting the daemon. All matching processes
+</span><span class='line'>will be sent the TERM signal (or the one specified via --signal or --retry)
+</span><span class='line'>if --stop is specified.
+</span><span class='line'>
+</span><span class='line'>For  daemons  which  have  long-lived children which need to live through a --stop,
+</span><span class='line'>you must specify a pidfile.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>つまり・・・&mdash;pidfileオプションが指定されてなければ、killallと同じように動く、と・・・<br/>
+おお・・・そりゃ両方のプロセス殺されるわけだ・・・<br/>
+逆に言えば、&mdash;pidfileを指定しとけばkillの動作なのかな・・・</p>
+
+<p>で、straceかけて、2パターン検証してみたYO。</p>
+
+<h4>1回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;retry=TERM/30/KILL/5 &mdash;pidfile $PIDFILE &mdash;name ruby</h4>
+
+<p>やってることは、</p>
+
+<ol>
+<li>$PIDFILEの中のprocessidをとってくる(ここでは、$PIDとしよう)</li>
+<li>/proc/$PID/statが存在するか確認する</li>
+<li>存在しない場合は、終わり</li>
+<li>存在する場合は、3へ</li>
+<li>killする</li>
+<li>2に戻る</li>
+</ol>
+
+
+<p>をひたすら繰り返しております。<br/>
+なんで、基本的にはkillと同じ動きなのかな。retry付きで。</p>
+
+<h4>2回目: start-stop-daemon &mdash;stop &mdash;quiet &mdash;oknodo &mdash;retry=TERM/30/KILL/5 &mdash;exec $DAEMON</h4>
+
+<p>こっちは、まじkillallだったわ。</p>
+
+<ol>
+<li>/proc/&lt;全ProcessのPID>/exe のsymbolic link先 == $DAEMON か確認</li>
+<li>同じだったprocessにkillでsignal送信</li>
+<li>同じのがなくなるまで1と2を繰り返す</li>
+</ol>
+
+
+<p>killall。<br/>
+で、問題は、なんでこれを使う必要があるか・・・。<br/>
+きっと、本体殺しても、まだ生き残ってるプロセスがいる可能性があるから、<br/>
+なんだろうな・・・</p>
+
+<p>そこまでプロセスわけた上でやろうとすると、ちょいと今今時間がないので、<br/>
+一旦、各プロセスの本体を殺すinit scriptを書いてみたです。<br/>
+普通にkillコマンドで書いてます。start-stop-daemon、まだ使いこなせまてん。</p>
+
+<p>送るsignalは、<a href="http://docs.fluentd.org/articles/signals">ここ</a>に書いてあったので、INT/TERM。<br/>
+今回はINTでお送りいたします。</p>
+
+<p>/etc/init.d/td-agentの、do_stopを下記に書き換えてもらって、それコピーして、<br/>
+/etc/init.d/td-agent_nginxつくってもらえれば、それぞれに殺すことができまっせ。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#
+</span><span class='line'># Function that stops the daemon/service
+</span><span class='line'>#
+</span><span class='line'>do_stop()
+</span><span class='line'>{
+</span><span class='line'>    # Return
+</span><span class='line'>    #   0 if daemon has been stopped
+</span><span class='line'>    #   1 if daemon was already stopped
+</span><span class='line'>    #   2 if daemon could not be stopped
+</span><span class='line'>    #   other if a failure occurred
+</span><span class='line'>    PID=`cat $PIDFILE`
+</span><span class='line'>    kill -INT $PID
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -ne 0 ]; then
+</span><span class='line'>        RETVAL="2"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    ps aux | grep $PIDFILE &gt;/dev/null 2&gt;&1
+</span><span class='line'>    RETVAL="$?"
+</span><span class='line'>    if [ $RETVAL -eq 0 ]; then
+</span><span class='line'>        rm -f $PIDFILE
+</span><span class='line'>        return "$RETVAL"
+</span><span class='line'>    fi
+</span><span class='line'>
+</span><span class='line'>    return "2"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>終わりに</h3>
+
+<hr />
+
+<p>これでなんか問題出たら、他のプロセスも殺せるように改変しようかな。<br/>
+(ご利用は各自の責任においてお願いします。Use at your own risk.)</p>
+
+<p>たぶん、改変自体は、ループ回して、待つ作戦＋ps 結果をgrepしてプロセス毎の<br/>
+PID取得する作戦かなー。</p>
+
+<p>ま、一旦はこれである程度まではいけるので、ブログはここまでで。</p>
+
+<p><a href="http://c.af.moshimo.com/af/c/click?a_id=442315&p_id=170&pc_id=185&pl_id=4157&guid=ON" target="_blank"><img src="http://image.moshimo.com/af-img/0068/000000004157.gif" width="300" height="250" style="border:none;"></a><img src="http://i.af.moshimo.com/af/i/impression?a_id=442315&p_id=170&pc_id=185&pl_id=4157" width="1" height="1" style="border:none;"></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">xengineer01</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+  <span class='updated' title="2014-07-22 22:30:00 +0900"></span>
+
+
+
+<time datetime="2014-07-22T22:30:00+09:00" pubdate data-updated="true">Jul 22<span>nd</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/infra/'>Infra</a>, <a class='category' href='/blog/categories/web-development/'>Web Development</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+  
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+  
+  
+  <div class="fb-comments" data-href="http://blog.branch4.pw" data-num-posts="2" data-width="689"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/12/fix-the-time-on-ec2/" title="Previous Post: EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~">&laquo; EC2の時間を合わせる ~UTCに戻ってしまって困ってるあなたに~</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/07/27/first-rspec-with-rails/" title="Next Post: First RSpec with Rails">First RSpec with Rails &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/21/long-elapsed-sql-oracle/">Oracle 実行時間の長いSQLの見つけ方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/09/ansible-for-beginners/">Ansible入門 - Ad-hoc Modeを使ってみる -</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/06/public-key-authentication/">公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/31/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/infra'>Infra (8)</a></li><li><a href='/blog/categories/web-development'>Web Development (7)</a></li><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/dynamodb'>DynamoDB (1)</a></li><li><a href='/blog/categories/ec2'>EC2 (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/07/22/multiprocess-with-fluentd/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/ja_JP/all.js#appId=1491249807810656&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
