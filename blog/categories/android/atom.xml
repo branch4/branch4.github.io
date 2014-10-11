@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Android | branch4 Blog]]></title>
+  <link href="http://blog.branch4.pw/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://blog.branch4.pw/"/>
+  <updated>2014-10-11T23:43:22+09:00</updated>
+  <id>http://blog.branch4.pw/</id>
+  <author>
+    <name><![CDATA[root4]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] onClick Event With ImageView]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview/"/>
+    <updated>2014-04-06T22:42:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/04/06/android-onclick-event-with-imageview</id>
+    <content type="html"><![CDATA[<div  class=post>
+  <h3 >
+    Purpose
+  </h3>
+  As said in the title.  <br>
+  It was my first shot using onClick event with ImageView, so just for memo.  <br>
+  (in fact it's my first Android development) <br>
+  Keep in mind that this seem just to be one way of implementing onClick event with a view.  <br> <br>
+  <!-- more -->
+  <h3 >
+    Details
+  </h3>
+  <fieldset >
+    <legend >
+      Follow these 2steps
+    </legend>
+    <ol >
+      <li >
+        set a function name that should be called on onClick event in XML file(say it's onClickEvent in this entry)
+      </li>
+      <li >
+        declare the onClickEvent in java file(Let's say we just pop a toast)
+      </li>
+    </ol>
+  </fieldset>
+  This is part of the XML file.
+  <br>
+  <pre  class=prettyprint>
+    &lt;ImageView
+    android:id="@+id/imageview01"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/image"
+    android:layout_gravity="bottom"
+    android:scaleType="fitEnd"
+    android:onClick="onClickEvent" />***** <- this Line !!!!  </pre>
+  Now, declare onClickEvent in the activity.  <br>
+  I use SherlockActivity, and SlidingMenu so it's a little messy, but it's ok to remove those.  <br>
+  <br>
+  <pre  class=prettyprint>
+    public class MainActivity extends SherlockActivity {
+      @Override
+      protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTheme(R.style.Theme_Sherlock);
+        setTitle(R.string.attach);
+        // set the content view
+        setContentView(R.layout.activity_main);
+        // configure the SlidingMenu
+        SlidingMenu menu = new SlidingMenu(this);
+        menu.setMode(SlidingMenu.LEFT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        menu.setShadowWidthRes(R.dimen.shadow_width);
+        menu.setShadowDrawable(R.drawable.shadow);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setFadeDegree(0.35f);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        menu.setMenu(R.layout.list);
+      }
+      public void onClickEntry(View v) {
+        Toast.makeText(MainActivity.this, "test", Toast.LENGTH_LONG).show();
+      }
+    }</pre>
+  And you should see the toast after the tap.
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] Android Studioでdebugする方法その１]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug/"/>
+    <updated>2014-03-10T03:18:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studiodebug</id>
+    <content type="html"><![CDATA[<div  class=post>
+  とりあえずEcllipseのプロジェクトをimportしてつまずいたこと。 <br> <br>
+  <h4 >
+    1. Gradleのversionが高杉なんだよ！と怒られた。
+  </h4>
+  ので、versionをさげた。 <br> <br>
+  brew でversion下げるのはこんな感じ。 <br>
+  <!-- more -->
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ brew unlink gradle
+      $ brew versions gradle
+      $ cd /usr/local/Library/Formula/
+      $ git checkout
+      &lt;commit&gt;
+        /usr/local/Library/Formula/gradle.rb
+        $ brew info gradle
+        $ brew install gradle
+      &lt;/commit&gt;
+    </span> </pre>
+  <br>
+  # &lt;commit&gt;は、brew versions gradleで表示されるのをコピペ <br> <br>
+  <h4 >
+    ビルドしたらエラー
+  </h4>
+  Run with stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.  <br>
+  こんなエラーがでた。 <br> <br>
+  まず、どうやってdebugモードで実行すんの？からぐぐった。 <br>
+  どうやら、プロジェクトのrootにterminalでいって、 <br> <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ gradle compileDebugAidl --stacktrace --debug
+    </span> </pre>
+  <br>
+  こんなん打てばおっけー。 <br>
+  これでやっと原因がわかる。 <br> <br>
+  <h4 >
+    libararyと、applicationの、minSdk/targetSdkをそろえる
+  </h4>
+  揃えないと怒られるので揃える。 <br> <br>
+  <h4 >
+    ビルドしたらまたエラー
+  </h4>
+  Could not find element /manifest/application.<br>
+  このエラー。意味不明なんだけど、検索したら、manifest mergerのbugらしい。 <br> <br>
+  <a  href=http://stackoverflow.com/questions/16987512/building-android-studio-project-with-holoeverywhere-fails>ここ</a>
+  に書いてあった。   全部の、AndroidManifest.xmlに、application要素が入ってないと出るらしいので、入ってなかったslidingmenuに
+  <application></application>
+  って入れこんで無事ビルド完了。 <br> <br>
+  明日は開発に入れるのだろうか・・・ <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] Android Studio]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9/"/>
+    <updated>2014-03-10T00:51:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/03/10/android-android-studio_9</id>
+    <content type="html"><![CDATA[<div  class=post>
+  まぁ・・・Ecllipse使うよりは使い勝手はよさそうなんだけど・・・<br>
+  なにかにつけて、  あれのバージョンがあわないー だの、<br>
+  これのバージョンが古いー  だの言われるのがすごい面倒・・・<br>
+  開発させろよ・・・
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] Entry Point of Android Program]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program/"/>
+    <updated>2014-02-11T12:55:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/02/11/android-entry-point-of-android-program</id>
+    <content type="html"><![CDATA[<div  class=post>
+  There's no main function in Android programming.  <br>
+  Many people notice that. So where's the entry point ?  <br>
+  It's pointed in AndroidManifest.xml file.  <br>
+  There are many things written in this file so I'll go into the details in other articles.  <br><br>
+  For now, example below will be enough.  <br> <br>
+  <!-- more -->
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;?xml version="1.0" encoding="utf-8"?&gt;
+      &lt;manifest
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.XXXX.testApp"
+        android:versionCode="1" android:versionName="1.0" &gt;
+      &lt;uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="18" /&gt;
+      &lt;application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" &gt;
+      &lt;activity
+        android:name="com.xxxx.yyyy.MainActivity"
+        android:label="@string/app_name" &gt;
+      &lt;intent-filter&gt;
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+      &lt;/intent-filter&gt;
+      &lt;/activity&gt;
+      &lt;/application&gt;
+      &lt;/manifest&gt;
+    </span> </pre>
+  In above manifest, the activity with, the intent-filter below will be listed in the system launcher, and would be the entry point for that icon.  <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;intent-filter&gt;
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+      &lt;/intent-filter&gt;
+    </span> </pre>
+  In detail, <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;action android:name="android.intent.action.MAIN" /&gt;
+    </span> </pre>
+  -->this line sets the entry point <br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+    </span> </pre>
+  -->this line sets the app to the launcher <br> <br>
+  This could be set to multiple activities.  <br>
+  I think facebook once used this with their messenger.  <br> <br>
+  <br>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[[Android] onCreateメソッドの引数の意味]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/02/03/android-oncreate/"/>
+    <updated>2014-02-03T00:43:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/02/03/android-oncreate</id>
+    <content type="html"><![CDATA[<div  class=post>
+  Android開発やってみてるわけですが、わからないことだらけで困ってます。 <br> <br>
+  今日は、<br><br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+    onCreate(Bundle savedInstanceState)
+    </span></pre>
+  の、引数のところって何？ という疑問でございます。<br><br>
+  まぁググれば沢山出てくるんですが。
+    <!-- more -->
+  <br><br>
+  一番は、
+  <a  href=http://developer.android.com/training/basics/activity-lifecycle/recreating.html style=font-family: inherit; target=_blank>ここ</a> 。当たり前か。 <br> 
+  日本語だと
+  <a  href=http://fernweh.jp/b/android-state-save-load/ target=_blank>ここ</a> がわかりやすかったです。 <br> <br>
+  僕も忘れないように反芻すると・・・ <br>
+  <ul>
+  Androidでは、こんなときに、Activityが破棄されてます。
+  <li>
+    画面を縦方向から横方向に持ち替えた時
+  </li>
+  <li>
+    バックグラウンドに入ってしばらく経った時<br>
+  </li>
+  <li>
+    システム容量が足りなくなった時
+  </li>
+  <li>
+    ユーザがアプリを終了した時
+  </li>
+  </ul>
+  などなど。 <br> <br>
+  ユーザが自分で閉じた時は別らしいけど、少なくとも、下記２パターンにおいては、 <br>
+  勝手にActivity破棄されると残念な気持ちになります。 <br><br>
+  <ul>
+  <li>
+    画面を縦方向から横方向に持ち替えた時
+  </li>
+  <li>
+    システム容量が足りなくなった時
+  </li>
+  </ul>
+  だって、こっちは悪くないもの。 <br>
+  そんなことはGoogleさんも百も承知のようで、破棄前に、 <br><br>
+    onSaveInstanceState() <br><br>
+  を呼ぶらしい。で、その時の状態が、key/valueペアになって、Bundleクラスに保存されて・・・ <br> <br>
+  onCreateメソッドの引数でわたってくる、ということのようでした。 <br> <br>
+  確かに、縦から横に持ち替えた時、layoutも変わるし、同じ情報じゃ画面再構築できないかもしれないし、再読み込み必要です。 <br> <br>
+  ちなみに、onCreateで渡ってくるので、ここでは処理しないといけないのと、 <br> <br>
+  onRestoreInstanceState()が、Activity cycleでいうと、onStart()の後に呼ばれる(<a  href=http://developer.android.com/reference/android/app/Activity.html target=_blank>ここ</a>
+  参照)ので、処理いれとかないと、onStop()->onRestart()のフローでの復帰時にうまくいかなそうな予感。 <br> <br>
+  ちなみに、Bundleのメソッドたちは、
+  <a  href=http://developer.android.com/reference/android/os/Bundle.html target=_blank>ここ</a>参照。 <br> <br>
+  とりあえず、そんなメモでした。 <br> <br>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

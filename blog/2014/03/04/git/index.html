@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>[Git] タグ打ちするときーーー - branch4 Blog</title>
+  <meta name="author" content="root4">
+
+  
+  <meta name="description" content="site about web/internet development, and recruitment">
+  <meta name="keywords" content="development, internet, web, infrastructure, provisioning, ruby, rails, virtualization, aws, database">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.branch4.pw/blog/2014/03/04/git">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="branch4 Blog" type="application/atom+xml">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css" />
+  <link rel="alternate" href="http://blog.branch4.pw" hreflang="ja-jp" />
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <script type="text/javascript" src="http://blog.branch4.pw/javascripts/affiliate.js" charset="utf-8"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-51301130-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+  <meta property="og:title" content="[git] タグ打ちするときーーー - branch4 Blog" />
+<meta property="og:description" content="site about web/internet development, and recruitment" />
+<meta property="og:url" content="http://blog.branch4.pw/blog/2014/03/04/git" />
+<meta property="og:image" content="https://www.facebook.com/branch4/photos/a.1495942137305296.1073741825.1495707567328753/1495942143971962/?type=1&source=11" />
+<meta property="og:author" content="root4" />
+<meta property="og:site_name" content="branch4 Blog" />
+<meta property="og:locale" content="ja_JP" />
+<meta property="og:type" content="article" />
+<meta property="fb:app_id" content="1491249807810656" />
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">branch4 Blog</a></h1>
+  
+    <h2>Internet development with every single possibility.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.branch4.pw" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">[Git] タグ打ちするときーーー</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+  <span class='updated' title="2014-03-04 14:10:00 +0900"></span>
+
+
+
+<time datetime="2014-03-04T14:10:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.branch4.pw">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div  class=post>
+  タグ打ちするときの便利コマンド。 <br> <br>
+  というか僕がよく使うことになる予定のコマンドのメモ。 <br> <br>
+  <h4 >
+    今のgitの運用
+  </h4>
+  <ul >
+    <li >
+      bug対はmaster
+    </li>
+    <li >
+      ちょい修正もmaster
+    </li>
+    <li >
+      大き目機能改善・機能開発は都度新しいbranch切る
+    </li>
+  </ul>
+  1人でテキトウに作ってるのでなんとなくな感じです。 <br> <br>
+  <!-- more -->
+  <h4 >
+    大体やりたいこと
+  </h4>
+  <ul >
+    <li >
+      releaseするときはtagを打ちたい
+    </li>
+    <li >
+      既存で打ってあるtagの修正、ファイル追加・削除をしたい
+    </li>
+    <li >
+      上記を便利コマンドを使ってやりたい
+    </li>
+    <li >
+      ついでにgitを覚えたい
+    </li>
+  </ul>
+  きっとこんなところ。 <br> <br>
+  そして、色々調べてみてわかったこと。 <br>
+  gitのtagは、ファイルに打つんじゃなくて、commitに対して打つ、ということ。 <br>
+  まぁそれならそれでそういう方針にしようかな。 <br> <br>
+  <h4 >
+    大体やりたいこと(修正版)
+  </h4>
+  <ul >
+    <li >
+      releaseするときはtagを打ちたい
+    </li>
+    <li >
+      既存で打ってあるtagの修正(違うcommitに対して打ちたい)
+    </li>
+    <li >
+      上記を便利コマンドを使ってやりたい
+    </li>
+    <li >
+      ついでにgitを覚えたい
+    </li>
+  </ul>
+  くらいかなぁ。 <br>
+  では、以下で実際使いそうなコマンドたちを羅列。 <br> <br>
+  <h4 >
+    <a name="checkannotation">各tagのアノテーションを確認する</a>
+  </h4>
+  このタグなんのタグ？ってときに。 <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag -n
+    </span> </pre>
+  <br>
+  <h4 >
+    既存tagのアノテーションを編集する
+  </h4>
+  tagnameをtagnameで上書きするみたい。 <br>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag tagname tagname -f -m *annotation*
+    </span> </pre>
+  <br>
+  <h4 >
+    任意のtagとHEADのdiffを取る
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git diff tagname HEAD
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="zakkuridiff">任意のtagとHEADのざっくりdiffを取る</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git diff --stat --color tagname HEAD
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="taghead">HEADに、任意のtagを打つ</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag -a tagname
+      $ git tag -a tagname -m "annotation"
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="tagcommit">任意のcommitに、任意のtagを打つ</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git tag tagname commit
+    </span> </pre>
+  <br>
+  <h4 >
+    <a name="checkchange">各commitで変更されたファイルを確認する</a>
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git log --stat
+      $ git log --numstat
+      $ git log --numstate
+      $ git log --name-status
+      $ git log --name-only
+    </span> </pre>
+  <br>
+  <h4 >
+    各tagに対応するcommitを確認する
+  </h4>
+  <pre  class=prettyprint>
+    <span  style=font-size: small;>
+      $ git show tagname
+    </span> </pre>
+  <h4 >
+    全体的なフロー
+  </h4>
+  今のところ2パターン。 <br> <br>
+  <h4 >
+    パターン１：
+  </h4>
+  HEADにこのtag打っちゃえ～！！やっほ～！！！のパターン。 <br>
+  <ul >
+    <li >
+      <a href="#taghead">HEADに、任意のtagを打つ</a>
+    </li>
+  </ul>
+  をやればOK。 <br>
+  <h4 >
+    パターン２：
+  </h4>
+  あー、tag間違って打った・・・どのcommitに打ちなおすんだっけ・・・。のパターン。 <br>
+  <ul >
+    <li >
+      <a href="#checkannotation">各tagのアノテーションを確認</a>する、でアノテーション見て修正するtagを決める
+    </li>
+    <li >
+      <a href="#zakkuridiff">任意のtagとcommitのざっくりdiffを取る</a> ＆ <a href="#checkchange">各commitで変更されたファイルを確認</a>して、正しいcommitを探す
+    </li>
+    <li >
+      <a href="#tagcommit">任意のcommitに、任意のtagを打つ</a>
+    </li>
+  </ul>
+  これできっといけるはず。
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">root4</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+  <span class='updated' title="2014-03-04 14:10:00 +0900"></span>
+
+
+
+<time datetime="2014-03-04T14:10:00+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/git/'>git</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+  
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.branch4.pw/blog/2014/03/04/git/" data-via="" data-counturl="http://blog.branch4.pw/blog/2014/03/04/git/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+  
+  
+  <div class="fb-comments" data-href="http://blog.branch4.pw" data-num-posts="2" data-width="689"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/04/if-you-cant-keep-working/" title="Previous Post: something that might help you keep working">&laquo; something that might help you keep working</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/06/infra-geo-directive-in-nginx/" title="Next Post: [infra] geo directive in nginx">[infra] geo directive in nginx &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- sidebanner01 -->
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:300px;height:250px"
+    data-ad-client="ca-pub-5715007244462894"
+    data-ad-slot="7715093765">
+  </ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/21/long-elapsed-sql-oracle/">Oracle 実行時間の長いSQLの見つけ方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/09/ansible-for-beginners/">Ansible入門 - Ad-hoc Modeを使ってみる -</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/06/public-key-authentication/">公開鍵を用いたssh認証 - ノンパスでログインしちゃうYo ! -</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/31/dynamodb-test-production-env/">DynamoDBの本番とテスト環境の分け方</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/23/using-hashicorp-terraform/">Hashicorpの新プロダクト、Terraformのドキュメントを読みましたよ！</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/106189997190821430505?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Top Categories</h1>
+  <ul id="top-category-list"><li><a href='/blog/categories/infra'>Infra (8)</a></li><li><a href='/blog/categories/web-development'>Web Development (7)</a></li><li><a href='/blog/categories/misc'>misc (6)</a></li><li><a href='/blog/categories/android'>Android (6)</a></li><li><a href='/blog/categories/ruby-on-rails'>Ruby on Rails (4)</a></li><li><a href='/blog/categories/recruit'>recruit (3)</a></li><li><a href='/blog/categories/carrier'>carrier (3)</a></li><li><a href='/blog/categories/ruby'>Ruby (2)</a></li><li><a href='/blog/categories/rails'>Rails (2)</a></li><li><a href='/blog/categories/rspec'>RSpec (2)</a></li><li><a href='/blog/categories/virtualization'>Virtualization (2)</a></li><li><a href='/blog/categories/aws'>AWS (2)</a></li><li><a href='/blog/categories/git'>git (2)</a></li><li><a href='/blog/categories/dynamodb'>DynamoDB (1)</a></li><li><a href='/blog/categories/ec2'>EC2 (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - root4 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'branch4blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.branch4.pw/blog/2014/03/04/git/';
+        var disqus_url = 'http://blog.branch4.pw/blog/2014/03/04/git/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/ja_JP/all.js#appId=1491249807810656&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
