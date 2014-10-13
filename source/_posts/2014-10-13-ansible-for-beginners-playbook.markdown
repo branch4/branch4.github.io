@@ -44,7 +44,7 @@ include とか、vars とか、role とか沢山便利機能があるけど、
 まずは、いつも通り唐突ながら、なべちゃんの写真紹介。  
 いつもいい写真撮るんですよね。今回は秩父にある名もない滝だそうです。
 
-![nabechan chihibu](http://blog.branch4.pw/images/2014/10/nabechan03_chichibu.jpg)  
+![nabechan chihibu](http://blog.branch4.pw/images/2014/10/nabechan03_chichibu.jpeg)  
 ※ Hiroyuki Watanabeの写真で、[http://my-eyes.net/](http://my-eyes.net/)に元があります。
 
 では本題に・・・
