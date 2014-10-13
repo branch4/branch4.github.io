@@ -865,7 +865,8 @@ recurse : yes を設定すると、再起的にowner/group を設定してくれ
 
 <h4>ansible で ImportError って出てる場合は、実は、ansible のログ出力先に permission がない場合もある</h4>
 
-<p>/var/log/ansible.log にしてて、permission、めんどくさくて 777にしちゃった　</p>
+<p>出力先を /var/log/ansible.log に設定してた。
+んで、permission がなくて起動してなかったんだけど、めんどくさくて 777にしちゃった　</p>
 
 <h4>ansible で ImportError って出てる場合は、必要なpackageがインストールされていない場合もある</h4>
 

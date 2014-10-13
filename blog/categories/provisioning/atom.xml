@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Provisioning | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/provisioning/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-10-13T14:12:07+09:00</updated>
+  <updated>2014-10-13T14:19:30+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -656,7 +656,8 @@ recurse : yes を設定すると、再起的にowner/group を設定してくれ
 
 <h4>ansible で ImportError って出てる場合は、実は、ansible のログ出力先に permission がない場合もある</h4>
 
-<p>/var/log/ansible.log にしてて、permission、めんどくさくて 777にしちゃった　</p>
+<p>出力先を /var/log/ansible.log に設定してた。
+んで、permission がなくて起動してなかったんだけど、めんどくさくて 777にしちゃった　</p>
 
 <h4>ansible で ImportError って出てる場合は、必要なpackageがインストールされていない場合もある</h4>
 
