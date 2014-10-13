@@ -499,7 +499,8 @@ recurse : yes を設定すると、再起的にowner/group を設定してくれ
 まぁいつもそうだけど、動くところまで大変でした。
 
 #### ansible で ImportError って出てる場合は、実は、ansible のログ出力先に permission がない場合もある
-/var/log/ansible.log にしてて、permission、めんどくさくて 777にしちゃった　
+出力先を /var/log/ansible.log に設定してた。
+んで、permission がなくて起動してなかったんだけど、めんどくさくて 777にしちゃった　
 
 #### ansible で ImportError って出てる場合は、必要なpackageがインストールされていない場合もある
 動作確認するのに、何度もvagrant destroy/vagrant upを繰り返したくて、
