@@ -3,7 +3,7 @@ layout: post
 title: "Ansible入門 - Playbookを使ってみる -"
 date: 2014-10-13 5:00:00 +0900
 comments: true
-published: false
+published: true
 author: xengineer
 description:  "Provisioning tool, Ansible の Playbook の使い方について"
 keywords: "provisioning, ansible, linux, configuration management tool, continuous delivery, continuous deployment, chef, puppet, capistrano"
@@ -414,8 +414,8 @@ state : directory って書いておけば作ってくれる
 name  : 作りたい Database 名  
 state : present で作る  
 
-#### git 操作したい場合はどうしているか
-##### git モジュールを使ってます
+### git 操作したい場合はどうしているか
+#### git モジュールを使ってます
 ```
 - name: Download wordpress plugin staticpress
   git: repo=https://github.com/megumiteam/staticpress
@@ -436,8 +436,8 @@ accept_hostkey : yes で サーバ認証を無視してくれます(sshのStrict
 sudo : no にすると、実行時は一般ユーザで  
 version : 指定してる場合はそのタグを checkout  
 
-#### ファイルを download する場合はどうしているか
-##### get_url を使ってます
+### ファイルを download する場合はどうしているか
+#### get_url を使ってます
 ```
 - name: Download wordpress plugin The Event Calendar
   get_url: url=https://downloads.wordpress.org/plugin/the-events-calendar.3.8.zip dest=/tmp/
@@ -446,8 +446,8 @@ version : 指定してる場合はそのタグを checkout
 get_url : ダウンロードしたい URL を指定する  
 dest    : download 先を指定する
 
-#### download したファイルを unzip したい場合はどうしているか
-##### shell モジュールを使ってます
+### download したファイルを unzip したい場合はどうしているか
+#### shell モジュールを使ってます
 ```
 - name: Unzip the-events-calendar plugin
   shell: unzip -o /tmp/the-events-calendar.3.8.zip -d ~/downloads/wp-content/plugins/
@@ -458,8 +458,8 @@ dest    : download 先を指定する
 リモートに送信してから展開するモジュールなので、ちょっと違う。
 今回は、shell モジュールで直接 unzip コマンドを実行しましたよ。
 
-#### ファイルを remote サーバ内でコピーする場合はどうしているか
-##### synchronize モジュールを使ってます
+### ファイルを remote サーバ内でコピーする場合はどうしているか
+#### synchronize モジュールを使ってます
 ```
 - name: Install wordpress files to nginx root directory for wordpress
   synchronize: src=~/downloads/
@@ -471,8 +471,8 @@ src       : 送信するファイル or ディレクトリ
 dest      : 送信先のパス  
 recursive : yes にすると、再起的にディレクトリを送ってくれる
 
-#### file/directory の owner を変更する場合はどうしているか
-##### file モジュールを使ってます
+### file/directory の owner を変更する場合はどうしているか
+#### file モジュールを使ってます
 ```
 - name: Change ownership of Wordpress installation
   file: path=/var/www/paralympics/ owner=www-data group=www-data state=directory recurse=yes
