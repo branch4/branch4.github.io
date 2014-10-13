@@ -332,6 +332,9 @@ $ cat /etc/ansible/playbooks/wordpress/wordpress-playbook.yml
 モジュールの詳細については、ansible の公式ドキュメントをみたほうが圧倒的にいいので、
 [ここ](http://docs.ansible.com/modules_by_category.html)参照。
 
+その他、この Playbook で使ってるモジュールの説明は以下につらつらと。
+みててわかんないとこはコメントなり twitter なり自分で考えるなりしてちょ。
+
 ### config file のテンプレをコピーするだけの時はどうしているか
 #### template モジュールを使ってます
 ```
