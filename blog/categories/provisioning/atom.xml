@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Provisioning | branch4 Blog]]></title>
   <link href="http://blog.branch4.pw/blog/categories/provisioning/atom.xml" rel="self"/>
   <link href="http://blog.branch4.pw/"/>
-  <updated>2014-10-13T13:59:58+09:00</updated>
+  <updated>2014-10-13T14:07:30+09:00</updated>
   <id>http://blog.branch4.pw/</id>
   <author>
     <name><![CDATA[root4]]></name>
@@ -12,6 +12,677 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ansible入門 - Playbookを使ってみる -]]></title>
+    <link href="http://blog.branch4.pw/blog/2014/10/13/ansible-for-beginners-playbook/"/>
+    <updated>2014-10-13T05:00:00+09:00</updated>
+    <id>http://blog.branch4.pw/blog/2014/10/13/ansible-for-beginners-playbook</id>
+    <content type="html"><![CDATA[<p>またしても Ansible エントリでございます。<a href="https://twitter.com/xengineer01">@xengineer01</a>です。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/10/ansible_wordlogo_black.png" alt="ansible logo" /></p>
+
+<p>ansible の基本的なとことか、ansible の ad-hoc mode については、
+<a href="http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners/">以前の記事</a>
+をみていただきまして・・・</p>
+
+<p>今日は、ansible で playbook 使ってってみようかね。<br/>
+include とか、vars とか、role とか沢山便利機能があるけど、<br/>
+今回は playbook を使う！以上のことはしませぬ。<br/>
+なぜなら僕は ansible 初級。</p>
+
+<h2>ざっくりagenda</h2>
+
+<ol>
+<li>システム構成
+
+<ul>
+<li>今回の検証環境のシステム構成紹介</li>
+</ul>
+</li>
+<li>Ansible playbookについて
+
+<ul>
+<li>簡単に紹介</li>
+</ul>
+</li>
+<li>やってること詳細
+
+<ul>
+<li>今回やったことの詳細</li>
+</ul>
+</li>
+</ol>
+
+
+<p>こんな感じ。</p>
+
+<!-- more -->
+
+
+<p></p>
+
+<h2>写真紹介</h2>
+
+<p>まずは、いつも通り唐突ながら、なべちゃんの写真紹介。<br/>
+いつもいい写真撮るんですよね。今回は秩父にある名もない滝だそうです。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/10/nabechan03_chichibu.jpeg" alt="nabechan chihibu" /><br/>
+※ Hiroyuki Watanabeの写真で、<a href="http://my-eyes.net/">http://my-eyes.net/</a>に元があります。</p>
+
+<p>では本題に・・・</p>
+
+<h2>システム構成</h2>
+
+<hr />
+
+<p>今回も、vagrant 使って、下記構成を作って使ってみました。
+今回も、vagrant + ansible の連携とか、vagrantの設定まで踏み込んでいくつもりはなく、
+いつでも検証自体を再現できるように使ってるだけです。<br/>
+あ、あと、packageのインストール的なのは今回はansibleではなくvagrantでやってます。
+この辺は後述するけど、思想の問題。</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/10/ansible_wordpress_system.png" alt="wordpress" /></p>
+
+<p>ざっくり、こんなシステム作りまっせ。
+デフォ設定んとこはなんも書いてなし。MySQLも、言語設定追記してる程度なので
+構成図上はなんも記載してないす。</p>
+
+<p>WordPressは、Wordpressを、git clone/git checkout refs/tags/xxxxして
+nginxのrootに格納するのと、 pluginのインストールまで。</p>
+
+<h3>環境について</h3>
+
+<p><code>
+$ cat /etc/issue
+Ubuntu 12.04 LTS \n \l
+$ ansible-playbook --version
+ansible-playbook 1.7.2
+</code></p>
+
+<h2>Ansible playbookについて</h2>
+
+<p><a href="http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners/">以前の記事</a>
+では、ad-hoc mode つって、対象サーバ上で実行したいことを一つずつコマンドとして
+実行していく形式を紹介しましたよ、と。</p>
+
+<p>でもそれだと明らかに毎回沢山打ち込まないといけなくて面倒なので、
+設定ファイルに起こして実行できるようにしましょう。としてるとこの
+設定ファイルの部分が playbook ですよ。<br/>
+なので、対象サーバに対して実施したいことを書いておくファイルのことです。</p>
+
+<p>Playbookを使った場合の ansible の挙動のざっくりイメージ図を以下に！</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/10/ansible_playbook_image.png" alt="ansible-playbook image" /></p>
+
+<p>ad-hoc mode で書いたときとほとんど変わっていないのは内緒。
+Modules が Playbook に、ansible が ansible-playbook になっただけです。
+しかも、実際のところは Modules も呼び出されるから、
+なんかちょっと違うんだけど。なんとなくなイメージだから。</p>
+
+<h2>やってること詳細</h2>
+
+<h3>各種install/configurationの分類</h3>
+
+<p>前述したけど、packageのインストールにはvagrant使ってるよ、ということもあるので、
+何をvagrantでやってて、なにをansibleでやってんだい、ってのを書いておきましょ。</p>
+
+<ul>
+<li>Vagrant でやってること
+
+<ul>
+<li>Update package repositories</li>
+<li>Install many packages</li>
+<li>Create user/group
+
+<ul>
+<li>ansible/ansible</li>
+</ul>
+</li>
+<li>Set authorized_keys</li>
+<li>Execute ansible</li>
+</ul>
+</li>
+<li>ansible でやってること
+
+<ul>
+<li>nginxの設定</li>
+<li>php/php-fpmの設定</li>
+<li>MySQLの設定</li>
+<li>MySQLのユーザ作成</li>
+<li>Wordpress の checkout とインストール</li>
+<li>Wordpress plugin の インストール</li>
+<li>Wordpressの設定</li>
+<li>nginx/php-fpm/mysql の再起動</li>
+</ul>
+</li>
+</ul>
+
+
+<p>つまり、package のインストールとか、ansible の設定関係は全部 vagrant でやってて、
+Wordpress の実行環境に必要な設定系は全部 ansibleでやってるよ、と。</p>
+
+<p>packageのインストールは時間かかるし、頭に一回だけ走らせればいいので、
+vagrant 側でお世話しようと思った次第で。ansible とか chef 的なものは、
+何度も何度も実行すると思うので、</p>
+
+<ul>
+<li>何かのインストールみたいな時間がかかる処理</li>
+<li>何かの設定みたいな時間がかからない処理</li>
+<li>ユーザ作成的な単発の処理</li>
+</ul>
+
+
+<p>などなど種別を考えて、どこに記述すんのか分けたほうがええべよ。
+(僕はそうしたいだけ)</p>
+
+<p>今回は、とりあえずさっき書いた感じにわけてみた。
+なので、ここから ansible の playbook だけ引っこ抜いて実行しても
+全然 Wordpress は動きません。</p>
+
+<h3>各種ansisble設定解説</h3>
+
+<hr />
+
+<p>まずは、vagrant 関連のファイルを git clone しておきます。
+さすがにペタペタ貼って動作確認するの面倒な量になってきたので github にあげたわい。</p>
+
+<p><code>
+$ git clone https://github.com/xengineer/ansible_playbooks.git
+</code></p>
+
+<p>これ clone して、vagrant up すると、きっとすぐに Wordpress 使えるようになるはず。
+でもそれは重要ではなく、今回は解説が重要である。</p>
+
+<p>なので、以下諸々解説。なお、解説は全部 ansible の解説となっております。
+vagrant の解説もしはじめるとながーくなるので、vagrant については、</p>
+
+<p><a href="http://blog.branch4.pw/blog/2014/08/07/setup-test-environment-with-vagrant/">ここ</a>とか、
+<a href="http://blog.branch4.pw/blog/2014/08/11/setup-test-environment-with-vagrant2/">ここ</a>を
+参照くださいませ。</p>
+
+<p>vagrant up後、wordpress02 っていうインスタンスができてるので、
+そこに vagrant ssh して、仮想インスタンスの中と合わせて
+下記を眺めてもらえるとわかりやすいよ。
+(ファイルのパスとかは全部仮想インスタンスにあわせて書いてるので)</p>
+
+<h3>config 格納場所</h3>
+
+<p>ansible 自体の config は、/etc/ansible 配下にまとめて格納してあるので、
+tree するとこんな感じ。
+(tree はインストールしてないので、sudo apt-get install tree してちょ)</p>
+
+<p><code>``
+$ tree  /etc/ansible/
+/etc/ansible/
+|-- ansible.cfg
+|-- hosts
+</code>&mdash; playbooks</p>
+
+<pre><code>`-- wordpress
+    `-- wordpress-playbook.yml
+</code></pre>
+
+<p>```</p>
+
+<p>各ファイルを説明すると、</p>
+
+<ul>
+<li>ansible.cfg
+
+<ul>
+<li>ansible 自体の挙動の設定</li>
+<li><a href="http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners/">以前の記事</a>参照</li>
+</ul>
+</li>
+<li>hosts
+
+<ul>
+<li>上のほうのざっくりイメージ図上でいうところの、Inventory file</li>
+<li>ようは設定対象サーバを指定するファイル</li>
+<li><a href="http://blog.branch4.pw/blog/2014/09/09/ansible-for-beginners/">以前の記事</a>参照</li>
+</ul>
+</li>
+<li>wordpress-playbook.yml
+
+<ul>
+<li>今回作った playbook ファイル</li>
+<li>今回メインで説明するやつ</li>
+<li>ファイル名はなんでもいいよ</li>
+</ul>
+</li>
+</ul>
+
+
+<p>という感じ。</p>
+
+<h3>wordpress-playbook.yml</h3>
+
+<p>さて、今回作ったのはこれ一つ。本来は、色んな便利機能があって、もっとわかりやすく、
+簡単に書けたりもするんだけど、それについてのお勉強は次回以降ってことで。
+今回は愚直にひたすら書いてみるのね。</p>
+
+<p>勝海舟さんもこういっております。</p>
+
+<p><strong>&ldquo;事を成し遂げる者は、愚直であれ、才走ってはならない。&rdquo;</strong></p>
+
+<p>問題ない。持ってたらもう走っている。<br/>
+菜箸くらいは台所にあるけどね。</p>
+
+<p>で、下記が今回書いた playbook。どん！</p>
+
+<p>```
+$ cat /etc/ansible/playbooks/wordpress/wordpress-playbook.yml
+&ndash; name: Configure/install applications needed to run wordpress(nginx/php/php-fpm/mysql/wordpress)
+  hosts: web
+  sudo: yes
+  tasks:
+  &ndash; name: Setup nginx.conf file</p>
+
+<pre><code>template: src=/vagrant/conf/nginx/nginx.conf
+          dest=/etc/nginx/nginx.conf
+</code></pre>
+
+<ul>
+<li>name: Setup fastcgi_params file
+template: src=/vagrant/conf/nginx/fastcgi_params
+          dest=/etc/nginx/fastcgi_params</li>
+<li>name: Setup nginx virtualhost config file for wordpress
+template: src=/vagrant/conf/nginx/sites-available/wordpress
+          dest=/etc/nginx/sites-available/wordpress</li>
+<li>name: remove default nginx site
+file:     path=/etc/nginx/sites-enabled/default
+          state=absent</li>
+<li>name: remove default php-fpm site
+file:     path=/etc/php5/fpm/pool.d/www.conf
+          state=absent</li>
+<li>name: Setup nginx virtualhost symbolic link for wordpress
+file:     src=/etc/nginx/sites-available/wordpress
+          dest=/etc/nginx/sites-enabled/wordpress
+          state=link</li>
+<li>name: Create nginx root directory for wordpress
+file:     path=/var/www/paralympics
+          state=directory</li>
+<li>name: Setup php-fpm.conf file
+template: src=/vagrant/conf/php5/fpm/php-fpm.conf
+          dest=/etc/php5/fpm/php-fpm.conf</li>
+<li>name: Setup php.ini
+template: src=/vagrant/conf/php5/fpm/php.ini
+          dest=/etc/php5/fpm/php.ini</li>
+<li>name: Setup fpm pool config file for wordpress
+template: src=/vagrant/conf/php5/fpm/pool.d/wordpress.conf
+          dest=/etc/php5/fpm/pool.d/wordpress.conf</li>
+<li>name: Create php5-fpm socket file directory
+file:     path=/var/run/php5-fpm/
+          state=directory owner=www-data group=www-data</li>
+<li><p>name: Create php5-fpm log directory
+file:     path=/var/log/php5-fpm/log/
+          state=directory</p></li>
+<li><p>name: Configure database server
+hosts: db
+sudo: yes
+tasks:</p>
+
+<ul>
+<li>name: Setup mysql
+template: src=/vagrant/conf/mysql/my.cnf
+          dest=/etc/mysql/my.cnf</li>
+<li>name: Add user &lsquo;wp-user&rsquo; to mysql
+mysql_user: name=wp-user password=&ldquo;&rdquo;</li>
+</ul>
+</li>
+<li><p>name: Configure wordpress
+hosts: wordpress
+sudo: yes
+handlers:</p>
+
+<ul>
+<li>name: stop apache2
+service: name=apache2 state=stopped</li>
+<li>name: restart nginx
+service: name=nginx state=restarted</li>
+<li>name: restart php5-fpm
+service: name=php5-fpm state=restarted</li>
+<li>name: restart mysql
+service: name=mysql state=restarted
+tasks:</li>
+<li>name: Create wordpress config directory
+file: path=/etc/wordpress/ state=directory</li>
+<li>name: Setup wordpress
+git: repo=git://github.com/WordPress/WordPress.git
+     dest=~/downloads/
+     version=4.0
+     accept_hostkey=yes
+sudo: no</li>
+<li>name: Download wordpress plugin staticpress
+git: repo=<a href="https://github.com/megumiteam/staticpress">https://github.com/megumiteam/staticpress</a>
+     dest=~/downloads/wp-content/plugins/staticpress
+     accept_hostkey=yes
+sudo: no</li>
+<li>name: Download wordpress plugin The Event Calendar
+get_url: url=<a href="https://downloads.wordpress.org/plugin/the-events-calendar.3.8.zip">https://downloads.wordpress.org/plugin/the-events-calendar.3.8.zip</a> dest=/tmp/</li>
+<li>name: Unzip the-events-calendar plugin
+shell: unzip -o /tmp/the-events-calendar.3.8.zip -d ~/downloads/wp-content/plugins/
+sudo: no</li>
+<li>name: Fetch random salts for Wordpress config
+local_action: command curl <a href="https://api.wordpress.org/secret-key/1.1/salt/">https://api.wordpress.org/secret-key/1.1/salt/</a>
+register: &ldquo;wp_salt&rdquo;
+sudo: no</li>
+<li>name: Create Wordpress database
+mysql_db: name=mywp_db state=present</li>
+<li>name: Create Wordpress database user
+mysql_user: name=wp-user password=&ldquo;&rdquo;
+            priv=<em>.</em>:SELECT,INSERT,UPDATE,DELETE,CREATE,ALTER,DROP,INDEX
+            host=&lsquo;localhost&rsquo; state=present</li>
+<li>name: Copy Wordpress config file
+template: src=/vagrant/conf/wp-config.php dest=/etc/wordpress/</li>
+<li>name: Install wordpress files to nginx root directory for wordpress
+synchronize: src=~/downloads/
+             dest=/var/www/paralympics/
+             recursive=yes</li>
+<li>name: Change ownership of Wordpress installation
+file: path=/var/www/paralympics/ owner=www-data group=www-data state=directory recurse=yes
+notify:
+
+<ul>
+<li>stop apache2</li>
+<li>restart mysql</li>
+<li>restart nginx</li>
+<li>restart php5-fpm
+```</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>な、ながい・・・ほんとにこれを解説するのか・・・いいえ、しません。
+ポイントだけね。</p>
+
+<ul>
+<li>フォーマット
+
+<ul>
+<li>yaml で書きましょう</li>
+<li>あとは推して図りましょう</li>
+</ul>
+</li>
+<li>handlers と notify だけちょっとわからない気がする
+
+<ul>
+<li>handlers は task と同じなんだけど、特別な task と思うのがいい
+
+<ul>
+<li>何が特別って、notify からしか呼び出せない</li>
+</ul>
+</li>
+<li>つまり、notify を、どっかの task(task A とする)の中に書いておいて、
+handlers の name に書いてある task を呼び出すと、
+その task A が終了したときに handlers の task を呼び出せる(daemon 再起動とかに便利)</li>
+</ul>
+</li>
+<li>なんかよくわからないところで説明してないところがある気がする
+
+<ul>
+<li>僕もよくわからないからだと思います</li>
+</ul>
+</li>
+</ul>
+
+
+<p>モジュールの詳細については、ansible の公式ドキュメントをみたほうが圧倒的にいいので、
+<a href="http://docs.ansible.com/modules_by_category.html">ここ</a>参照。</p>
+
+<h3>config file のテンプレをコピーするだけの時はどうしているか</h3>
+
+<h4>template モジュールを使ってます</h4>
+
+<p>```
+&ndash; name: Setup nginx.conf file
+  template: src=/vagrant/conf/nginx/nginx.conf</p>
+
+<pre><code>        dest=/etc/nginx/nginx.conf
+</code></pre>
+
+<p>```
+こんな感じに。<br/>
+src  : テンプレファイルを指定<br/>
+dest : テンプレのコピー先を指定</p>
+
+<p><strong>dest</strong>だよ。<br/>
+僕はずっと、<strong>dst</strong>って書いてて、
+動かない現象に勝手に悩まされていました。</p>
+
+<h3>既存ファイルを削除するときはどうしているか</h3>
+
+<h4>file モジュールを使ってます</h4>
+
+<p>```
+&ndash; name: remove default nginx site
+  file:     path=/etc/nginx/sites-enabled/default</p>
+
+<pre><code>        state=absent
+</code></pre>
+
+<p>```</p>
+
+<p>path  : 削除したいファイルのパスを指定<br/>
+state : absent って書いておけば消してくれる</p>
+
+<h3>Symbolic link を作成するときはどうしているか</h3>
+
+<h4>file モジュールを使ってます</h4>
+
+<p>```
+&ndash; name: Setup nginx virtualhost symbolic link for wordpress
+  file:     src=/etc/nginx/sites-available/wordpress</p>
+
+<pre><code>        dest=/etc/nginx/sites-enabled/wordpress
+        state=link
+</code></pre>
+
+<p>```</p>
+
+<p>↓ ↓ ↓ ↓ こういうシンボリックリンクになる。<br/>
+dest &mdash;> src</p>
+
+<h3>Directory を作成するときはどうしているか</h3>
+
+<h4>file モジュールを使ってます</h4>
+
+<p>```
+&ndash; name: Create nginx root directory for wordpress
+  file:     path=/var/www/paralympics</p>
+
+<pre><code>        state=directory
+</code></pre>
+
+<p>```
+path  : 作成したい Directory のパスを指定<br/>
+state : directory って書いておけば作ってくれる</p>
+
+<h3>MySQL のユーザを作るときはどうしているか</h3>
+
+<h4>mysql_user モジュールを使ってます</h4>
+
+<p>```
+&ndash; name: Configure database server
+  hosts: db
+  sudo: yes
+  tasks:
+  &ndash; name: Setup mysql</p>
+
+<pre><code>template: src=/vagrant/conf/mysql/my.cnf
+          dest=/etc/mysql/my.cnf
+</code></pre>
+
+<ul>
+<li>name: Add user &lsquo;wp-user&rsquo; to mysql
+mysql_user: name=wp-user password=&ldquo;&rdquo;
+```</li>
+</ul>
+
+
+<p>上記で作って、もう一カ所、下記でも作っている・・・
+これはたぶん上のほうを消すの忘れただけなので、上はなくても動くと思う。たぶん。
+みたまんま、wp-userを、パスなしで、色々grantして作ってます。</p>
+
+<p>```
+&ndash; name: Create Wordpress database user
+  mysql_user: name=wp-user password=&ldquo;&rdquo;</p>
+
+<pre><code>          priv=*.*:SELECT,INSERT,UPDATE,DELETE,CREATE,ALTER,DROP,INDEX
+</code></pre>
+
+<p>```</p>
+
+<h3>MySQL のtable 操作をしたい場合はどうしているか</h3>
+
+<h4>mysql_db モジュールを使ってます</h4>
+
+<p><code>
+- name: Create Wordpress database
+  mysql_db: name=mywp_db state=present
+</code></p>
+
+<p>name  : 作りたい Database 名<br/>
+state : present で作る</p>
+
+<h3>git 操作したい場合はどうしているか</h3>
+
+<h4>git モジュールを使ってます</h4>
+
+<p>```
+&ndash; name: Download wordpress plugin staticpress
+  git: repo=<a href="https://github.com/megumiteam/staticpress">https://github.com/megumiteam/staticpress</a></p>
+
+<pre><code>   dest=~/downloads/wp-content/plugins/staticpress
+   accept_hostkey=yes
+</code></pre>
+
+<p>  sudo: no
+&ndash; name: Setup wordpress
+  git: repo=git://github.com/WordPress/WordPress.git</p>
+
+<pre><code>   dest=~/downloads/
+   version=4.0
+   accept_hostkey=yes
+</code></pre>
+
+<p>  sudo: no
+```</p>
+
+<p>repo : clone したいレポジトリ<br/>
+dest : どこに clone するか<br/>
+accept_hostkey : yes で サーバ認証を無視してくれます(sshのStrictHostKeyChecking off と同じ)<br/>
+sudo : no にすると、実行時は一般ユーザで<br/>
+version : 指定してる場合はそのタグを checkout</p>
+
+<h3>ファイルを download する場合はどうしているか</h3>
+
+<h4>get_url を使ってます</h4>
+
+<p><code>
+- name: Download wordpress plugin The Event Calendar
+  get_url: url=https://downloads.wordpress.org/plugin/the-events-calendar.3.8.zip dest=/tmp/
+</code></p>
+
+<p>get_url : ダウンロードしたい URL を指定する<br/>
+dest    : download 先を指定する</p>
+
+<h3>download したファイルを unzip したい場合はどうしているか</h3>
+
+<h4>shell モジュールを使ってます</h4>
+
+<p><code>
+- name: Unzip the-events-calendar plugin
+  shell: unzip -o /tmp/the-events-calendar.3.8.zip -d ~/downloads/wp-content/plugins/
+  sudo: no
+</code></p>
+
+<p>一見、unarchive モジュールで出来るように見えるんだけど、ローカルファイルを、
+リモートに送信してから展開するモジュールなので、ちょっと違う。
+今回は、shell モジュールで直接 unzip コマンドを実行しましたよ。</p>
+
+<h3>ファイルを remote サーバ内でコピーする場合はどうしているか</h3>
+
+<h4>synchronize モジュールを使ってます</h4>
+
+<p>```
+&ndash; name: Install wordpress files to nginx root directory for wordpress
+  synchronize: src=~/downloads/</p>
+
+<pre><code>           dest=/var/www/paralympics/
+           recursive=yes
+</code></pre>
+
+<p>```</p>
+
+<p>src       : 送信するファイル or ディレクトリ<br/>
+dest      : 送信先のパス<br/>
+recursive : yes にすると、再起的にディレクトリを送ってくれる</p>
+
+<h3>file/directory の owner を変更する場合はどうしているか</h3>
+
+<h4>file モジュールを使ってます</h4>
+
+<p><code>
+- name: Change ownership of Wordpress installation
+  file: path=/var/www/paralympics/ owner=www-data group=www-data state=directory recurse=yes
+</code></p>
+
+<p>path : 対象パス
+owner : owner 誰にするか
+group : どの group にするか
+state : directory にすると、directory の設定をする？のかな？
+recurse : yes を設定すると、再起的にowner/group を設定してくれる</p>
+
+<p>ざっくり全体感はこんな感じ。
+何も説明してない感満載だけど、playbook 書いて実行するだけなら、
+そんなに勉強することもない、ってことな気がする。role とか vars を使うときに
+少し説明したり、勉強したり、がでてくるんじゃないかな。</p>
+
+<p>そんなわけで、その辺は次回のお楽しみ！</p>
+
+<h2>その他</h2>
+
+<h3>今回一番大変だったこと</h3>
+
+<p>まぁいつもそうだけど、動くところまで大変でした。</p>
+
+<h4>ansible で ImportError って出てる場合は、実は、ansible のログ出力先に permission がない場合もある</h4>
+
+<p>/var/log/ansible.log にしてて、permission、めんどくさくて 777にしちゃった　</p>
+
+<h4>ansible で ImportError って出てる場合は、必要なpackageがインストールされていない場合もある</h4>
+
+<p>動作確認するのに、何度もvagrant destroy/vagrant upを繰り返したくて、
+一旦 apt-get update を削除したわけです。
+そしたら、なんか急に yaml 関連のエラーが出てきて大変でした。
+出てくるエラーが、ログ出力先のpermission問題の時と似てるので、
+「あれ？なんかpermissionのところいじったっけ？？？」ってなって、泥沼。</p>
+
+<p>しばらくしてから、ふと、そういえば一旦 update 止めよう、
+ってくらいから変な気がする・・・と思って戻したら直ったわけで。
+update しないとインストールできないpackageもあるってことですな・・・</p>
+
+<p>こんな感じに結構簡単に使える ansible です。
+ただ、playbook は、こんな雑に書いてるると、実運用ではカオスすぎて
+使い物にならないと思うので、次回は、include/role/vars辺りについて
+書いて、もっとスマート運用を目指します。</p>
+
+<p>でもあれなんだよな、僕なんも運用するもの持ってないんだよな・・・</p>
+
+<p><img src="http://blog.branch4.pw/images/2014/10/ansible_circleA_red.png" alt="ansible badge" /></p>
+
+<script type="text/javascript" language="javascript">
+  num = Math.floor( Math.random() * 6 );
+  document.write( aff[ num ]);
+</script>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ansible入門 - Ad-hoc Modeを使ってみる -]]></title>
